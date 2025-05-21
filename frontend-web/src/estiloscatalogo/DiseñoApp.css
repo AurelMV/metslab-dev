@@ -1,0 +1,263 @@
+/* App.css */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Arial', sans-serif;
+}
+
+body {
+  background-color: #f5f5f5;
+}
+
+.app-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Header styles */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: #222;
+  color: white;
+}
+
+.logo-container h1 {
+  font-size: 1.5rem;
+  color: white;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  width: 40%;
+}
+
+.search-container input {
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px 0 0 4px;
+}
+
+.search-button {
+  background-color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+}
+
+.nav-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.cart-button, .user-button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.cart-count {
+  background-color: #ff9800;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 0.8rem;
+}
+
+.register-button {
+  background-color: #f9b700;
+  color: #333;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* Nav styles */
+.main-nav {
+  background-color: #333;
+  color: white;
+  padding: 10px 20px;
+}
+
+.main-nav ul {
+  display: flex;
+  list-style: none;
+  gap: 30px;
+}
+
+.main-nav a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+/* Page title */
+.page-title {
+  padding: 20px;
+  background-color: #f5f5f5;
+}
+
+.page-title h2 {
+  font-size: 1.8rem;
+  color: #333;
+}
+
+/* Filters */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  padding: 10px 20px;
+  background-color: #eee;
+  border-bottom: 1px solid #ddd;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  background-color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.arrow {
+  font-size: 0.7rem;
+}
+
+/* Catalog styles */
+.catalog-container {
+  padding: 20px;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.product-card {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  background-color: white;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+}
+
+.product-image {
+  position: relative;
+  height: 250px;
+  overflow: hidden;
+}
+
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.product-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+  padding: 15px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.product-info {
+  margin-top: auto;
+}
+
+.product-info h3 {
+  font-size: 1.2rem;
+  margin-bottom: 5px;
+}
+
+.price {
+  font-weight: bold;
+  color: #f9b700;
+}
+
+.details-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 0;
+  background-color: #f9b700;
+  color: #333;
+  text-decoration: none;
+  font-weight: bold;
+  border-radius: 4px;
+  margin-top: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.details-button:hover {
+  background-color: #e0a800;
+}
+
+/* Loading and error states */
+.loading, .error {
+  padding: 40px;
+  text-align: center;
+  font-size: 1.2rem;
+}
+
+.error {
+  color: #d32f2f;
+}
+
+/* Product detail page */
+.product-detail {
+  padding: 40px;
+  background-color: white;
+  border-radius: 8px;
+  margin: 20px;
+}
+
+.product-detail h2 {
+  margin-bottom: 20px;
+}
+
+.product-detail a {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 8px 15px;
+  background-color: #333;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+/* Footer */
+footer {
+  background-color: #222;
+  color: white;
+  padding: 20px;
+  text-align: center;
+  margin-top: 40px;
+}

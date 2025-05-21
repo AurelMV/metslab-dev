@@ -1,0 +1,235 @@
+<?php
+
+namespace App\Http\Controllers;
+use App\Models\Modelo;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage; 
+use Illuminate\Support\Facades\Validator;
+use Exception;
+class ModeloController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+  public function index()
+{
+    try {
+        $modelos = Modelo::all();
+
+        $data = $modelos->map(function ($modelo) {
+            $modelo_url = asset($modelo->ruta_modelo);
+            $imagen_url = $modelo->ruta_imagen ? asset($modelo->ruta_imagen) : null;
+
+            
+           
+
+            return [
+                'idModelo' => $modelo->idModelo,
+                'idCategoria' => $modelo->idCategoria,
+                'nombreCategoria' => $modelo->categoria->nombre,
+                'descripcion' => $modelo->descripcion,
+                'dimensiones' => $modelo->dimensiones,
+                'nombre' => $modelo->nombre,
+                'precio' => $modelo->precio,
+                'modelo_url' => $modelo_url,
+                'imagen_url' => $imagen_url,
+               
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $data
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => '❌ Error al obtener los modelos: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+    /**
+     * Store a newly created resource in storage.
+     */
+     public function store(Request $request)
+{
+    try {
+        $validator = Validator::make($request->all(), [
+            'nombre' => 'required|string|max:45',
+            'descripcion' => 'nullable|string|max:255',
+            'dimensiones' => 'nullable|string|max:45',
+           'modelo_3d' => 'required|file|mimes:obj,txt|max:18240',
+
+
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
+            'precio' => 'required|integer|min:0',
+            'idCategoria' => 'nullable|exists:categorias,idCategoria'
+        ], [
+            'modelo_3d.mimes' => 'El modelo 3D debe ser un archivo .obj',
+            'modelo_3d.max' => 'El modelo 3D no debe exceder 10MB',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        // Crear directorios si no existen
+        Storage::makeDirectory('public/modelos');
+        Storage::makeDirectory('public/imagenes');
+
+        // Procesar modelo 3D con extensión original
+        $modelo3DFile = $request->file('modelo_3d');
+        $nombreArchivoModelo = uniqid() . '.' . $modelo3DFile->getClientOriginalExtension();
+        $rutaModelo = $modelo3DFile->storeAs('modelos', $nombreArchivoModelo, 'public');
+        $rutaModeloPublica = Storage::url($rutaModelo);
+
+        // Procesar imagen
+        $rutaImagenPublica = null;
+        if ($request->hasFile('imagen')) {
+            $imagenFile = $request->file('imagen');
+            $nombreArchivoImagen = uniqid() . '.' . $imagenFile->getClientOriginalExtension();
+            $rutaImagen = $imagenFile->storeAs('imagenes', $nombreArchivoImagen, 'public');
+            $rutaImagenPublica = Storage::url($rutaImagen);
+        }
+
+        // Guardar en BD
+        $modelo = Modelo::create([
+            'nombre' => $request->nombre,
+            'ruta_modelo' => $rutaModeloPublica,
+            'ruta_imagen' => $rutaImagenPublica,
+            'precio' => $request->precio,
+            'idCategoria' => $request->idCategoria
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Modelo guardado exitosamente',
+            'data' => $modelo,
+            'modelo_url' => asset($rutaModeloPublica),
+            'imagen_url' => $rutaImagenPublica ? asset($rutaImagenPublica) : null
+        ], 201);
+
+    } catch (Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => 'Error al procesar la solicitud: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+    /**
+     * Display the specified resource.
+     */
+    public function show($id)
+{
+    try {
+        $modelo = Modelo::with('categoria')->findOrFail($id);
+
+        $modelo_url = asset($modelo->ruta_modelo);
+        $imagen_url = $modelo->ruta_imagen ? asset($modelo->ruta_imagen) : null;
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'idModelo' => $modelo->idModelo,
+                'idCategoria' => $modelo->idCategoria,
+                'nombreCategoria' => $modelo->categoria->nombre,
+                'descripcion' => $modelo->descripcion,
+                'dimensiones' => $modelo->dimensiones,
+                'nombre' => $modelo->nombre,
+                'precio' => $modelo->precio,
+                'modelo_url' => $modelo_url,
+                'imagen_url' => $imagen_url,
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => '❌ Error al obtener el modelo: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        //
+    }
+
+ public function RecursoCatalogo()
+{
+    try {
+        $modelos = Modelo::all();
+
+        $data = $modelos->map(function ($modelo) {
+            $imagen_url = $modelo->ruta_imagen ? asset($modelo->ruta_imagen) : null;
+
+            return [
+                'nombre' => $modelo->nombre,
+                'precio' => $modelo->precio,
+                'idModelo' => $modelo->idModelo,
+                'imagen_url' => $imagen_url,
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $data
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => '❌ Error al obtener los modelos: ' . $e->getMessage()
+        ], 500);
+    }
+}
+public function modelosPorCategoria($idCategoria)
+{
+    try {
+        // Obtener todos los modelos que pertenezcan a la categoría indicada
+        $modelos = Modelo::with('categoria')
+            ->where('idCategoria', $idCategoria)
+            ->get();
+
+        // Mapear para enviar solo los campos necesarios
+        $data = $modelos->map(function ($modelo) {
+            $imagen_url = $modelo->ruta_imagen ? asset($modelo->ruta_imagen) : null;
+
+            return [
+                'nombre' => $modelo->nombre,
+                'precio' => $modelo->precio,
+                'idModelo' => $modelo->idModelo,
+                'imagen_url' => $imagen_url,
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $data
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => '❌ Error al obtener los modelos por categoría: ' . $e->getMessage()
+        ], 500);
+    }
+}
+}

@@ -50,8 +50,10 @@ cp .env.example .env
 # Configurar .env (base de datos, claves API)
 php artisan key:generate
 
-# Migraciones (Por ahora no)
+# Migraciones
 php artisan migrate
+
+php artisan storage:link
 
 # Servidor local
 php artisan serve
