@@ -4,6 +4,7 @@ import CatalogPage from "./pages/CatalogPage.jsx";
 import ProductDetailPage from "./pages/ProductDetailPage.jsx";
 import FilterPanel from "./pages/Categoriasobre.jsx";
 import "./estiloscatalogo/DiseñoApp.css";
+import Carrito from "./components/Carrito.jsx";
 
 function App() {
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
@@ -59,7 +60,7 @@ function App() {
           />
           <Route path="/producto/:id" element={<ProductDetailPage />} />
         </Routes>
-
+        <Carrito />
         <footer>
           <p>© 2025 Mi Catálogo 3D. Todos los derechos reservados.</p>
         </footer>
