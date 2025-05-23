@@ -19,8 +19,10 @@ Route::get('/categorias', [CategoriaController::class, 'index']);
     Route::get('/modelos/recursocatalogo', [ModeloController::class, 'RecursoCatalogo']);
 
     
-    Route::get('/modelos/modelcata/{idCategoria}', [ModeloController::class, 'modelosPorCategoria']);
+       Route::get('/modelos/categoria/{idCategoria}', [ModeloController::class, 'modelosPorCategoria']);
     Route::post('/modelos', [ModeloController::class, 'store']);
     Route::get('/modelos/{id}', [ModeloController::class, 'show']);
+    Route::get('/modelos/imagenes/{id}', [ModeloController::class, 'Imagenmodelo']);
+   
     Route::put('/modelos/{id}', [ModeloController::class, 'update']);
     Route::delete('/modelos/{id}', [ModeloController::class, 'destroy']);

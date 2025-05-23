@@ -1,17 +1,25 @@
-import React from "react";
+import React, { useState } from "react";
 import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
 import CatalogPage from "./pages/CatalogPage.jsx";
 import ProductDetailPage from "./pages/ProductDetailPage.jsx";
 import FilterPanel from "./pages/Categoriasobre.jsx";
-import "./estiloscatalogo/DiseñoApp.css"; // Asegúrate de tener este archivo CSS para los estilos
+import "./estiloscatalogo/DiseñoApp.css";
 
 function App() {
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
+
+  const handleCategoriaClick = (categoria) => {
+    setCategoriaSeleccionada(categoria);
+  };
+
   return (
     <Router>
       <div className="app-container">
         <header>
           <div className="logo-container">
-            <h1>Metslab</h1>
+            <Link to="/" className="logo-link">
+              <h1>Metslab</h1>
+            </Link>
           </div>
           <div className="search-container">
             <input type="text" placeholder="Buscar..." />
@@ -36,11 +44,19 @@ function App() {
         </div>
 
         <div className="filters">
-          <FilterPanel />
+          <FilterPanel onCategoriaClick={handleCategoriaClick} />
         </div>
 
         <Routes>
-          <Route path="/" element={<CatalogPage />} />
+          <Route
+            path="/"
+            element={
+              <CatalogPage
+                categoriaSeleccionada={categoriaSeleccionada}
+                onLimpiarFiltro={() => setCategoriaSeleccionada(null)}
+              />
+            }
+          />
           <Route path="/producto/:id" element={<ProductDetailPage />} />
         </Routes>
 
