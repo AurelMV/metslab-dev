@@ -100,6 +100,8 @@ class ModeloController extends Controller
         // Guardar en BD
         $modelo = Modelo::create([
             'nombre' => $request->nombre,
+             'descripcion' => $request->descripcion,   
+            'dimensiones' => $request->dimensiones,       
             'ruta_modelo' => $rutaModeloPublica,
             'ruta_imagen' => $rutaImagenPublica,
             'precio' => $request->precio,
@@ -203,19 +205,17 @@ class ModeloController extends Controller
 public function modelosPorCategoria($idCategoria)
 {
     try {
-        // Obtener todos los modelos que pertenezcan a la categoría indicada
         $modelos = Modelo::with('categoria')
             ->where('idCategoria', $idCategoria)
             ->get();
 
-        // Mapear para enviar solo los campos necesarios
         $data = $modelos->map(function ($modelo) {
             $imagen_url = $modelo->ruta_imagen ? asset($modelo->ruta_imagen) : null;
 
             return [
+                'idModelo' => $modelo->idModelo, 
                 'nombre' => $modelo->nombre,
                 'precio' => $modelo->precio,
-                'idModelo' => $modelo->idModelo,
                 'imagen_url' => $imagen_url,
             ];
         });
@@ -229,6 +229,31 @@ public function modelosPorCategoria($idCategoria)
         return response()->json([
             'success' => false,
             'error' => '❌ Error al obtener los modelos por categoría: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+
+ public function Imagenmodelo($id)
+{
+    try {
+        $modelo = Modelo::with('categoria')->findOrFail($id);
+
+        $modelo_url = asset($modelo->ruta_modelo);
+        $imagen_url = $modelo->ruta_imagen ? asset($modelo->ruta_imagen) : null;
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                
+                'imagen_url' => $imagen_url,
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => '❌ Error al obtener el modelo: ' . $e->getMessage()
         ], 500);
     }
 }
