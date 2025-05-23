@@ -53,6 +53,7 @@ php artisan key:generate
 # Migraciones
 php artisan migrate
 
+# Generar un link para conectar public/storage y storage/app/public (Para ver las fotos del catálogo)
 php artisan storage:link
 
 # Servidor local

@@ -60,7 +60,7 @@ class ModeloController extends Controller
             'nombre' => 'required|string|max:45',
             'descripcion' => 'nullable|string|max:255',
             'dimensiones' => 'nullable|string|max:45',
-           'modelo_3d' => 'required|file|mimes:obj|max:18240',
+           'modelo_3d' => 'required|file|mimes:obj,txt|max:18240',
 
 
             'imagen' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
