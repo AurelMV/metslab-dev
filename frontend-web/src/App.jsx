@@ -1,35 +1,72 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState } from "react";
+import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
+import CatalogPage from "./pages/CatalogPage.jsx";
+import ProductDetailPage from "./pages/ProductDetailPage.jsx";
+import FilterPanel from "./pages/Categoriasobre.jsx";
+import "./estiloscatalogo/DiseñoApp.css";
+import Carrito from "./components/Carrito.jsx";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
+
+  const handleCategoriaClick = (categoria) => {
+    setCategoriaSeleccionada(categoria);
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <Router>
+      <div className="app-container">
+        <header>
+          <div className="logo-container">
+            <Link to="/" className="logo-link">
+              <h1>Metslab</h1>
+            </Link>
+          </div>
+          <div className="search-container">
+            <input type="text" placeholder="Buscar..." />
+            <button className="search-button">🔍</button>
+          </div>
+          <div className="nav-buttons">
+            <button className="user-button">👤</button>
+            <button className="register-button">Inscribirse</button>
+          </div>
+        </header>
+
+        <nav className="main-nav">
+          <ul>
+            <li>
+              <Link to="/">MODELOS EN 3D</Link>
+            </li>
+          </ul>
+        </nav>
+
+        <div className="page-title">
+          <h2>Modelos de 3D</h2>
+        </div>
+
+        <div className="filters">
+          <FilterPanel onCategoriaClick={handleCategoriaClick} />
+        </div>
+
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <CatalogPage
+                categoriaSeleccionada={categoriaSeleccionada}
+                onLimpiarFiltro={() => setCategoriaSeleccionada(null)}
+              />
+            }
+          />
+          <Route path="/producto/:id" element={<ProductDetailPage />} />
+        </Routes>
+        <Carrito />
+        <footer>
+          <p>© 2025 Mi Catálogo 3D. Todos los derechos reservados.</p>
+        </footer>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </Router>
+  );
 }
 
-export default App
+export default App;
