@@ -161,6 +161,15 @@
 
             <button type="submit">Ingresar</button>
         </form>
+         <button type="submit">Ingresar</button>
+    </form>
+
+    <div style="text-align:center; margin-top:15px;">
+        ¿No tienes cuenta?
+        <a href="{{ url('/register') }}">Regístrate aquí</a>
+    </div>
+
+    <div class="divider"><span>o continua con</span></div>
 
         <div class="divider"><span>o continua con</span></div>
 

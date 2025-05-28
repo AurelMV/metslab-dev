@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import ProductInfo from "./Productinfo";
 import ProductImageViewer from "./Productvista";
 import "./Diseñosproduct.css";
+import env from "../config/env.jsx"; // Asegúrate de que la ruta sea correcta
 
 function ProductDetailPage() {
   const { id } = useParams();
@@ -16,7 +17,7 @@ function ProductDetailPage() {
       try {
         setLoading(true);
         // Usar el ID dinámico de la URL
-        const response = await fetch(`http://127.0.0.1:8000/api/modelos/${id}`);
+        const response = await fetch(`${env.BASE_URL_API}/api/modelos/${id}`);
 
         if (!response.ok) {
           throw new Error("No se pudo obtener la información del producto");
@@ -68,7 +69,7 @@ function ProductDetailPage() {
   return (
     <div className="product-detail-container">
       <div className="product-layout">
-        {/* Componente para mostrar la imagen del producto */}
+        {/* Componente para mostrar la modelo del producto */}
         <div className="product-image-section">
           <ProductImageViewer productId={id} />
         </div>

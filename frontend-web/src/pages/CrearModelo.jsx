@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import "./EstiloCrea.css";
+import env from "../config/env.jsx"; // Asegúrate de que la ruta sea correcta
 
 export default function ModeloUploader() {
   const [form, setForm] = useState({
@@ -51,7 +52,7 @@ export default function ModeloUploader() {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/modelos",
+        `${env.BASE_URL_API}/api/modelos`,
         data,
         {
           headers: { "Content-Type": "multipart/form-data" },
