@@ -23,6 +23,7 @@ class SocialController extends Controller
                 'provider_id' => $socialUser->getId(),
                 'provider' => $provider,
                 'password' => bcrypt(uniqid()) // opcional si quieres que tenga contraseña
+                
             ]
         );
 
