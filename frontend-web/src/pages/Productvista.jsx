@@ -430,7 +430,7 @@ f 2 5 4 3
     },
     controlPanel: {
       backgroundColor: "#374151",
-      padding: "50px",
+      padding: "10px",
       display: "flex",
       flexWrap: "wrap",
       alignItems: "center",
@@ -620,35 +620,6 @@ f 2 5 4 3
       <div style={styles.colorBar} />
 
       <div style={styles.controlPanel}>
-        <div style={styles.controlGroup}>
-          <label style={styles.label}>Producto ID:</label>
-          <span style={styles.productIdDisplay}>
-            {productId || "No definido"}
-          </span>
-        </div>
-
-        <div style={styles.controlGroup}>
-          <label style={styles.label}>URL API:</label>
-          <input
-            type="text"
-            value={apiUrl}
-            onChange={(e) => setApiUrl(e.target.value)}
-            style={styles.inputWide}
-            placeholder="URL base de la API"
-          />
-          <div
-            style={{
-              ...styles.statusDot,
-              ...(apiStatus === "available"
-                ? styles.statusDotAvailable
-                : apiStatus === "unavailable"
-                ? styles.statusDotUnavailable
-                : styles.statusDotUnknown),
-            }}
-            title={`API ${apiStatus}`}
-          />
-        </div>
-
         <div style={styles.separator} />
 
         <div style={styles.controlGroup}>
@@ -671,18 +642,6 @@ f 2 5 4 3
             />
             Wireframe
           </label>
-        </div>
-
-        <div style={styles.controlGroup}>
-          <button
-            onClick={loadSampleModel}
-            style={{
-              ...styles.button,
-              ...styles.buttonBlue,
-            }}
-          >
-            Cargar Ejemplo
-          </button>
         </div>
       </div>
 
@@ -710,32 +669,6 @@ f 2 5 4 3
         </div>
 
         <div style={styles.infoPanel}>
-          <div style={styles.infoPanelRow}>
-            <span>Estado API:</span>
-            <div
-              style={{
-                ...styles.statusDot,
-                ...(apiStatus === "available"
-                  ? styles.statusDotAvailable
-                  : apiStatus === "unavailable"
-                  ? styles.statusDotUnavailable
-                  : styles.statusDotUnknown),
-              }}
-            />
-            <span style={{ fontSize: "14px" }}>
-              {apiStatus === "available"
-                ? "Disponible"
-                : apiStatus === "unavailable"
-                ? "No disponible"
-                : "Desconocido"}
-            </span>
-          </div>
-          <div style={styles.infoPanelRow}>
-            <span>Objeto:</span>
-            <span style={{ fontSize: "12px", maxWidth: "150px" }}>
-              {currentObj}
-            </span>
-          </div>
           <div style={styles.infoPanelRowLast}>
             <span>Color:</span>
             <div style={styles.colorIndicator} />
