@@ -257,4 +257,27 @@ public function modelosPorCategoria($idCategoria)
         ], 500);
     }
 }
+ public function Cargamodelo($id)
+{
+    try {
+        $modelo = Modelo::with('categoria')->findOrFail($id);
+
+        $filename = basename($modelo->ruta_modelo); // Extrae el nombre del archivo
+        $modelo_url = url('/api/modelo-obj/' . $filename);
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'modelo_url' => $modelo_url,
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => '❌ Error al obtener el modelo: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
 }

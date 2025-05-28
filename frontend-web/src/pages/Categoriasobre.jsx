@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import env from "../config/env.jsx"; // Asegúrate de que la ruta sea correcta
 
 function FilterPanel({ onCategoriaClick }) {
   const [categorias, setCategorias] = useState([]);
@@ -9,9 +10,7 @@ function FilterPanel({ onCategoriaClick }) {
   useEffect(() => {
     const fetchCategorias = async () => {
       try {
-        const response = await axios.get(
-          "http://127.0.0.1:8000/api/categorias"
-        );
+        const response = await axios.get(`${env.BASE_URL_API}/api/categorias`);
         setCategorias(response.data);
       } catch (error) {
         setError("Error al cargar categorías: " + error.message);

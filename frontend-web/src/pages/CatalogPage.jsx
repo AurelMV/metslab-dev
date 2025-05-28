@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import ProductCard from "../components/ProductCard";
-
+import Crear from "./CrearModelo.jsx";
+import env from "../config/env.jsx"; // Asegúrate de que la ruta sea correcta
 function CatalogPage({ categoriaSeleccionada, onLimpiarFiltro }) {
   const [productos, setProductos] = useState([]);
   const [cargando, setCargando] = useState(true);
@@ -19,12 +20,12 @@ function CatalogPage({ categoriaSeleccionada, onLimpiarFiltro }) {
         if (categoriaSeleccionada) {
           // Si hay una categoría seleccionada, usar el endpoint específico
           response = await axios.get(
-            `http://127.0.0.1:8000/api/modelos/categoria/${categoriaSeleccionada.idCategoria}`
+            `${env.BASE_URL_API}/api/modelos/categoria/${categoriaSeleccionada.idCategoria}`
           );
         } else {
           // Si no hay categoría seleccionada, mostrar todos los productos
           response = await axios.get(
-            "http://127.0.0.1:8000/api/modelos/recursocatalogo"
+            `${env.BASE_URL_API}/api/modelos/recursocatalogo`
           );
         }
 
@@ -69,6 +70,7 @@ function CatalogPage({ categoriaSeleccionada, onLimpiarFiltro }) {
           </div>
         )}
       </div>
+      <Crear />
     </div>
   );
 }
