@@ -22,7 +22,21 @@ Route::get('/categorias', [CategoriaController::class, 'index']);
        Route::get('/modelos/categoria/{idCategoria}', [ModeloController::class, 'modelosPorCategoria']);
     Route::post('/modelos', [ModeloController::class, 'store']);
     Route::get('/modelos/{id}', [ModeloController::class, 'show']);
-    Route::get('/modelos/imagenes/{id}', [ModeloController::class, 'Imagenmodelo']);
+   // Route::get('/modelos/imagenes/{id}', [ModeloController::class, 'Imagenmodelo']);
+    Route::get('/modelos/modelo/{id}', [ModeloController::class, 'Cargamodelo']);
    
     Route::put('/modelos/{id}', [ModeloController::class, 'update']);
     Route::delete('/modelos/{id}', [ModeloController::class, 'destroy']);
+
+    Route::get('/modelo-obj/{filename}', function ($filename) {
+    $path = storage_path('app/public/modelos/' . $filename);
+
+    if (!file_exists($path)) {
+        abort(404, 'Archivo no encontrado');
+    }
+
+    return response()->file($path, [
+        'Access-Control-Allow-Origin' => '*',
+        'Content-Type' => 'application/octet-stream'
+    ]);
+});
