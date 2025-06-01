@@ -1,8 +1,8 @@
 import React, { useRef, useEffect, useState } from "react";
 import * as THREE from "three";
-import env from "../config/env.jsx"; // Asegúrate de que la ruta sea correcta
+import env from "../config/env.jsx";
+
 const Productvista = ({ productId }) => {
-  // Recibe productId como prop
   const mountRef = useRef(null);
   const sceneRef = useRef(null);
   const rendererRef = useRef(null);
@@ -11,15 +11,40 @@ const Productvista = ({ productId }) => {
   const controlsRef = useRef(null);
   const frameRef = useRef(null);
 
+  // Colores predeterminados
+  const predefinedColors = [
+    { name: "Rojo", value: "#ff6b6b" },
+    { name: "Azul", value: "#4ecdc4" },
+    { name: "Verde", value: "#45b7d1" },
+    { name: "Amarillo", value: "#f9ca24" },
+    { name: "Púrpura", value: "#6c5ce7" },
+    { name: "Naranja", value: "#fd79a8" },
+    { name: "Gris", value: "#636e72" },
+    { name: "Negro", value: "#2d3436" },
+  ];
+
   const [selectedColor, setSelectedColor] = useState("#ff6b6b");
   const [wireframe, setWireframe] = useState(false);
   const [currentObj, setCurrentObj] = useState("Ningún objeto cargado");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [apiUrl, setApiUrl] = useState(
-    env.BASE_URL_API + "/api/modelos/modelo/" // URL base de la API
+    env.BASE_URL_API + "/api/modelos/modelo/"
   );
   const [apiStatus, setApiStatus] = useState("unknown");
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detectar dispositivo móvil
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // Función para parsear archivos .obj
   const parseOBJ = (text) => {
@@ -61,49 +86,88 @@ const Productvista = ({ productId }) => {
     return geometry;
   };
 
-  // Controles de cámara personalizados
+  // Controles mejorados con soporte táctil
   const setupControls = (camera, renderer) => {
-    let isMouseDown = false;
-    let mouseX = 0;
-    let mouseY = 0;
+    let isInteracting = false;
+    let startX = 0;
+    let startY = 0;
     let targetRotationX = 0;
     let targetRotationY = 0;
     let rotationX = 0;
     let rotationY = 0;
 
+    // Funciones para mouse
     const onMouseDown = (event) => {
-      isMouseDown = true;
-      mouseX = event.clientX;
-      mouseY = event.clientY;
+      isInteracting = true;
+      startX = event.clientX;
+      startY = event.clientY;
+      event.preventDefault();
     };
 
     const onMouseUp = () => {
-      isMouseDown = false;
+      isInteracting = false;
     };
 
     const onMouseMove = (event) => {
-      if (!isMouseDown) return;
+      if (!isInteracting) return;
 
-      const deltaX = event.clientX - mouseX;
-      const deltaY = event.clientY - mouseY;
+      const deltaX = event.clientX - startX;
+      const deltaY = event.clientY - startY;
 
       targetRotationY += deltaX * 0.01;
       targetRotationX += deltaY * 0.01;
 
-      mouseX = event.clientX;
-      mouseY = event.clientY;
+      startX = event.clientX;
+      startY = event.clientY;
+      event.preventDefault();
+    };
+
+    // Funciones para touch
+    const onTouchStart = (event) => {
+      if (event.touches.length === 1) {
+        isInteracting = true;
+        startX = event.touches[0].clientX;
+        startY = event.touches[0].clientY;
+        event.preventDefault();
+      }
+    };
+
+    const onTouchEnd = () => {
+      isInteracting = false;
+    };
+
+    const onTouchMove = (event) => {
+      if (!isInteracting || event.touches.length !== 1) return;
+
+      const deltaX = event.touches[0].clientX - startX;
+      const deltaY = event.touches[0].clientY - startY;
+
+      targetRotationY += deltaX * 0.01;
+      targetRotationX += deltaY * 0.01;
+
+      startX = event.touches[0].clientX;
+      startY = event.touches[0].clientY;
+      event.preventDefault();
     };
 
     const onWheel = (event) => {
       camera.position.z += event.deltaY * 0.01;
       camera.position.z = Math.max(2, Math.min(20, camera.position.z));
+      event.preventDefault();
     };
 
     const domElement = renderer.domElement;
-    domElement.addEventListener("mousedown", onMouseDown);
+
+    // Event listeners para mouse
+    domElement.addEventListener("mousedown", onMouseDown, { passive: false });
     domElement.addEventListener("mouseup", onMouseUp);
-    domElement.addEventListener("mousemove", onMouseMove);
-    domElement.addEventListener("wheel", onWheel);
+    domElement.addEventListener("mousemove", onMouseMove, { passive: false });
+    domElement.addEventListener("wheel", onWheel, { passive: false });
+
+    // Event listeners para touch
+    domElement.addEventListener("touchstart", onTouchStart, { passive: false });
+    domElement.addEventListener("touchend", onTouchEnd);
+    domElement.addEventListener("touchmove", onTouchMove, { passive: false });
 
     return {
       update: () => {
@@ -120,15 +184,16 @@ const Productvista = ({ productId }) => {
         domElement.removeEventListener("mouseup", onMouseUp);
         domElement.removeEventListener("mousemove", onMouseMove);
         domElement.removeEventListener("wheel", onWheel);
+        domElement.removeEventListener("touchstart", onTouchStart);
+        domElement.removeEventListener("touchend", onTouchEnd);
+        domElement.removeEventListener("touchmove", onTouchMove);
       },
       targetRotationX,
       targetRotationY,
     };
   };
 
-  // Verificar si la API está disponible
-
-  // Cargar modelo desde API con mejor manejo de errores
+  // Cargar modelo desde API
   const loadModelFromAPI = async (id) => {
     if (!id) {
       setError("ID de modelo no proporcionado");
@@ -169,7 +234,6 @@ const Productvista = ({ productId }) => {
       const geometry = parseOBJ(objText);
 
       if (sceneRef.current) {
-        // Limpiar el objeto anterior si existe
         if (meshRef.current) {
           sceneRef.current.remove(meshRef.current);
         }
@@ -204,11 +268,11 @@ const Productvista = ({ productId }) => {
         error.message.includes("Failed to fetch")
       ) {
         setError(
-          "Error de seguridad: No se puede conectar a la API local desde este entorno. Prueba ejecutar el código en tu servidor local."
+          "Error de seguridad: No se puede conectar a la API local desde este entorno."
         );
       } else if (error.message.includes("CORS")) {
         setError(
-          "Error de CORS: El servidor necesita configurar headers CORS para permitir conexiones desde este dominio."
+          "Error de CORS: El servidor necesita configurar headers CORS."
         );
       } else {
         setError(`Error al cargar el modelo: ${error.message}`);
@@ -219,7 +283,7 @@ const Productvista = ({ productId }) => {
     }
   };
 
-  // Generar modelo OBJ de ejemplo como string
+  // Generar modelo OBJ de ejemplo
   const generateSampleOBJ = () => {
     return `# Sample OBJ file - Pyramid
 v 0.0 1.0 0.0
@@ -243,7 +307,6 @@ f 2 5 4 3
       const geometry = parseOBJ(objText);
 
       if (sceneRef.current) {
-        // Limpiar el objeto anterior si existe
         if (meshRef.current) {
           sceneRef.current.remove(meshRef.current);
         }
@@ -298,9 +361,11 @@ f 2 5 4 3
       mountRef.current.clientWidth,
       mountRef.current.clientHeight
     );
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     rendererRef.current = renderer;
 
-    // Evitar duplicados: eliminar cualquier canvas anterior
+    // Limpiar canvas anterior
     while (mountRef.current.firstChild) {
       mountRef.current.removeChild(mountRef.current.firstChild);
     }
@@ -311,11 +376,26 @@ f 2 5 4 3
     scene.add(ambientLight);
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
     directionalLight.position.set(5, 5, 5).normalize();
+    directionalLight.castShadow = true;
     scene.add(directionalLight);
 
     // Inicializar controles
     const controls = setupControls(camera, renderer);
     controlsRef.current = controls;
+
+    // Manejar redimensionamiento
+    const handleResize = () => {
+      if (!mountRef.current) return;
+
+      const width = mountRef.current.clientWidth;
+      const height = mountRef.current.clientHeight;
+
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(width, height);
+    };
+
+    window.addEventListener("resize", handleResize);
 
     const animate = () => {
       controls.update();
@@ -325,6 +405,7 @@ f 2 5 4 3
     animate();
 
     return () => {
+      window.removeEventListener("resize", handleResize);
       controls.dispose();
       cancelAnimationFrame(frameRef.current);
       if (renderer) {
@@ -336,72 +417,26 @@ f 2 5 4 3
     };
   }, []);
 
-  // Effect para cargar automáticamente el modelo cuando se recibe el productId
+  // Cargar modelo automáticamente
   useEffect(() => {
     if (productId && sceneRef.current) {
       loadModelFromAPI(productId);
     }
-  }, [productId, sceneRef.current]); // Se ejecuta cuando cambia productId o cuando se inicializa la escena
+  }, [productId, sceneRef.current]);
 
+  // Actualizar color
   useEffect(() => {
     if (meshRef.current && meshRef.current.material) {
       meshRef.current.material.color.setStyle(selectedColor);
     }
   }, [selectedColor]);
 
+  // Actualizar wireframe
   useEffect(() => {
     if (meshRef.current && meshRef.current.material) {
       meshRef.current.material.wireframe = wireframe;
     }
   }, [wireframe]);
-
-  const handleFileLoad = (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const objText = e.target.result;
-        const geometry = parseOBJ(objText);
-
-        if (sceneRef.current) {
-          // Limpiar el objeto anterior si existe
-          if (meshRef.current) {
-            sceneRef.current.remove(meshRef.current);
-          }
-
-          const material = new THREE.MeshLambertMaterial({
-            color: selectedColor,
-            wireframe: wireframe,
-          });
-          const mesh = new THREE.Mesh(geometry, material);
-          mesh.castShadow = true;
-          mesh.receiveShadow = true;
-
-          const box = new THREE.Box3().setFromObject(mesh);
-          const center = box.getCenter(new THREE.Vector3());
-          const size = box.getSize(new THREE.Vector3());
-          const maxDimension = Math.max(size.x, size.y, size.z);
-          const scale = 3 / maxDimension;
-
-          mesh.position.sub(center);
-          mesh.scale.multiplyScalar(scale);
-
-          sceneRef.current.add(mesh);
-          meshRef.current = mesh;
-          setCurrentObj(file.name);
-          setError(null);
-        }
-      } catch (error) {
-        setError(
-          "Error al cargar el archivo .obj. Asegúrate de que sea un archivo válido."
-        );
-        console.error("Error parsing OBJ:", error);
-      }
-    };
-    reader.readAsText(file);
-  };
 
   const resetCamera = () => {
     if (cameraRef.current) {
@@ -413,7 +448,8 @@ f 2 5 4 3
     }
   };
 
-  const styles = {
+  // Estilos responsivos
+  const getResponsiveStyles = () => ({
     container: {
       width: "100%",
       height: "100vh",
@@ -423,96 +459,56 @@ f 2 5 4 3
       fontFamily: "Arial, sans-serif",
     },
     colorBar: {
-      height: "8px",
+      height: isMobile ? "4px" : "8px",
       transition: "all 0.3s ease",
       boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
       backgroundColor: selectedColor,
     },
     controlPanel: {
       backgroundColor: "#374151",
-      padding: "10px",
+      padding: isMobile ? "8px" : "12px",
       display: "flex",
+      flexDirection: isMobile ? "column" : "row",
       flexWrap: "wrap",
-      alignItems: "center",
-      gap: "50px",
+      alignItems: isMobile ? "stretch" : "center",
+      gap: isMobile ? "12px" : "20px",
       boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-      overflowX: "auto",
+      overflowX: isMobile ? "visible" : "auto",
+      maxHeight: isMobile ? "none" : "80px",
     },
     controlGroup: {
       display: "flex",
       alignItems: "center",
       gap: "8px",
       backgroundColor: "#4b5563",
-      padding: "8px",
+      padding: isMobile ? "10px" : "8px",
+      borderRadius: "6px",
+      minWidth: isMobile ? "100%" : "auto",
+      justifyContent: isMobile ? "space-between" : "flex-start",
+    },
+    colorPalette: {
+      display: "flex",
+      gap: "6px",
+      flexWrap: "wrap",
+      justifyContent: isMobile ? "center" : "flex-start",
+    },
+    colorSwatch: {
+      width: isMobile ? "32px" : "24px",
+      height: isMobile ? "32px" : "24px",
       borderRadius: "4px",
+      border: "2px solid transparent",
+      cursor: "pointer",
+      transition: "all 0.2s ease",
+    },
+    colorSwatchActive: {
+      border: "2px solid white",
+      transform: "scale(1.1)",
     },
     label: {
       color: "white",
       fontWeight: "500",
-      fontSize: "14px",
-    },
-    input: {
-      backgroundColor: "#6b7280",
-      color: "white",
-      padding: "4px 8px",
-      borderRadius: "4px",
-      border: "1px solid #9ca3af",
-      fontSize: "14px",
-    },
-    inputWide: {
-      backgroundColor: "#6b7280",
-      color: "white",
-      padding: "4px 8px",
-      borderRadius: "4px",
-      border: "1px solid #9ca3af",
-      fontSize: "14px",
-      width: "256px",
-    },
-    inputSmall: {
-      backgroundColor: "#6b7280",
-      color: "white",
-      padding: "4px 8px",
-      borderRadius: "4px",
-      border: "1px solid #9ca3af",
-      width: "80px",
-    },
-    button: {
-      padding: "4px 12px",
-      borderRadius: "4px",
-      border: "none",
-      color: "white",
-      cursor: "pointer",
-      transition: "background-color 0.2s",
-      fontSize: "14px",
-    },
-    buttonBlue: {
-      backgroundColor: "#2563eb",
-    },
-    separator: {
-      height: "32px",
-      width: "1px",
-      backgroundColor: "#9ca3af",
-    },
-    statusDot: {
-      width: "12px",
-      height: "12px",
-      borderRadius: "50%",
-    },
-    statusDotAvailable: {
-      backgroundColor: "#10b981",
-    },
-    statusDotUnavailable: {
-      backgroundColor: "#ef4444",
-    },
-    statusDotUnknown: {
-      backgroundColor: "#f59e0b",
-    },
-    colorInput: {
-      width: "48px",
-      height: "32px",
-      borderRadius: "4px",
-      border: "2px solid #6b7280",
-      cursor: "pointer",
+      fontSize: isMobile ? "16px" : "14px",
+      minWidth: "fit-content",
     },
     checkboxLabel: {
       color: "white",
@@ -520,27 +516,43 @@ f 2 5 4 3
       display: "flex",
       alignItems: "center",
       gap: "8px",
-      fontSize: "14px",
+      fontSize: isMobile ? "16px" : "14px",
+      cursor: "pointer",
     },
     checkbox: {
-      marginRight: "8px",
+      width: isMobile ? "20px" : "16px",
+      height: isMobile ? "20px" : "16px",
+      cursor: "pointer",
+    },
+    button: {
+      padding: isMobile ? "12px 16px" : "8px 12px",
+      borderRadius: "6px",
+      border: "none",
+      color: "white",
+      cursor: "pointer",
+      transition: "background-color 0.2s",
+      fontSize: isMobile ? "16px" : "14px",
+      backgroundColor: "#2563eb",
+      minWidth: isMobile ? "100%" : "auto",
     },
     errorBar: {
       backgroundColor: "#dc2626",
       color: "white",
-      padding: "8px",
+      padding: isMobile ? "12px" : "8px",
       textAlign: "center",
-      fontSize: "14px",
+      fontSize: isMobile ? "16px" : "14px",
     },
     loadingBar: {
       backgroundColor: "#2563eb",
       color: "white",
-      padding: "8px",
+      padding: isMobile ? "12px" : "8px",
       textAlign: "center",
+      fontSize: isMobile ? "16px" : "14px",
     },
     viewer3D: {
-      flex: 0.8,
+      flex: 1,
       position: "relative",
+      minHeight: "300px",
     },
     viewer3DInner: {
       width: "100%",
@@ -548,88 +560,98 @@ f 2 5 4 3
     },
     instructionsPanel: {
       position: "absolute",
-      top: "16px",
-      left: "16px",
+      top: isMobile ? "8px" : "16px",
+      left: isMobile ? "8px" : "16px",
       backgroundColor: "rgba(0, 0, 0, 0.8)",
       color: "white",
-      padding: "12px",
-      borderRadius: "4px",
-      maxWidth: "320px",
+      padding: isMobile ? "8px" : "12px",
+      borderRadius: "6px",
+      maxWidth: isMobile ? "calc(100% - 16px)" : "320px",
+      fontSize: isMobile ? "14px" : "12px",
     },
     instructionsTitle: {
       fontWeight: "bold",
-      marginBottom: "8px",
+      marginBottom: "6px",
+      fontSize: isMobile ? "16px" : "14px",
     },
     instructionsText: {
-      fontSize: "14px",
+      fontSize: isMobile ? "14px" : "12px",
       marginBottom: "4px",
+      lineHeight: "1.4",
     },
     infoPanel: {
       position: "absolute",
-      top: "16px",
-      right: "16px",
+      top: isMobile ? "8px" : "16px",
+      right: isMobile ? "8px" : "16px",
       backgroundColor: "rgba(0, 0, 0, 0.8)",
       color: "white",
-      padding: "12px",
-      borderRadius: "4px",
-    },
-    infoPanelRow: {
-      display: "flex",
-      alignItems: "center",
-      gap: "8px",
-      marginBottom: "8px",
-    },
-    infoPanelRowLast: {
-      display: "flex",
-      alignItems: "center",
-      gap: "8px",
+      padding: isMobile ? "8px" : "12px",
+      borderRadius: "6px",
     },
     colorIndicator: {
-      width: "24px",
-      height: "24px",
-      borderRadius: "4px",
+      width: isMobile ? "20px" : "16px",
+      height: isMobile ? "20px" : "16px",
+      borderRadius: "3px",
       border: "2px solid white",
       backgroundColor: selectedColor,
     },
     helpMessage: {
       position: "absolute",
-      bottom: "16px",
-      left: "16px",
-      right: "16px",
+      bottom: isMobile ? "8px" : "16px",
+      left: isMobile ? "8px" : "16px",
+      right: isMobile ? "8px" : "16px",
       backgroundColor: "rgba(217, 119, 6, 0.9)",
       color: "white",
-      padding: "12px",
-      borderRadius: "4px",
+      padding: isMobile ? "10px" : "12px",
+      borderRadius: "6px",
     },
     helpTitle: {
       fontWeight: "bold",
       marginBottom: "4px",
+      fontSize: isMobile ? "16px" : "14px",
     },
     helpText: {
-      fontSize: "14px",
+      fontSize: isMobile ? "14px" : "12px",
+      lineHeight: "1.4",
     },
-    productIdDisplay: {
-      color: "#60a5fa",
-      fontWeight: "bold",
-      fontSize: "16px",
-    },
-  };
+  });
+
+  const styles = getResponsiveStyles();
 
   return (
     <div style={styles.container}>
       <div style={styles.colorBar} />
 
       <div style={styles.controlPanel}>
-        <div style={styles.separator} />
-
         <div style={styles.controlGroup}>
-          <label style={styles.label}>Color:</label>
-          <input
-            type="color"
-            value={selectedColor}
-            onChange={(e) => setSelectedColor(e.target.value)}
-            style={styles.colorInput}
-          />
+          <label style={styles.label}>Colores:</label>
+          <div style={styles.colorPalette}>
+            {predefinedColors.map((color) => (
+              <div
+                key={color.value}
+                style={{
+                  ...styles.colorSwatch,
+                  backgroundColor: color.value,
+                  ...(selectedColor === color.value
+                    ? styles.colorSwatchActive
+                    : {}),
+                }}
+                onClick={() => setSelectedColor(color.value)}
+                title={color.name}
+              />
+            ))}
+            <input
+              type="color"
+              value={selectedColor}
+              onChange={(e) => setSelectedColor(e.target.value)}
+              style={{
+                ...styles.colorSwatch,
+                border: "2px solid #6b7280",
+                cursor: "pointer",
+              }}
+              title="Color personalizado"
+            />
+          </div>
         </div>
 
         <div style={styles.controlGroup}>
@@ -643,6 +665,16 @@ f 2 5 4 3
             Wireframe
           </label>
         </div>
+
+        {!productId && (
+          <button onClick={loadSampleModel} style={styles.button}>
+            Cargar Modelo de Ejemplo
+          </button>
+        )}
+
+        <button onClick={resetCamera} style={styles.button}>
+          Resetear Vista
+        </button>
       </div>
 
       {error && (
@@ -660,17 +692,23 @@ f 2 5 4 3
 
         <div style={styles.instructionsPanel}>
           <h3 style={styles.instructionsTitle}>Controles:</h3>
-          <p style={styles.instructionsText}>• Clic y arrastrar: Rotar</p>
-          <p style={styles.instructionsText}>• Rueda del mouse: Zoom</p>
           <p style={styles.instructionsText}>
-            • Modelo cargado automáticamente
+            {isMobile
+              ? "• Tocar y arrastrar: Rotar"
+              : "• Clic y arrastrar: Rotar"}
           </p>
-          <p style={styles.instructionsText}>• ID del producto: {productId}</p>
+          {!isMobile && (
+            <p style={styles.instructionsText}>• Rueda del mouse: Zoom</p>
+          )}
+          <p style={styles.instructionsText}>• Modelo: {currentObj}</p>
+          {productId && (
+            <p style={styles.instructionsText}>• ID: {productId}</p>
+          )}
         </div>
 
         <div style={styles.infoPanel}>
-          <div style={styles.infoPanelRowLast}>
-            <span>Color:</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <span style={{ fontSize: isMobile ? "14px" : "12px" }}>Color:</span>
             <div style={styles.colorIndicator} />
           </div>
         </div>
