@@ -11,6 +11,7 @@ import AuthCallback from "./pages/auth/AuthCallback.jsx";
 import "./estiloscatalogo/DiseñoApp.css";
 import "./estiloscatalogo/auth.css";
 import Carrito from "./components/Carrito.jsx";
+import { CarritoProvider } from "./context/CarritoContext.jsx";
 
 function Header() {
   const { isAuthenticated, user, logout } = useAuth();
@@ -85,35 +86,62 @@ function HomePage() {
     setCategoriaSeleccionada(categoria);
   };
 
-  return (
-    <>
-      <section className="hero-section">
-        <div className="hero-content">
-          <h1 className="hero-title">Modelos en 3D para profesionales</h1>
-          <p className="hero-description">
-            Descubre nuestra extensa colección de modelos 3D
-          </p>
-        </div>
-      </section>
-      <section id="catalog-section">
-        <FilterPanel onCategoriaClick={handleCategoriaClick} />
-        <CatalogPage categoriaSeleccionada={categoriaSeleccionada} />
-      </section>
-    </>
-  );
-}
-
-export default function App() {
+  const scrollToCatalog = () => {
+    const catalogSection = document.getElementById("catalog-section");
+    catalogSection?.scrollIntoView({ behavior: "smooth" });
+  };
   return (
     <Router>
-      <AuthProvider>
-        <div className="app-container">
-          <Header />
-          <main className="main-content">
-            <AppRoutes />
-          </main>
+      <div className="app-container">
+        <header>
+          <div className="logo-container">
+            <Link to="/" className="logo-link">
+              <h1>Metslab</h1>
+            </Link>
+          </div>
+          <div className="search-container">
+            <input type="text" placeholder="Buscar..." />
+            <button className="search-button">🔍</button>
+          </div>
+          <div className="nav-buttons">
+            <button className="user-button">👤</button>
+            <button className="register-button">Inscribirse</button>
+          </div>
+        </header>
+
+        <nav className="main-nav">
+          <ul>
+            <li>
+              <Link to="/">MODELOS EN 3D</Link>
+            </li>
+          </ul>
+        </nav>
+
+        <div className="page-title">
+          <h2>Modelos de 3D</h2>
         </div>
-      </AuthProvider>
+
+        <div className="filters">
+          <FilterPanel onCategoriaClick={handleCategoriaClick} />
+        </div>
+
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <CatalogPage
+                categoriaSeleccionada={categoriaSeleccionada}
+                onLimpiarFiltro={() => setCategoriaSeleccionada(null)}
+              />
+            }
+          />
+          <Route path="/producto/:id" element={<ProductDetailPage />} />
+        </Routes>
+        <Carrito />
+        <footer>
+          <p>© 2025 Mi Catálogo 3D. Todos los derechos reservados.</p>
+        </footer>
+      </div>
     </Router>
   );
 }

@@ -1,13 +1,15 @@
 import React from "react";
+import { useCarrito } from "../context/CarritoContext";
 
 function ProductInfo({ product }) {
-  if (!product) {
+  const { addToCart } = useCarrito();  if (!product) {
     return (
       <div className="product-info-loading">
         <p>Cargando información del producto...</p>
       </div>
     );
   }
+
 
   return (
     <div className="product-info">
@@ -28,20 +30,22 @@ function ProductInfo({ product }) {
           <h3>Dimensiones</h3>
           <p>{product.dimensiones}</p>
         </div>
-
         <div className="detail-item">
           <h3>Precio</h3>
           <p className="product-price">${product.precio}</p>
         </div>
-
+        
         <div className="detail-item">
           <h3>ID del Modelo</h3>
           <p>{product.idModelo}</p>
         </div>
-      </div>
-
-      <div className="product-actions">
-        <button className="btn btn-primary">Agregar al Carrito</button>
+      </div>      <div className="product-actions">
+        <button className="btn btn-primary" onClick={() => {
+          console.log('Click en Agregar al Carrito con producto:', product);
+          addToCart(product);
+        }}>
+          Agregar al Carrito
+        </button>
         <button className="btn btn-secondary">Solicitar Cotización</button>
       </div>
 
