@@ -53,7 +53,10 @@ class SocialController extends Controller
                 Log::info('Usuario existente actualizado con ID: ' . $user->id);
             }
 
+            // Crear token sin expiración
             $token = $user->createToken('auth_token')->plainTextToken;
+            
+            // Preparar datos del usuario
             $userData = [
                 'id' => $user->id,
                 'name' => $user->name,
@@ -64,19 +67,21 @@ class SocialController extends Controller
 
             Log::info('Datos del usuario a enviar: ' . json_encode($userData));
             
-            // Simplificar la codificación para evitar problemas de doble encoding
-            $encodedUserData = json_encode($userData);
-            Log::info('Datos codificados: ' . $encodedUserData);
+            // Simplificar la codificación
+            $encodedUserData = base64_encode(json_encode($userData));
+            Log::info('Datos codificados (base64): ' . $encodedUserData);
             
+            // Construir URL de redirección
             $queryParams = http_build_query([
                 'token' => $token,
                 'user' => $encodedUserData,
                 'status' => 'success'
             ]);
             
-            Log::info('URL de redirección: ' . $this->frontendUrl . '/auth/callback?' . $queryParams);
+            $redirectUrl = $this->frontendUrl . '/auth/callback?' . $queryParams;
+            Log::info('URL de redirección: ' . $redirectUrl);
             
-            return redirect($this->frontendUrl . '/auth/callback?' . $queryParams);
+            return redirect($redirectUrl);
 
         } catch (Exception $e) {
             Log::error("Error en autenticación social: " . $e->getMessage());

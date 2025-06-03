@@ -5,7 +5,7 @@ import { useAuth } from '../../contexts/AuthContext';
 export default function AuthCallback() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -35,16 +35,21 @@ export default function AuthCallback() {
         try {
           let userData;
           try {
-            // Primero intentamos con la decodificación base64
-            const decodedUserStr = decodeURIComponent(atob(encodedUser));
+            const decodedUserStr = decodeURIComponent(encodedUser);
             userData = JSON.parse(decodedUserStr);
           } catch (e) {
-            console.log('Intentando parse directo del JSON');
-            // Si falla, intentamos parsear directamente
-            userData = JSON.parse(decodeURIComponent(encodedUser));
+            console.log('Error en primer intento de decodificación, intentando alternativa:', e);
+            // Si falla, intentamos con base64
+            try {
+              const decodedStr = atob(encodedUser);
+              userData = JSON.parse(decodedStr);
+            } catch (e2) {
+              console.error('Error en segundo intento de decodificación:', e2);
+              throw new Error('No se pudo decodificar la información del usuario');
+            }
           }
 
-          console.log('Usuario parseado:', { id: userData.id, email: userData.email });
+          console.log('Usuario decodificado:', userData);
 
           if (!userData.id || !userData.email) {
             throw new Error('Datos de usuario incompletos');
@@ -57,20 +62,26 @@ export default function AuthCallback() {
             throw new Error('Error al iniciar sesión');
           }
 
-          // Redireccionar al catálogo inmediatamente después del login exitoso
-          const redirectTimeout = setTimeout(() => {
-            navigate('/', {
-              replace: true,
-              state: {
-                notification: {
-                  type: 'success',
-                  message: '¡Has iniciado sesión exitosamente!'
-                }
-              }
-            });
-          }, 500); // Pequeño delay para asegurar que el estado se ha actualizado
+          // Esperar a que el estado se actualice
+          let attempts = 0;
+          const maxAttempts = 10;
+          const checkInterval = 100; // 100ms
 
-          return () => clearTimeout(redirectTimeout);
+          while (!isAuthenticated && attempts < maxAttempts) {
+            await new Promise(resolve => setTimeout(resolve, checkInterval));
+            attempts++;
+            console.log(`Esperando autenticación... Intento ${attempts}`);
+          }
+
+          if (!isAuthenticated) {
+            throw new Error('No se pudo verificar la autenticación');
+          }
+
+          // Forzar una actualización del DOM antes de redirigir
+          await new Promise(resolve => setTimeout(resolve, 100));
+
+          console.log('Estado de autenticación verificado, redirigiendo...');
+          window.location.href = '/';
 
         } catch (decodeError) {
           console.error('Error al procesar datos:', decodeError);
@@ -86,7 +97,7 @@ export default function AuthCallback() {
     };
 
     processAuth();
-  }, [navigate, searchParams, login]);
+  }, [navigate, searchParams, login, isAuthenticated]);
 
   // Componente de carga
   if (loading) {
@@ -106,18 +117,18 @@ export default function AuthCallback() {
           width: '40px',
           height: '40px',
           animation: 'spin 1s linear infinite'
-        }}></div>
-        <p style={{
-          color: '#fff',
-          marginTop: '20px',
-          fontSize: '16px'
-        }}>Iniciando sesión...</p>
+        }}/>
         <style>{`
           @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
           }
         `}</style>
+        <p style={{
+          color: '#fff',
+          marginTop: '20px',
+          fontSize: '16px'
+        }}>Procesando autenticación...</p>
       </div>
     );
   }
