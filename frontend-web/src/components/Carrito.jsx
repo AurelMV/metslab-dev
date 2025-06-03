@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import { MdShoppingCart } from 'react-icons/md';
+import { useCarrito } from '../context/CarritoContext';
 import {
     floatingButtonStyle,
     overlayStyle,
@@ -9,7 +9,6 @@ import {
     emptyCartStyle,
     scrollContainerStyle,
     productStyle,
-    imgStyle,
     nameTextStyle,
     priceTextStyle,
     qtyWrapperStyle,
@@ -22,41 +21,7 @@ import {
 } from '../estilos/carrito';
 
 export default function CarritoToggle() {
-    const [isCartOpen, setIsCartOpen] = useState(false);
-    const [items, setItems] = useState([
-        {
-            id: 1,
-            name: 'Camiseta de Algodón',
-            price: 50.0,
-            qty: 1,
-            image: 'https://via.placeholder.com/56',
-        },
-        {
-            id: 2,
-            name: 'Pantalón Deportivo',
-            price: 75.0,
-            qty: 1,
-            image: 'https://via.placeholder.com/56',
-        },
-    ]);
-
-    const handleQty = (id, delta) => {
-        setItems((items) =>
-            items.map((item) =>
-                item.id === id
-                    ? { ...item, qty: Math.max(1, item.qty + delta) }
-                    : item
-            )
-        );
-    };
-
-    const handleRemove = (id) => {
-        setItems((items) => items.filter((item) => item.id !== id));
-    };
-
-    const subtotal = items.reduce((sum, item) => sum + item.price * item.qty, 0);
-
-    const toggleCart = () => setIsCartOpen(!isCartOpen);
+    const { isCartOpen, items, handleQty, handleRemove, subtotal, toggleCart } = useCarrito();
 
     return (
         <>
@@ -76,13 +41,37 @@ export default function CarritoToggle() {
                             <button onClick={toggleCart} style={closeButtonStyle}>×</button>
                         </div>
 
-                        <div style={scrollContainerStyle}>
-                            {items.length === 0 ? (
+                        <div style={scrollContainerStyle}>                            {items.length === 0 ? (
                                 <p style={emptyCartStyle}>Tu carrito está vacío.</p>
                             ) : (
                                 items.map((item) => (
-                                    <div key={item.id} style={productStyle}>
-                                        <img src={item.image} alt={item.name} style={imgStyle} />
+                                    <div key={item.id} style={productStyle}>                                        <div style={{
+                                            width: '56px',
+                                            height: '56px',
+                                            border: '1px solid #FFD700',
+                                            borderRadius: '8px',
+                                            overflow: 'hidden',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            background: '#fff',
+                                        }}>
+                                            <img 
+                                                src={item.image } 
+                                                alt={item.name} 
+                                                style={{
+                                                    maxWidth: '100%',
+                                                    maxHeight: '100%',
+                                                    objectFit: 'contain',
+                                                    display: 'block'
+                                                }} 
+                                                onError={(e) => {
+                                                    console.log('Error al cargar imagen:', item.image);
+                                                    e.target.src = 'https://via.placeholder.com/56';
+                                                }}
+                                            />
+                                        </div>
+
                                         <div style={{ flex: 1 }}>
                                             <p style={nameTextStyle}>{item.name}</p>
                                             <p style={priceTextStyle}>S/.{item.price}</p>

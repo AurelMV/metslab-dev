@@ -5,6 +5,7 @@ import ProductDetailPage from "./pages/ProductDetailPage.jsx";
 import FilterPanel from "./pages/Categoriasobre.jsx";
 import "./estiloscatalogo/DiseñoApp.css";
 import Carrito from "./components/Carrito.jsx";
+import { CarritoProvider } from "./context/CarritoContext.jsx";
 
 function App() {
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
@@ -17,10 +18,10 @@ function App() {
     const catalogSection = document.getElementById("catalog-section");
     catalogSection?.scrollIntoView({ behavior: "smooth" });
   };
-
   return (
     <Router>
-      <div className="app-container">
+      <CarritoProvider>
+        <div className="app-container">
         {/* Header fijo */}
         <header className="fixed-header">
           <div className="header-content">
@@ -140,9 +141,9 @@ function App() {
           </div>
           <div className="footer-bottom">
             <p>© 2025 Metslab - Todos los derechos reservados.</p>
-          </div>
-        </footer>
+          </div>        </footer>
       </div>
+      </CarritoProvider>
     </Router>
   );
 }
