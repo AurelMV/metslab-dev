@@ -1,15 +1,65 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function Login() {
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Aquí deberías hacer la petición a tu backend para autenticar
-    // Por ejemplo, usando fetch o axios
-    // Si hay errores, actualiza setErrors
+    setErrors({});
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL_API}/api/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.status === 403 && data.verification_required) {
+        // Redirigir a la página de verificación si el correo no está verificado
+        navigate('/verify-code', { 
+          state: { 
+            email: data.email,
+            user_id: data.user_id 
+          }
+        });
+        return;
+      }
+
+      if (!response.ok) {
+        setErrors(data.errors || { general: data.message });
+        return;
+      }
+
+      // Login exitoso
+      localStorage.setItem('token', data.access_token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      navigate('/');
+      
+    } catch (error) {
+      setErrors({ general: 'Error al iniciar sesión' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = () => {
+    window.location.href = `${import.meta.env.VITE_BASE_URL_API}/auth/google`;
+  };
+
+  const handleFacebookLogin = () => {
+    window.location.href = `${import.meta.env.VITE_BASE_URL_API}/auth/facebook`;
   };
 
   return (
@@ -30,12 +80,25 @@ export default function Login() {
         maxWidth: "400px"
       }}>
         <h2 style={{ textAlign: "center", marginBottom: 20, color: "#333" }}>Iniciar Sesión</h2>
+        
+        {errors.general && (
+          <div style={{ 
+            color: "#dc3545", 
+            backgroundColor: "#f8d7da", 
+            padding: "10px", 
+            borderRadius: "4px", 
+            marginBottom: "15px",
+            textAlign: "center"
+          }}>
+            {errors.general}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
           <label htmlFor="email">Correo Electrónico</label>
           <input
             type="email"
             id="email"
-            name="email"
             value={email}
             required
             autoFocus
@@ -49,13 +112,16 @@ export default function Login() {
               fontSize: 14
             }}
           />
-          {errors.email && <div className="error" style={{ color: "red", fontSize: 13, marginTop: -10, marginBottom: 10 }}>{errors.email}</div>}
+          {errors.email && (
+            <div style={{ color: "red", fontSize: 13, marginTop: -10, marginBottom: 10 }}>
+              {errors.email}
+            </div>
+          )}
 
           <label htmlFor="password">Contraseña</label>
           <input
             type="password"
             id="password"
-            name="password"
             value={password}
             required
             onChange={e => setPassword(e.target.value)}
@@ -68,26 +134,36 @@ export default function Login() {
               fontSize: 14
             }}
           />
-          {errors.password && <div className="error" style={{ color: "red", fontSize: 13, marginTop: -10, marginBottom: 10 }}>{errors.password}</div>}
+          {errors.password && (
+            <div style={{ color: "red", fontSize: 13, marginTop: -10, marginBottom: 10 }}>
+              {errors.password}
+            </div>
+          )}
 
-          <button type="submit" style={{
-            width: "100%",
-            padding: 12,
-            backgroundColor: "#5A67D8",
-            color: "white",
-            fontSize: 16,
-            border: "none",
-            borderRadius: 6,
-            cursor: "pointer",
-            transition: "background 0.3s"
-          }}>Ingresar</button>
+          <button 
+            type="submit" 
+            disabled={isLoading}
+            style={{
+              width: "100%",
+              padding: 12,
+              backgroundColor: isLoading ? "#a0aec0" : "#5A67D8",
+              color: "white",
+              fontSize: 16,
+              border: "none",
+              borderRadius: 6,
+              cursor: isLoading ? "not-allowed" : "pointer",
+              transition: "background 0.3s"
+            }}
+          >
+            {isLoading ? "Iniciando sesión..." : "Ingresar"}
+          </button>
         </form>
 
         <div style={{ textAlign: "center", marginTop: 15 }}>
-          ¿No tienes cuenta? <a href="/register">Regístrate aquí</a>
+          ¿No tienes cuenta? <a href="/register" style={{ color: "#5A67D8", textDecoration: "none" }}>Regístrate aquí</a>
         </div>
 
-        <div className="divider" style={{
+        <div style={{
           textAlign: "center",
           margin: "20px 0",
           position: "relative"
@@ -116,34 +192,46 @@ export default function Login() {
           }} />
         </div>
 
-        <div className="social-buttons" style={{
+        <div style={{
           display: "flex",
           flexDirection: "column",
           gap: 10,
           marginTop: 20
         }}>
-          <a href="/auth/google" className="btn-social btn-google" style={{
-            padding: 10,
-            color: "white",
-            backgroundColor: "#db4437",
-            border: "none",
-            textAlign: "center",
-            borderRadius: 6,
-            fontSize: 14,
-            textDecoration: "none",
-            transition: "background 0.3s"
-          }}>Iniciar con Google</a>
-          <a href="/auth/facebook" className="btn-social btn-facebook" style={{
-            padding: 10,
-            color: "white",
-            backgroundColor: "#3b5998",
-            border: "none",
-            textAlign: "center",
-            borderRadius: 6,
-            fontSize: 14,
-            textDecoration: "none",
-            transition: "background 0.3s"
-          }}>Iniciar con Facebook</a>
+          <button 
+            onClick={handleGoogleLogin}
+            className="btn-social btn-google"
+            style={{
+              padding: 10,
+              color: "white",
+              backgroundColor: "#db4437",
+              border: "none",
+              textAlign: "center",
+              borderRadius: 6,
+              fontSize: 14,
+              cursor: "pointer",
+              transition: "background 0.3s"
+            }}
+          >
+            Iniciar con Google
+          </button>
+          <button
+            onClick={handleFacebookLogin}
+            className="btn-social btn-facebook"
+            style={{
+              padding: 10,
+              color: "white",
+              backgroundColor: "#3b5998",
+              border: "none",
+              textAlign: "center",
+              borderRadius: 6,
+              fontSize: 14,
+              cursor: "pointer",
+              transition: "background 0.3s"
+            }}
+          >
+            Iniciar con Facebook
+          </button>
         </div>
       </div>
     </div>
