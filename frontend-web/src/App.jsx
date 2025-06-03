@@ -9,10 +9,10 @@ import Register from "./pages/auth/Register.jsx";
 import VerifyCode from "./pages/auth/VerifyCode.jsx";
 import AuthCallback from "./pages/auth/AuthCallback.jsx";
 import "./estiloscatalogo/DiseñoApp.css";
-import "./estiloscatalogo/auth.css";
 import Carrito from "./components/Carrito.jsx";
 import { CarritoProvider } from "./context/CarritoContext.jsx";
 
+// Componente Header con autenticación
 function Header() {
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
@@ -66,19 +66,7 @@ function Header() {
   );
 }
 
-function AppRoutes() {
-  return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/verify-code" element={<VerifyCode />} />
-      <Route path="/auth/callback" element={<AuthCallback />} />
-      <Route path="/producto/:id" element={<ProductDetailPage />} />
-      <Route path="/" element={<HomePage />} />
-    </Routes>
-  );
-}
-
+// Componente principal de la página de inicio
 function HomePage() {
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
 
@@ -90,58 +78,101 @@ function HomePage() {
     const catalogSection = document.getElementById("catalog-section");
     catalogSection?.scrollIntoView({ behavior: "smooth" });
   };
+
   return (
-    <Router>
-      <div className="app-container">
-        <header>
-          <div className="logo-container">
-            <Link to="/" className="logo-link">
-              <h1>Metslab</h1>
-            </Link>
-          </div>
-          <div className="search-container">
-            <input type="text" placeholder="Buscar..." />
-            <button className="search-button">🔍</button>
-          </div>
-          <div className="nav-buttons">
-            <button className="user-button">👤</button>
-            <button className="register-button">Inscribirse</button>
-          </div>
-        </header>
-
-        <nav className="main-nav">
-          <ul>
-            <li>
-              <Link to="/">MODELOS EN 3D</Link>
-            </li>
-          </ul>
-        </nav>
-
-        <div className="page-title">
-          <h2>Modelos de 3D</h2>
+    <>
+      {/* Hero Section */}
+      <section className="hero-section">
+        <div className="hero-background">
+          <div className="wireframe-overlay"></div>
         </div>
+        <div className="hero-content">
+          <h1 className="hero-title">
+            Modelos en 3D para profesionales
+          </h1>
+          <p className="hero-description">
+            Descubre nuestra extensa colección de modelos 3D de alta
+            calidad para laboratorios científicos.
+            <br />
+            Desde equipos de análisis hasta instrumentación
+            especializada.
+          </p>
+          <button className="cta-button" onClick={scrollToCatalog}>
+            Explorar Catálogo
+          </button>
+        </div>
+      </section>
 
-        <div className="filters">
+      {/* Barra de categorías dinámicas */}
+      <section className="categories-bar">
+        <div className="categories-container">
           <FilterPanel onCategoriaClick={handleCategoriaClick} />
         </div>
+      </section>
 
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <CatalogPage
-                categoriaSeleccionada={categoriaSeleccionada}
-                onLimpiarFiltro={() => setCategoriaSeleccionada(null)}
-              />
-            }
-          />
-          <Route path="/producto/:id" element={<ProductDetailPage />} />
-        </Routes>
-        <Carrito />
-        <footer>
-          <p>© 2025 Mi Catálogo 3D. Todos los derechos reservados.</p>
-        </footer>
-      </div>
+      {/* Sección del catálogo */}
+      <section id="catalog-section" className="catalog-section">
+        <CatalogPage
+          categoriaSeleccionada={categoriaSeleccionada}
+          onLimpiarFiltro={() => setCategoriaSeleccionada(null)}
+        />
+      </section>
+    </>
+  );
+}
+
+// Componente principal App
+function App() {
+  return (
+    <Router>
+      <AuthProvider>
+        <CarritoProvider>
+          <div className="app-container">
+            <Header />
+            
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/verify-code" element={<VerifyCode />} />
+              <Route path="/auth/callback" element={<AuthCallback />} />
+              <Route path="/producto/:id" element={<ProductDetailPage />} />
+              <Route path="/" element={<HomePage />} />
+            </Routes>
+
+            <Carrito />
+
+            <footer className="modern-footer">
+              <div className="footer-content">
+                <div className="footer-section">
+                  <h3>METSLAB</h3>
+                  <p>Modelos 3D profesionales para laboratorios científicos</p>
+                </div>
+                <div className="footer-section">
+                  <h4>Productos</h4>
+                  <ul>
+                    <li><a href="#">Equipos de laboratorio</a></li>
+                    <li><a href="#">Instrumentos científicos</a></li>
+                    <li><a href="#">Modelos anatómicos</a></li>
+                  </ul>
+                </div>
+                <div className="footer-section">
+                  <h4>Soporte</h4>
+                  <ul>
+                    <li><a href="#">Centro de ayuda</a></li>
+                    <li><a href="#">Contacto</a></li>
+                    <li><a href="#">Términos de uso</a></li>
+                  </ul>
+                </div>
+              </div>
+              <div className="footer-bottom">
+                <p>© 2025 Metslab - Todos los derechos reservados.</p>
+              </div>
+            </footer>
+          </div>
+        </CarritoProvider>
+      </AuthProvider>
     </Router>
   );
 }
+
+export default App;
