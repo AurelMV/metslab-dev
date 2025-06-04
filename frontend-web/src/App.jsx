@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { BrowserRouter as Router, Route, Routes, Link, useNavigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Link,
+  useNavigate,
+} from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import CatalogPage from "./pages/CatalogPage.jsx";
 import ProductDetailPage from "./pages/ProductDetailPage.jsx";
@@ -11,6 +17,7 @@ import AuthCallback from "./pages/auth/AuthCallback.jsx";
 import "./estiloscatalogo/DiseñoApp.css";
 import Carrito from "./components/Carrito.jsx";
 import { CarritoProvider } from "./context/CarritoContext.jsx";
+import Crearcate from "./components/CrearCate.jsx"; // Asegúrate de que la ruta sea correcta
 
 // Componente Header con autenticación
 function Header() {
@@ -19,7 +26,7 @@ function Header() {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate("/login");
   };
 
   return (
@@ -35,7 +42,9 @@ function Header() {
 
         <nav className="header-nav">
           <div className="dropdown">
-            <span>MODELOS EN 3D <span className="dropdown-arrow">▼</span></span>
+            <span>
+              MODELOS EN 3D <span className="dropdown-arrow">▼</span>
+            </span>
           </div>
           <div className="nav-item">
             <span>PAQUETES</span>
@@ -56,8 +65,12 @@ function Header() {
             </div>
           ) : (
             <div className="auth-buttons">
-              <Link to="/login" className="login-button">Iniciar sesión</Link>
-              <Link to="/register" className="register-button">Registrarse</Link>
+              <Link to="/login" className="login-button">
+                Iniciar sesión
+              </Link>
+              <Link to="/register" className="register-button">
+                Registrarse
+              </Link>
             </div>
           )}
         </div>
@@ -87,15 +100,12 @@ function HomePage() {
           <div className="wireframe-overlay"></div>
         </div>
         <div className="hero-content">
-          <h1 className="hero-title">
-            Modelos en 3D para profesionales
-          </h1>
+          <h1 className="hero-title">Modelos en 3D para profesionales</h1>
           <p className="hero-description">
-            Descubre nuestra extensa colección de modelos 3D de alta
-            calidad para laboratorios científicos.
+            Descubre nuestra extensa colección de modelos 3D de alta calidad
+            para laboratorios científicos.
             <br />
-            Desde equipos de análisis hasta instrumentación
-            especializada.
+            Desde equipos de análisis hasta instrumentación especializada.
           </p>
           <button className="cta-button" onClick={scrollToCatalog}>
             Explorar Catálogo
@@ -129,7 +139,7 @@ function App() {
         <CarritoProvider>
           <div className="app-container">
             <Header />
-            
+
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
@@ -140,6 +150,7 @@ function App() {
             </Routes>
 
             <Carrito />
+            <Crearcate />
 
             <footer className="modern-footer">
               <div className="footer-content">
@@ -150,17 +161,29 @@ function App() {
                 <div className="footer-section">
                   <h4>Productos</h4>
                   <ul>
-                    <li><a href="#">Equipos de laboratorio</a></li>
-                    <li><a href="#">Instrumentos científicos</a></li>
-                    <li><a href="#">Modelos anatómicos</a></li>
+                    <li>
+                      <a href="#">Equipos de laboratorio</a>
+                    </li>
+                    <li>
+                      <a href="#">Instrumentos científicos</a>
+                    </li>
+                    <li>
+                      <a href="#">Modelos anatómicos</a>
+                    </li>
                   </ul>
                 </div>
                 <div className="footer-section">
                   <h4>Soporte</h4>
                   <ul>
-                    <li><a href="#">Centro de ayuda</a></li>
-                    <li><a href="#">Contacto</a></li>
-                    <li><a href="#">Términos de uso</a></li>
+                    <li>
+                      <a href="#">Centro de ayuda</a>
+                    </li>
+                    <li>
+                      <a href="#">Contacto</a>
+                    </li>
+                    <li>
+                      <a href="#">Términos de uso</a>
+                    </li>
                   </ul>
                 </div>
               </div>

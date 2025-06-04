@@ -27,18 +27,6 @@ Route::post('/social-callback', [SocialController::class, 'handleApiCallback']);
 
 // Rutas públicas de modelos
 Route::get('/modelos/recursocatalogo', [ModeloController::class, 'RecursoCatalogo']);
-Route::get('/modelo-obj/{filename}', function ($filename) {
-    $path = storage_path('app/public/modelos/' . $filename);
-
-    if (!file_exists($path)) {
-        abort(404, 'Archivo no encontrado');
-    }
-
-    return response()->file($path, [
-        'Access-Control-Allow-Origin' => '*',
-        'Content-Type' => 'application/octet-stream'
-    ]);
-});
 
 // Rutas protegidas
 Route::middleware('auth:sanctum')->group(function () {
@@ -71,14 +59,13 @@ Route::middleware('auth:sanctum')->group(function () {
         $request->user()->currentAccessToken()->delete();
         return response()->json(['message' => 'Sesión cerrada correctamente']);
     });
-
+});
     // Rutas de categorías
     Route::get('/categorias', [CategoriaController::class, 'index']);
-    Route::post('/categorias', [CategoriaController::class, 'store']);
-    Route::get('/categorias/{id}', [CategoriaController::class, 'show']);
-    Route::put('/categorias/{id}', [CategoriaController::class, 'update']);
-    Route::delete('/categorias/{id}', [CategoriaController::class, 'destroy']);
-
+   Route::post('/categorias', [CategoriaController::class, 'store']);
+Route::get('/categorias/{id}', [CategoriaController::class, 'show']);
+Route::put('/categorias/{id}', [CategoriaController::class, 'update']);
+Route::delete('/categorias/{id}', [CategoriaController::class, 'destroy']);
     // Rutas de modelos
     Route::get('/modelos', [ModeloController::class, 'index']);
     Route::get('/modelos/categoria/{idCategoria}', [ModeloController::class, 'modelosPorCategoria']);
@@ -87,4 +74,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/modelos/modelo/{id}', [ModeloController::class, 'Cargamodelo']);
     Route::put('/modelos/{id}', [ModeloController::class, 'update']);
     Route::delete('/modelos/{id}', [ModeloController::class, 'destroy']);
+
+Route::get('/modelo-obj/{filename}', function ($filename) {
+    $path = storage_path('app/public/modelos/' . $filename);
+
+    if (!file_exists($path)) {
+        abort(404, 'Archivo no encontrado');
+    }
+
+    return response()->file($path, [
+        'Access-Control-Allow-Origin' => '*',
+        'Content-Type' => 'application/octet-stream'
+    ]);
 });
+
+
