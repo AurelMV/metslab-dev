@@ -60,4 +60,49 @@ class LoginController extends Controller
 
     return redirect('/')->with('success', '¡Verificación exitosa! Ya has iniciado sesión.');
 }
+    public function apiLogin(Request $request)
+{
+    $request->validate([
+        'email' => 'required|email',
+        'password' => 'required'
+    ]);
+
+    if (!Auth::attempt($request->only('email', 'password'))) {
+        return response()->json([
+            'message' => 'Credenciales incorrectas',
+            'errors' => ['email' => ['Las credenciales proporcionadas son incorrectas']]
+        ], 401);
+    }
+
+    $user = User::where('email', $request->email)->first();
+
+    // Verificar si el correo está verificado
+    if (!$user->hasVerifiedEmail()) {
+        // Generar nuevo código de verificación
+        $verificationCode = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
+        $user->verification_token = $verificationCode;
+        $user->save();
+
+        // Enviar el nuevo código
+        Mail::send('emails.verification-code', ['code' => $verificationCode], function($message) use ($user) {
+            $message->to($user->email)
+                   ->subject('Verifica tu cuenta - Metslab');
+        });
+
+        return response()->json([
+            'message' => 'Correo no verificado',
+            'verification_required' => true,
+            'user_id' => $user->id,
+            'email' => $user->email
+        ], 403);
+    }
+
+    $token = $user->createToken('auth_token')->plainTextToken;
+
+    return response()->json([
+        'access_token' => $token,
+        'token_type' => 'Bearer',
+        'user' => $user
+    ]);
+}
 }
