@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ModeloController;
+use App\Http\Controllers\UbicacionController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -17,8 +18,9 @@ Route::get('/categorias', [CategoriaController::class, 'index']);
     // Modelos
     Route::get('/modelos', [ModeloController::class, 'index']);
     Route::get('/modelos/recursocatalogo', [ModeloController::class, 'RecursoCatalogo']);
+    //Ubicaciones 
+    Route::post('/ubicaciones', [UbicacionController::class, 'store']);
 
-    
        Route::get('/modelos/categoria/{idCategoria}', [ModeloController::class, 'modelosPorCategoria']);
     Route::post('/modelos', [ModeloController::class, 'store']);
     Route::get('/modelos/{id}', [ModeloController::class, 'show']);
