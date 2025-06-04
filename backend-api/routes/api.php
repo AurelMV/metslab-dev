@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ModeloController;
+use App\Http\Controllers\UbicacionController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\SocialController;
@@ -66,6 +67,8 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::get('/categorias/{id}', [CategoriaController::class, 'show']);
 Route::put('/categorias/{id}', [CategoriaController::class, 'update']);
 Route::delete('/categorias/{id}', [CategoriaController::class, 'destroy']);
+    
+    Route::post('/ubicaciones', [UbicacionController::class, 'store']);
     // Rutas de modelos
     Route::get('/modelos', [ModeloController::class, 'index']);
     Route::get('/modelos/categoria/{idCategoria}', [ModeloController::class, 'modelosPorCategoria']);

@@ -105,3 +105,6 @@ git checkout -b feature/personalizacion-modelo
 git commit -m "Agrega personalización de modelos 3D"
 git push origin feature/personalizacion-modelo
 ```
+
+### Otros
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/AurelMV/metslab-dev)
