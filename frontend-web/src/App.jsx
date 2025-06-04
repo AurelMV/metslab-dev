@@ -14,6 +14,7 @@ import Login from "./pages/auth/login.jsx";
 import Register from "./pages/auth/Register.jsx";
 import VerifyCode from "./pages/auth/VerifyCode.jsx";
 import AuthCallback from "./pages/auth/AuthCallback.jsx";
+import MapaPage from "./pages/MapaPage.jsx"; // ✅ Importa el mapa
 import "./estiloscatalogo/DiseñoApp.css";
 import Carrito from "./components/Carrito.jsx";
 import { CarritoProvider } from "./context/CarritoContext.jsx";
@@ -50,6 +51,7 @@ function Header() {
             <span>PAQUETES</span>
             <span className="badge">NUEVO</span>
           </div>
+          <Link to="/mapa" className="nav-item">Mapa</Link> {/* ✅ Nuevo enlace */}
         </nav>
 
         <div className="header-actions">
@@ -146,12 +148,13 @@ function App() {
               <Route path="/verify-code" element={<VerifyCode />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/producto/:id" element={<ProductDetailPage />} />
+              <Route path="/mapa" element={<MapaPage />} /> {/* ✅ Nueva ruta */}
               <Route path="/" element={<HomePage />} />
             </Routes>
 
             <Carrito />
             <Crearcate />
-
+                
             <footer className="modern-footer">
               <div className="footer-content">
                 <div className="footer-section">
