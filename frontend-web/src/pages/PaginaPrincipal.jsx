@@ -23,11 +23,11 @@ import { CarritoProvider } from "../context/CarritoContext.jsx";
 // Componente Header con autenticación
 function Header() {
   const { isAuthenticated, user, logout } = useAuth();
-  const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
+    // Eliminamos window.location.reload() ya que no es necesario
+    // El estado se actualiza correctamente a través del contexto
   };
 
   return (
@@ -54,9 +54,7 @@ function Header() {
           <Link to="/mapa" className="nav-item">
             Mapa
           </Link>{" "}
-          <Link to="/admin" className="nav-item">
-            Pagina de Admi
-          </Link>{" "}
+          
           {/* ✅ Nuevo enlace */}
         </nav>
 
@@ -64,11 +62,34 @@ function Header() {
           <button className="cart-button">
             🛒 <span className="cart-count">0</span>
           </button>
-          {isAuthenticated ? (
+          {isAuthenticated && user ? (
             <div className="user-menu">
-              <span className="user-name">{user?.name}</span>
-              <button onClick={handleLogout} className="logout-button">
-                Cerrar sesión
+              <span className="user-name">{user.name}</span>
+              <button 
+                onClick={handleLogout} 
+                className="logout-button"
+                style={{
+                  backgroundColor: "#ff4757",
+                  color: "white",
+                  padding: "8px 16px",
+                  border: "none",
+                  borderRadius: "6px",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  cursor: "pointer",
+                  transition: "all 0.3s ease",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                  '&:hover': {
+                    backgroundColor: "#ff6b81",
+                    transform: "translateY(-1px)",
+                    boxShadow: "0 4px 6px rgba(0,0,0,0.1)"
+                  }
+                }}
+              >
+                <span>🚪</span> Cerrar sesión
               </button>
             </div>
           ) : (
