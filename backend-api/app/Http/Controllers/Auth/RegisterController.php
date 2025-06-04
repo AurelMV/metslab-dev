@@ -32,11 +32,12 @@ class RegisterController extends Controller
             DB::beginTransaction();
             try {
                 $user = User::create([
-                    'name' => $request->name,
-                    'email' => $request->email,
-                    'password' => Hash::make($request->password),
-                    'verification_token' => $verificationCode,
-                    'email_verified_at' => null
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'verification_token' => $verificationCode,
+                'email_verified_at' => null,
+                'role' => 'cliente' // 👈 Forzado desde el backend
                 ]);
 
                 Log::info('Usuario creado con ID: ' . $user->id);
@@ -125,8 +126,12 @@ class RegisterController extends Controller
             return response()->json([
                 'message' => 'Correo verificado exitosamente',
                 'token' => $token,
-                'user' => $user
-            ]);
+                'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role
+           ] ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
