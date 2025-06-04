@@ -14,13 +14,13 @@ import Login from "./pages/auth/login.jsx";
 import Register from "./pages/auth/Register.jsx";
 import VerifyCode from "./pages/auth/VerifyCode.jsx";
 import AuthCallback from "./pages/auth/AuthCallback.jsx";
-import Carrito from "./components/Carrito.jsx";
-import { CarritoProvider } from "./context/CarritoContext.jsx";
-import Crearcate from "./components/CrearCate.jsx";
 import MapaPage from "./pages/MapaPage.jsx"; // ✅ Importa el mapa
 import "./estiloscatalogo/DiseñoApp.css";
+import Carrito from "./components/Carrito.jsx";
+import { CarritoProvider } from "./context/CarritoContext.jsx";
+import Crearcate from "./components/CrearCate.jsx"; // Asegúrate de que la ruta sea correcta
 
-// Header con autenticación
+// Componente Header con autenticación
 function Header() {
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
@@ -81,7 +81,7 @@ function Header() {
   );
 }
 
-// Página principal
+// Componente principal de la página de inicio
 function HomePage() {
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
 
@@ -96,6 +96,7 @@ function HomePage() {
 
   return (
     <>
+      {/* Hero Section */}
       <section className="hero-section">
         <div className="hero-background">
           <div className="wireframe-overlay"></div>
@@ -114,12 +115,14 @@ function HomePage() {
         </div>
       </section>
 
+      {/* Barra de categorías dinámicas */}
       <section className="categories-bar">
         <div className="categories-container">
           <FilterPanel onCategoriaClick={handleCategoriaClick} />
         </div>
       </section>
 
+      {/* Sección del catálogo */}
       <section id="catalog-section" className="catalog-section">
         <CatalogPage
           categoriaSeleccionada={categoriaSeleccionada}
@@ -151,7 +154,7 @@ function App() {
 
             <Carrito />
             <Crearcate />
-
+                
             <footer className="modern-footer">
               <div className="footer-content">
                 <div className="footer-section">
@@ -161,17 +164,29 @@ function App() {
                 <div className="footer-section">
                   <h4>Productos</h4>
                   <ul>
-                    <li><a href="#">Equipos de laboratorio</a></li>
-                    <li><a href="#">Instrumentos científicos</a></li>
-                    <li><a href="#">Modelos anatómicos</a></li>
+                    <li>
+                      <a href="#">Equipos de laboratorio</a>
+                    </li>
+                    <li>
+                      <a href="#">Instrumentos científicos</a>
+                    </li>
+                    <li>
+                      <a href="#">Modelos anatómicos</a>
+                    </li>
                   </ul>
                 </div>
                 <div className="footer-section">
                   <h4>Soporte</h4>
                   <ul>
-                    <li><a href="#">Centro de ayuda</a></li>
-                    <li><a href="#">Contacto</a></li>
-                    <li><a href="#">Términos de uso</a></li>
+                    <li>
+                      <a href="#">Centro de ayuda</a>
+                    </li>
+                    <li>
+                      <a href="#">Contacto</a>
+                    </li>
+                    <li>
+                      <a href="#">Términos de uso</a>
+                    </li>
                   </ul>
                 </div>
               </div>
