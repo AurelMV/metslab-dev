@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-
+import { useEffect } from "react";
 export default function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -9,6 +9,19 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+     useEffect(() => {
+  const token = localStorage.getItem('token');
+  const user = JSON.parse(localStorage.getItem('user'));
+
+  if (token && user) {
+    // Redirige según el rol
+    if (user.role === 'admin') {
+      navigate('/admin/dashboard');
+    } else {
+      navigate('/cliente/home');
+    }
+  }
+}, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -41,11 +54,17 @@ export default function Login() {
         setErrors(data.errors || { general: data.message });
         return;
       }
+   
 
       // Login exitoso
       localStorage.setItem('token', data.access_token);
       localStorage.setItem('user', JSON.stringify(data.user));
-      navigate('/');
+      // Redirigir según el rol del usuario
+if (data.user.role === 'admin') {
+  navigate('/admin/dashboard');
+} else {
+  navigate('/cliente/home');
+}
       
     } catch (error) {
       setErrors({ general: 'Error al iniciar sesión' });
