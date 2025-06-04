@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaf
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import axios from 'axios';
+import env from "../config/env.jsx";
 
 // Corrige el ícono por defecto (por si no se muestra)
 delete L.Icon.Default.prototype._getIconUrl;
@@ -30,7 +31,7 @@ const MapaPage = () => {
 
     // Enviar al backend con axios
     try {
-      const response = await axios.post('http://localhost:8000/api/ubicaciones', {
+      const response = await axios.post(`${env.BASE_URL_API}/api/ubicaciones`, {
         nombre: 'Ubicación desde mapa',
         latitud: lat,
         longitud: lng
