@@ -16,9 +16,9 @@ export default function Login() {
   if (token && user) {
     // Redirige según el rol
     if (user.role === 'admin') {
-      navigate('/admin/dashboard');
+      navigate('/admin');
     } else {
-      navigate('/cliente/home');
+      navigate('/catalogo');
     }
   }
 }, []);
@@ -59,12 +59,15 @@ export default function Login() {
       // Login exitoso
       localStorage.setItem('token', data.access_token);
       localStorage.setItem('user', JSON.stringify(data.user));
-      // Redirigir según el rol del usuario
-if (data.user.role === 'admin') {
-  navigate('/admin/dashboard');
-} else {
-  navigate('/cliente/home');
-}
+
+      // Redirigir según el rol del usuario y refrescar
+      if (data.user.role === 'admin') {
+        navigate('/admin');
+        window.location.reload(); // Añade el refresh
+      } else {
+        navigate('/');
+        window.location.reload(); // Añade el refresh
+      }
       
     } catch (error) {
       setErrors({ general: 'Error al iniciar sesión' });
@@ -128,7 +131,9 @@ if (data.user.role === 'admin') {
               marginBottom: 15,
               border: "1px solid #ccc",
               borderRadius: 6,
-              fontSize: 14
+              fontSize: 14,
+              color: "#333", // Añadido color de texto
+              backgroundColor: "#fff" // Añadido color de fondo
             }}
           />
           {errors.email && (
@@ -150,7 +155,9 @@ if (data.user.role === 'admin') {
               marginBottom: 15,
               border: "1px solid #ccc",
               borderRadius: 6,
-              fontSize: 14
+              fontSize: 14,
+              color: "#333", // Añadido color de texto
+              backgroundColor: "#fff" // Añadido color de fondo
             }}
           />
           {errors.password && (

@@ -107,6 +107,19 @@ export default function Register() {
     );
   }
 
+  // Estilo común para todos los inputs
+  const inputStyle = {
+    width: "100%",
+    padding: 10,
+    marginBottom: 15,
+    border: "1px solid #ccc",
+    borderRadius: 6,
+    fontSize: 14,
+    color: "#333", // Color del texto
+    backgroundColor: "#fff", // Color de fondo
+    outline: "none" // Mejora visual al hacer focus
+  };
+
   return (
     <div style={{
       fontFamily: "'Segoe UI', sans-serif",
@@ -150,14 +163,7 @@ export default function Register() {
             value={formData.name}
             onChange={handleChange}
             required
-            style={{
-              width: "100%",
-              padding: 10,
-              marginBottom: 15,
-              border: "1px solid #ccc",
-              borderRadius: 6,
-              fontSize: 14
-            }}
+            style={inputStyle}
           />
           {errors.name && (
             <div style={{ color: "red", fontSize: 13, marginTop: -10, marginBottom: 10 }}>
@@ -175,14 +181,7 @@ export default function Register() {
             value={formData.email}
             onChange={handleChange}
             required
-            style={{
-              width: "100%",
-              padding: 10,
-              marginBottom: 15,
-              border: "1px solid #ccc",
-              borderRadius: 6,
-              fontSize: 14
-            }}
+            style={inputStyle}
           />
           {errors.email && (
             <div style={{ color: "red", fontSize: 13, marginTop: -10, marginBottom: 10 }}>
@@ -200,14 +199,7 @@ export default function Register() {
             value={formData.password}
             onChange={handleChange}
             required
-            style={{
-              width: "100%",
-              padding: 10,
-              marginBottom: 15,
-              border: "1px solid #ccc",
-              borderRadius: 6,
-              fontSize: 14
-            }}
+            style={inputStyle}
           />
           {errors.password && (
             <div style={{ color: "red", fontSize: 13, marginTop: -10, marginBottom: 10 }}>
@@ -225,14 +217,7 @@ export default function Register() {
             value={formData.password_confirmation}
             onChange={handleChange}
             required
-            style={{
-              width: "100%",
-              padding: 10,
-              marginBottom: 15,
-              border: "1px solid #ccc",
-              borderRadius: 6,
-              fontSize: 14
-            }}
+            style={inputStyle}
           />
           {errors.password_confirmation && (
             <div style={{ color: "red", fontSize: 13, marginTop: -10, marginBottom: 10 }}>
