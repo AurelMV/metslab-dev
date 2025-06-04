@@ -85,6 +85,7 @@ export default function ModeloUploader() {
       {mensaje && <p className="success-text">{mensaje}</p>}
 
       <form onSubmit={handleSubmit}>
+        <label className="txtmodelo">Nombre</label>
         <input
           type="text"
           name="nombre"
@@ -94,7 +95,7 @@ export default function ModeloUploader() {
           className="input"
         />
         {errores.nombre && <p className="error-text">{errores.nombre[0]}</p>}
-
+        <label className="txtmodelo">Descripcion</label>
         <textarea
           name="descripcion"
           placeholder="Descripción"
@@ -102,7 +103,7 @@ export default function ModeloUploader() {
           onChange={handleChange}
           className="input"
         />
-
+        <label className="txtmodelo">Dimenciones</label>
         <input
           type="text"
           name="dimensiones"
@@ -111,7 +112,7 @@ export default function ModeloUploader() {
           onChange={handleChange}
           className="input"
         />
-
+        <label className="txtmodelo">Precio</label>
         <input
           type="number"
           name="precio"
@@ -121,7 +122,7 @@ export default function ModeloUploader() {
           className="input"
         />
         {errores.precio && <p className="error-text">{errores.precio[0]}</p>}
-
+        <label className="txtmodelo">ID Categoria </label>
         <input
           type="text"
           name="idCategoria"
@@ -130,7 +131,7 @@ export default function ModeloUploader() {
           onChange={handleChange}
           className="input"
         />
-
+        <label className="txtmodelo">Archivo 3D</label>
         <div>
           <label>Archivo 3D (.obj):</label>
           <input
@@ -144,7 +145,7 @@ export default function ModeloUploader() {
             <p className="error-text">{errores.modelo_3d[0]}</p>
           )}
         </div>
-
+        <label className="txtmodelo">Imagen formato jpg </label>
         <div>
           <label>Imagen (opcional):</label>
           <input
