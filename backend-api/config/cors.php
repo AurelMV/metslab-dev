@@ -1,8 +1,8 @@
 <?php
 return [
-    'paths' => ['api/*', 'auth/*', 'sanctum/*'],
+    'paths' => ['api/*', 'storage/*', 'auth/*', 'sanctum/*'],
     'allowed_methods' => ['*'],
-    'allowed_origins' => ['http://localhost:5173'],
+    'allowed_origins' => ['*'],
     'allowed_headers' => ['*'],
     'exposed_headers' => [],
     'max_age' => 0,
