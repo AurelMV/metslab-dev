@@ -17,7 +17,6 @@ import AuthCallback from "./pages/auth/AuthCallback.jsx";
 import "./estiloscatalogo/DiseñoApp.css";
 import Carrito from "./components/Carrito.jsx";
 import { CarritoProvider } from "./context/CarritoContext.jsx";
-import Crearcate from "./components/CrearCate.jsx"; // Asegúrate de que la ruta sea correcta
 
 // Componente Header con autenticación
 function Header() {
@@ -150,7 +149,6 @@ function App() {
             </Routes>
 
             <Carrito />
-            <Crearcate />
 
             <footer className="modern-footer">
               <div className="footer-content">

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import ProductCard from "../components/ProductCard";
-import Crear from "./CrearModelo.jsx";
+//import Crear from "./CrearModelo.jsx";
 import env from "../config/env.jsx"; // Asegúrate de que la ruta sea correcta
 function CatalogPage({ categoriaSeleccionada, onLimpiarFiltro }) {
   const [productos, setProductos] = useState([]);
@@ -70,7 +70,6 @@ function CatalogPage({ categoriaSeleccionada, onLimpiarFiltro }) {
           </div>
         )}
       </div>
-      <Crear />
     </div>
   );
 }
