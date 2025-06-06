@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ModeloController;
 use App\Http\Controllers\UbicacionController;
+use App\Http\Controllers\CarritoController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\SocialController;
@@ -77,6 +78,14 @@ Route::delete('/categorias/{id}', [CategoriaController::class, 'destroy']);
     Route::get('/modelos/modelo/{id}', [ModeloController::class, 'Cargamodelo']);
     Route::put('/modelos/{id}', [ModeloController::class, 'update']);
     Route::delete('/modelos/{id}', [ModeloController::class, 'destroy']);
+    
+    // Rutas para el carrito
+    Route::get('/carrito', [CarritoController::class, 'index']);
+    Route::post('/carrito', [CarritoController::class, 'store']);
+    Route::get('/carrito/{id}', [CarritoController::class, 'show']);
+    Route::put('/carrito/{id}', [CarritoController::class, 'update']);
+    Route::delete('/carrito/{id}', [CarritoController::class, 'destroy']);
+    Route::delete('/carrito/vaciar/todo', [CarritoController::class, 'vaciarCarrito']);
 
 Route::get('/modelo-obj/{filename}', function ($filename) {
     $path = storage_path('app/public/modelos/' . $filename);
