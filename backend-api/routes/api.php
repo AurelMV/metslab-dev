@@ -11,7 +11,7 @@ use App\Http\Controllers\CarritoController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\SocialController;
-
+use App\Http\Controllers\PerfilController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -23,6 +23,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [RegisterController::class, 'register']);
 Route::post('/verify-code', [RegisterController::class, 'verifyCode']);
 Route::post('/resend-code', [RegisterController::class, 'resendCode']);
+
 
 // Rutas sociales
 Route::post('/social-callback', [SocialController::class, 'handleApiCallback']);
@@ -105,3 +106,9 @@ Route::get('/modelo-obj/{filename}', function ($filename) {
         'Content-Type' => 'application/octet-stream'
     ]);
 });
+Route::middleware(['auth:sanctum', 'role:cliente'])->group(function () {
+    // ... otras rutas
+    Route::get('/perfil', [PerfilController::class, 'show']);
+    Route::put('/perfil', [PerfilController::class, 'update']);
+});
+

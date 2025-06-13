@@ -1,54 +1,42 @@
-import React from 'react';
-import PerfilUsuarioCard from '../components/PerfilUsuarioCard';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-
-const usuarioMock = {
-  nombre: "Juan Pérez",
-  email: "juan.perez@email.com",
-  celular: "987654321",
-  distrito: "Miraflores",
-  latitud: -12.1208,
-  longitud: -77.0305
-};
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useAuth } from '../contexts/AuthContext';
 
 const PerfilPage = () => {
-  const usuario = usuarioMock;
+  const { token } = useAuth();
+  const [perfil, setPerfil] = useState(null);
+
+const obtenerPerfil = async () => {
+  try {
+    const token = localStorage.getItem('token'); // O desde tu contexto de autenticación
+    const response = await axios.get('http://localhost:8000/api/perfil', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log(response.data);
+    setPerfil(response.data);
+    setCargando(false);
+  } catch (error) {
+    console.error('Error al obtener el perfil:', error);
+    setCargando(false);
+  }
+};
+
+  useEffect(() => {
+    if (token) {
+      obtenerPerfil();
+    }
+  }, [token]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 p-8 flex flex-col items-center">
-      <h1 className="text-3xl font-extrabold mb-10 text-white tracking-wide drop-shadow-lg">
-        Perfil de Usuario
-      </h1>
-      <div className="flex flex-col md:flex-row gap-10 w-full max-w-5xl">
-        <div className="w-full md:w-1/2 flex justify-center items-center">
-          <div className="w-full">
-            <PerfilUsuarioCard usuario={usuario} />
-          </div>
-        </div>
-        <div className="w-full md:w-1/2 flex justify-center items-center">
-          <div className="w-full h-[400px] rounded-xl shadow-lg overflow-hidden border-2 border-white/10">
-            <MapContainer
-              center={[usuario.latitud, usuario.longitud]}
-              zoom={13}
-              style={{ height: '100%', width: '100%' }}
-              className="rounded-xl"
-            >
-              <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution="© OpenStreetMap contributors"
-              />
-              <Marker position={[usuario.latitud, usuario.longitud]}>
-                <Popup>
-                  <span className="font-semibold">{usuario.nombre}</span>
-                  <br />
-                  <span className="text-sm">{usuario.distrito}</span>
-                </Popup>
-              </Marker>
-            </MapContainer>
-          </div>
-        </div>
-      </div>
+    <div>
+      <h1>Perfil</h1>
+      {perfil ? (
+        <pre>{JSON.stringify(perfil, null, 2)}</pre>
+      ) : (
+        <p>Cargando...</p>
+      )}
     </div>
   );
 };

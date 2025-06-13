@@ -19,6 +19,11 @@ import "../estiloscatalogo/DiseñoApp.css";
 import Carrito from "../components/Carrito.jsx";
 import Pageadmi from "./Dashboard.jsx"; // ✅ Importa la página de administración
 import { CarritoProvider } from "../context/CarritoContext.jsx";
+import PerfilPage from "./PerfilPage.jsx"; // ✅ Importa la página de perfil
+import FormularioPerfil from "./FormularioPerfil.jsx"; // ✅ Importa el formulario de perfil
+
+
+
 
 // Componente Header con autenticación
 function Header() {
@@ -179,6 +184,11 @@ function App() {
                 <Route path="/mapa" element={<MapaPage />} />
                 <Route path="/admin" element={<Pageadmi />} />
                 <Route path="/" element={<HomePage />} />
+                <Route path="/perfil" element={<PerfilPage />} />
+                <Route path="/perfil/editar" element={<FormularioPerfil />} />
+                <Route path="/perfil" element={<PerfilPage />} />
+                <Route path="/perfil/editar" element={<FormularioPerfil />} />
+
               </Routes>
             </div>
 
