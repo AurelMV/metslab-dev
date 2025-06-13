@@ -54,7 +54,6 @@ function Header() {
           <Link to="/mapa" className="nav-item">
             Mapa
           </Link>{" "}
-          
           {/* ✅ Nuevo enlace */}
         </nav>
 
@@ -65,8 +64,8 @@ function Header() {
           {isAuthenticated && user ? (
             <div className="user-menu">
               <span className="user-name">{user.name}</span>
-              <button 
-                onClick={handleLogout} 
+              <button
+                onClick={handleLogout}
                 className="logout-button"
                 style={{
                   backgroundColor: "#ff4757",
@@ -82,11 +81,11 @@ function Header() {
                   alignItems: "center",
                   gap: "8px",
                   boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                  '&:hover': {
+                  "&:hover": {
                     backgroundColor: "#ff6b81",
                     transform: "translateY(-1px)",
-                    boxShadow: "0 4px 6px rgba(0,0,0,0.1)"
-                  }
+                    boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                  },
                 }}
               >
                 <span>🚪</span> Cerrar sesión
@@ -179,6 +178,7 @@ function App() {
                 <Route path="/mapa" element={<MapaPage />} />
                 <Route path="/admin" element={<Pageadmi />} />
                 <Route path="/" element={<HomePage />} />
+                <Route path="/perfil" element={<HomePage />} />
               </Routes>
             </div>
 

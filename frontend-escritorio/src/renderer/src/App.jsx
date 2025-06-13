@@ -1,31 +1,41 @@
-import Versions from './components/Versions'
-import React, { useState } from 'react'
-import electronLogo from './assets/electron.svg'
-import LoginForm from './components/Login/LoginForm'
-import Dashboard from './components/Dashboard/Dashboard'
-import './styles/globals.css'
+import React, { useState, useEffect } from 'react'
+import Login from './components/Login'
+import Dashboard from './components/Dashboard'
+import './estilos.css' // Asegúrate de que tu CSS global esté importado
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [user, setUser] = useState(null)
+  const [isOnline, setIsOnline] = useState(navigator.onLine)
 
-  const handleLogin = (userData) => {
-    setIsAuthenticated(true)
-    setUser(userData)
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true)
+    const handleOffline = () => setIsOnline(false)
+
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
+
+    return () => {
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
+    }
+  }, [])
+
+  const handleLogin = (success) => {
+    setIsAuthenticated(success)
   }
 
   const handleLogout = () => {
     setIsAuthenticated(false)
-    setUser(null)
   }
 
+  if (!isAuthenticated) {
+    return <Login onLogin={handleLogin} isOnline={isOnline} />
+  }
+
+  // Envuelve el Dashboard en un div con la clase 'app-container'
   return (
-    <div className="app">
-      {!isAuthenticated ? (
-        <LoginForm onLogin={handleLogin} />
-      ) : (
-        <Dashboard user={user} onLogout={handleLogout} />
-      )}
+    <div className="app-container">
+      <Dashboard onLogout={handleLogout} isOnline={isOnline} />
     </div>
   )
 }
