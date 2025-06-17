@@ -39,7 +39,7 @@ export default function ProductDetail() {
   const fetchColors = async () => {
     try {
       setColorsLoading(true);
-      const response = await fetch(`$env.$http://127.0.0.1:8000/api/color`);
+      const response = await fetch(`${env.BASE_URL_API}/color`);
       const result = await response.json();
 
       if (Array.isArray(result)) {
@@ -83,7 +83,7 @@ export default function ProductDetail() {
   const fetchModel = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://127.0.0.1:8000/api/modelos/${id}`);
+      const response = await fetch(`${env.BASE_URL_API}/modelos/${id}`);
       const result = await response.json();
 
       if (result.success) {

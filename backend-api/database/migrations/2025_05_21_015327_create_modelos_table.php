@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('precio');
             $table->string('descripcion')->nullable();
             $table->string('dimensiones', 45)->nullable();
+            $table->boolean('estado')->default(true); // true = activo, false = inactivo
             $table->unsignedBigInteger('idCategoria')->nullable();
             $table->timestamps();
 

@@ -4,7 +4,7 @@ import { Search, Filter, Grid, List, Loader } from "lucide-react";
 
 // Import the pure CSS file
 import "../stayle/Catalog.css"; // Adjust the path as per your file structure
-
+import env from "../config/env"; // Import your environment variables
 export default function Catalog() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -22,7 +22,7 @@ export default function Catalog() {
     try {
       setLoading(true);
       const response = await fetch(
-        "http://127.0.0.1:8000/api/modelos/recursocatalogo"
+        `${env.BASE_URL_API}/modelos/recursocatalogo`
       );
       const result = await response.json();
 
