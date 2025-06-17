@@ -6,12 +6,12 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ModeloController;
-use App\Http\Controllers\UbicacionController;
 use App\Http\Controllers\CarritoController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ColorController;
 use App\Http\Controllers\SocialController;
+use App\Http\Controllers\AddressController;
 
 /*
 |--------------------------------------------------------------------------
@@ -93,8 +93,6 @@ Route::get('/modelos/categoria/{idCategoria}', [ModeloController::class, 'modelo
 Route::get('/modelos/{id}', [ModeloController::class, 'show']);
 Route::get('/modelos/modelo/{id}', [ModeloController::class, 'Cargamodelo']);
 Route::get('/modelos/recursocatalogo', [ModeloController::class, 'RecursoCatalogo']);
-Route::post('/ubicaciones', [UbicacionController::class, 'store']);
-
 Route::get('/modelo-obj/{filename}', function ($filename) {
     $path = storage_path('app/public/modelos/' . $filename);
 
@@ -106,4 +104,12 @@ Route::get('/modelo-obj/{filename}', function ($filename) {
         'Access-Control-Allow-Origin' => '*',
         'Content-Type' => 'application/octet-stream'
     ]);
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/addresses', [AddressController::class, 'index']);
+    Route::post('/addresses', [AddressController::class, 'store']);
+    Route::get('/addresses/{address}', [AddressController::class, 'show']);
+    Route::put('/addresses/{address}', [AddressController::class, 'update']); // ✅ ESTA
+    Route::delete('/addresses/{address}', [AddressController::class, 'destroy']);
 });

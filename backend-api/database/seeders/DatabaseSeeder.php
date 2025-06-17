@@ -35,6 +35,17 @@ class DatabaseSeeder extends Seeder
         );
         $admin->assignRole($adminRole);
 
+        // Crear usuario cliente si no existe
+        $cliente = User::firstOrCreate(
+            ['email' => 'cliente@demo.com'],
+            [
+                'name' => 'Cliente Demo',
+                'password' => bcrypt('12345678'),
+                'email_verified_at' => now(),
+            ]
+        );
+        $cliente->assignRole($clienteRole);
+
         // Puedes agregar más seeders aquí...
     }
 }
