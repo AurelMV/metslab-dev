@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
 import { Wifi, WifiOff, Lock, User, Rocket } from 'lucide-react'
+import { login as loginService } from '../services/auth-service'
 
 const Login = ({ onLogin, isOnline }) => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -14,16 +16,24 @@ const Login = ({ onLogin, isOnline }) => {
     }
 
     setLoading(true)
-
-    // Simular autenticación
-    setTimeout(() => {
-      if (email && password) {
+    setError(null)
+    try {
+      const data = await loginService(email, password)
+      if (data && data.token) {
         onLogin(true)
       } else {
-        alert('Credenciales incorrectas')
+        setError('Credenciales incorrectas')
       }
-      setLoading(false)
-    }, 1500)
+    } catch (err) {
+      if (err.message === 'Failed to fetch') {
+        setError(
+          'No se pudo conectar con el servidor. Verifica tu conexión o que la API esté activa.'
+        )
+      } else {
+        setError(err.message || 'Error de autenticación')
+      }
+    }
+    setLoading(false)
   }
 
   return (
@@ -81,6 +91,8 @@ const Login = ({ onLogin, isOnline }) => {
               />
             </div>
           </div>
+
+          {error && <div className="text-error">{error}</div>}
 
           <button type="submit" disabled={!isOnline || loading} className="submit-button">
             {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}

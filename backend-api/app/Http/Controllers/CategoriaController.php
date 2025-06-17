@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Categoria;
+
 class CategoriaController extends Controller
 {
-      public function index()
+    public function index()
     {
         try {
             $categorias = Categoria::all();
@@ -59,7 +60,7 @@ class CategoriaController extends Controller
     {
         try {
             $request->validate([
-                'nombre' => 'required|string|max:255|unique:categorias,nombre,' . $id
+                'nombre' => 'required|string|max:255|unique:categorias,nombre,' . $id . ',idCategoria'
             ]);
 
             $categoria = Categoria::findOrFail($id);
@@ -71,7 +72,7 @@ class CategoriaController extends Controller
                 'categoria' => $categoria
             ], 200);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Error al actualizar categoría'], 500);
+            return response()->json(['error' => 'Error al actualizar categoría: ' . $e->getMessage()], 500);
         }
     }
 
