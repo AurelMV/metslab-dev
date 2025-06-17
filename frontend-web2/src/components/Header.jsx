@@ -76,7 +76,7 @@ export default function Header() {
                 </button>
               </div>
             ) : (
-              <Link to="/auth" className="login-button">
+              <Link to="/auth/login" className="login-button">
                 Iniciar Sesión
               </Link>
             )}
@@ -156,7 +156,7 @@ export default function Header() {
                   </div>
                 ) : (
                   <Link
-                    to="/auth"
+                    to="/auth/login"
                     className="mobile-login-button"
                     onClick={() => setIsMenuOpen(false)}
                   >
