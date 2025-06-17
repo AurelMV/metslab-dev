@@ -1,0 +1,159 @@
+/* Colores y variables (opcional, pero buena práctica para mantener la consistencia) */
+:root {
+  --color-primary-400: #818cf8; /* Esto es un ejemplo, ajusta según tus colores primarios de Tailwind */
+  --color-primary-500: #6366f1; /* Esto es un ejemplo, ajusta según tus colores primarios de Tailwind */
+  --color-secondary-300: #d1d5db; /* Esto es un ejemplo, ajusta según tus colores secundarios de Tailwind */
+  --color-secondary-400: #9ca3af; /* Esto es un ejemplo, ajusta según tus colores secundarios de Tailwind */
+  --color-secondary-700: #374151; /* Esto es un ejemplo, ajusta según tus colores secundarios de Tailwind */
+  --color-secondary-800: #1f2937; /* Esto es un ejemplo, ajusta según tus colores secundarios de Tailwind */
+}
+
+/* Estilos del contenedor principal del footer */
+.footer-container {
+  background-color: var(--color-secondary-800);
+  color: white;
+}
+
+/* Contenedor de ancho limitado y centrado */
+.footer-wrapper {
+  max-width: 1280px; /* max-w-7xl */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem; /* px-4 */
+  padding-right: 1rem; /* px-4 */
+  padding-top: 3rem; /* py-12 */
+  padding-bottom: 3rem; /* py-12 */
+}
+
+/* Responsive padding para pantallas pequeñas y medianas */
+@media (min-width: 640px) { /* sm:px-6 */
+  .footer-wrapper {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) { /* lg:px-8 */
+  .footer-wrapper {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Grid para las columnas del footer */
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* grid-cols-1 */
+  gap: 2rem; /* gap-8 */
+}
+
+@media (min-width: 768px) { /* md:grid-cols-4 */
+  .footer-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Columna de la marca (MetsLab) */
+.footer-brand-col {
+  grid-column: span 1 / span 1; /* col-span-1 */
+}
+
+@media (min-width: 768px) { /* md:col-span-2 */
+  .footer-brand-col {
+    grid-column: span 2 / span 2;
+  }
+}
+
+/* Wrapper del logo y nombre de la marca */
+.footer-logo-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* space-x-2 */
+  margin-bottom: 1rem; /* mb-4 */
+}
+
+/* Fondo del icono del logo */
+.footer-logo-icon-bg {
+  padding: 0.5rem; /* p-2 */
+  background-color: var(--color-primary-500);
+  border-radius: 0.5rem; /* rounded-lg */
+}
+
+/* Nombre de la marca */
+.footer-brand-name {
+  font-size: 1.25rem; /* text-xl */
+  font-weight: 700; /* font-bold */
+}
+
+/* Descripción de la marca */
+.footer-description {
+  color: var(--color-secondary-300);
+  margin-bottom: 1rem; /* mb-4 */
+  max-width: 28rem; /* max-w-md (448px) */
+}
+
+/* Sección de ubicación */
+.footer-location {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* space-x-2 */
+  color: var(--color-secondary-300);
+}
+
+/* Iconos */
+.footer-icon {
+  height: 1rem; /* h-4 */
+  width: 1rem; /* w-4 */
+  color: var(--color-primary-400);
+}
+
+/* Títulos de sección (Contacto, Enlaces Rápidos) */
+.footer-heading {
+  font-size: 1.125rem; /* text-lg */
+  font-weight: 600; /* font-semibold */
+  margin-bottom: 1rem; /* mb-4 */
+}
+
+/* Espacio entre elementos en las secciones de contacto y enlaces */
+.footer-contact-info,
+.footer-quick-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem; /* space-y-3 para contacto, space-y-2 para enlaces. Ajusta si quieres diferente */
+}
+
+/* Si quieres que los enlaces rápidos tengan un espacio diferente (space-y-2 = 0.5rem) */
+.footer-quick-links {
+    gap: 0.5rem;
+}
+
+
+/* Elementos individuales de contacto */
+.footer-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* space-x-2 */
+  color: var(--color-secondary-300);
+}
+
+/* Enlaces de navegación rápida */
+.footer-nav-link {
+  display: block; /* block */
+  color: var(--color-secondary-300);
+  transition-property: color; /* transition-colors */
+  transition-duration: 150ms; /* default transition duration */
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); /* default transition timing */
+}
+
+.footer-nav-link:hover {
+  color: var(--color-primary-400); /* hover:text-primary-400 */
+}
+
+/* Sección del copyright al final */
+.footer-bottom-section {
+  border-top: 1px solid var(--color-secondary-700); /* border-t border-secondary-700 */
+  margin-top: 2rem; /* mt-8 */
+  padding-top: 2rem; /* pt-8 */
+  text-align: center;
+  color: var(--color-secondary-400);
+}
