@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Login from './components/Login'
 import Dashboard from './components/Dashboard'
 import './estilos.css' // Asegúrate de que tu CSS global esté importado
+import { logout as logoutService } from './services/auth-service'
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -24,7 +25,8 @@ function App() {
     setIsAuthenticated(success)
   }
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await logoutService()
     setIsAuthenticated(false)
   }
 

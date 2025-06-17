@@ -1,50 +1,86 @@
-import React, { useState } from 'react'
-import { Plus, Edit, Eye, Trash2, Upload } from 'lucide-react'
-import ModelForm from './ModelForm' // Asegúrate de que ModelForm exista
+import React, { useState, useEffect } from 'react'
+import { Plus, Edit, Trash2 } from 'lucide-react'
+import ModelForm from './utils/ModelForm'
+import { getModelos, deleteModelo } from '../services/model-service'
+import { getCategorias } from '../services/category-service'
 
-const ModelsManager = () => {
+const ModelsManager = ({ onModelCardClick }) => {
   const [showForm, setShowForm] = useState(false)
   const [editingModel, setEditingModel] = useState(null)
-  const [models, setModels] = useState([
-    {
-      id: 1,
-      name: 'Figura de Dragón',
-      details: 'Modelo detallado de dragón fantástico',
-      price: 45.5,
-      dimensions: '15x10x8 cm',
-      category: 'Fantasía'
-    },
-    {
-      id: 2,
-      name: 'Miniatura de Casa',
-      details: 'Casa arquitectónica moderna',
-      price: 28.0,
-      dimensions: '12x8x6 cm',
-      category: 'Arquitectura'
-    }
-  ])
+  const [models, setModels] = useState([])
+  const [categories, setCategories] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    setLoading(true)
+    Promise.all([getModelos(), getCategorias()])
+      .then(([modelos, categorias]) => {
+        setModels(
+          Array.isArray(modelos)
+            ? modelos.map((m) => ({
+                idModelo: m.idModelo,
+                nombre: m.nombre,
+                descripcion: m.descripcion,
+                precio: m.precio,
+                dimensiones: m.dimensiones,
+                idCategoria: m.idCategoria,
+                nombreCategoria: m.nombreCategoria,
+                modelo_url: m.modelo_url,
+                imagen_url: m.imagen_url
+              }))
+            : []
+        )
+        setCategories(
+          Array.isArray(categorias)
+            ? categorias.map((cat) => ({
+                idCategoria: cat.idCategoria,
+                nombre: cat.nombre
+              }))
+            : []
+        )
+      })
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false))
+  }, [])
+
+  const token = localStorage.getItem('token')
 
   const handleEdit = (model) => {
     setEditingModel(model)
     setShowForm(true)
   }
 
-  const handleDelete = (id) => {
-    if (confirm('¿Estás seguro de que quieres eliminar este modelo?')) {
-      setModels(models.filter((m) => m.id !== id))
+  const handleDelete = async (idModelo) => {
+    if (window.confirm('¿Estás seguro de que quieres eliminar este modelo?')) {
+      setLoading(true)
+      setError(null)
+      try {
+        await deleteModelo(idModelo, token)
+        setModels(models.filter((m) => m.idModelo !== idModelo))
+      } catch (err) {
+        setError(err.message)
+      }
+      setLoading(false)
     }
   }
 
-  const handleFormSubmit = (modelData) => {
-    if (editingModel) {
-      setModels(models.map((m) => (m.id === editingModel.id ? { ...m, ...modelData } : m)))
+  const handleFormSubmit = (result) => {
+    // Si es edición, actualiza el modelo en la lista
+    if (editingModel && editingModel.idModelo) {
+      setModels(
+        models.map((m) => (m.idModelo === editingModel.idModelo ? { ...m, ...result.data } : m))
+      )
     } else {
-      const newModel = { ...modelData, id: Date.now() }
-      setModels([...models, newModel])
+      // Si es nuevo, agrega el modelo a la lista
+      setModels([...models, result.data])
     }
     setShowForm(false)
     setEditingModel(null)
   }
+
+  // Mostrar solo los primeros 12 modelos (3 filas x 4 columnas)
+  const displayedModels = models.slice(0, 12)
 
   return (
     <div className="models-manager-container">
@@ -59,55 +95,62 @@ const ModelsManager = () => {
           </div>
         </div>
 
-        <div className="table-overflow-auto">
-          <table className="models-table">
-            <thead className="table-header">
-              <tr>
-                <th className="table-header-cell">Nombre</th>
-                <th className="table-header-cell">Detalles</th>
-                <th className="table-header-cell">Precio</th>
-                <th className="table-header-cell">Dimensiones</th>
-                <th className="table-header-cell">Categoría</th>
-                <th className="table-header-cell">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="table-body">
-              {models.map((model) => (
-                <tr key={model.id}>
-                  <td className="table-body-cell cell-name">{model.name}</td>
-                  <td className="table-body-cell cell-details">{model.details}</td>
-                  <td className="table-body-cell cell-price">S/.{model.price.toFixed(2)}</td>
-                  <td className="table-body-cell cell-dimensions">{model.dimensions}</td>
-                  <td className="table-body-cell cell-category">{model.category}</td>
-                  <td className="table-body-cell">
-                    <div className="action-buttons-group">
-                      <button
-                        onClick={() => alert('Visualizador 3D próximamente')}
-                        className="action-button view"
-                        title="Ver modelo 3D"
-                      >
-                        <Eye className="action-button-icon" />
-                      </button>
-                      <button
-                        onClick={() => handleEdit(model)}
-                        className="action-button edit"
-                        title="Editar"
-                      >
-                        <Edit className="action-button-icon" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(model.id)}
-                        className="action-button delete"
-                        title="Eliminar"
-                      >
-                        <Trash2 className="action-button-icon" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {error && <div className="models-error">{error}</div>}
+
+        <div className="models-grid">
+          {displayedModels.map((model) => (
+            <div
+              key={model.idModelo}
+              className="model-card"
+              onClick={(e) => {
+                if (e.target.closest('.model-card-actions')) return
+                if (onModelCardClick) {
+                  onModelCardClick(model)
+                } else {
+                  alert('Visualizador 3D próximamente')
+                }
+              }}
+              tabIndex={0}
+              role="button"
+            >
+              <div className="model-card-image-wrapper">
+                {model.imagen_url ? (
+                  <img src={model.imagen_url} alt={model.nombre} className="model-card-image" />
+                ) : (
+                  <div className="model-card-image-placeholder">Sin imagen</div>
+                )}
+              </div>
+              <div className="model-card-content">
+                <h3 className="model-card-title">{model.nombre}</h3>
+                <div className="model-card-info">
+                  <span className="model-card-price">S/.{Number(model.precio).toFixed(2)}</span>
+                </div>
+                <div className="model-card-actions">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleEdit(model)
+                    }}
+                    className="action-button edit"
+                    title="Editar"
+                  >
+                    <Edit className="action-button-icon" />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleDelete(model.idModelo)
+                    }}
+                    className="action-button delete"
+                    title="Eliminar"
+                    disabled={loading}
+                  >
+                    <Trash2 className="action-button-icon" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -119,6 +162,8 @@ const ModelsManager = () => {
             setShowForm(false)
             setEditingModel(null)
           }}
+          categories={categories}
+          token={token}
         />
       )}
     </div>

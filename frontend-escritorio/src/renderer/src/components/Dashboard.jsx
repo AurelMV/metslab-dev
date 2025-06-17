@@ -1,20 +1,32 @@
 import React, { useState } from 'react'
-import Sidebar from './Sidebar'
+import Sidebar from './utils/Sidebar.jsx'
 import UserProfile from './UserProfile'
 import ModelsManager from './ModelsManager'
 import CategoriesManager from './CategoriesManager'
 import OrdersManager from './OrdersManager.jsx'
 import UsersManager from './UsersManager'
+import ModelDetail from './ModelDetail'
 
 const Dashboard = ({ onLogout, isOnline }) => {
   const [activeSection, setActiveSection] = useState('profile')
+  const [selectedModel, setSelectedModel] = useState(null)
 
   const renderContent = () => {
+    if (activeSection === 'modelDetail' && selectedModel) {
+      return <ModelDetail model={selectedModel} />
+    }
     switch (activeSection) {
       case 'profile':
         return <UserProfile />
       case 'models':
-        return <ModelsManager />
+        return (
+          <ModelsManager
+            onModelCardClick={(model) => {
+              setSelectedModel(model)
+              setActiveSection('modelDetail')
+            }}
+          />
+        )
       case 'categories':
         return <CategoriesManager />
       case 'orders':
