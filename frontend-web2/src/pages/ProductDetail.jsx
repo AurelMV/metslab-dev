@@ -400,7 +400,7 @@ export default function ProductDetail() {
                 crear una cuenta.
               </p>
               <div className="auth-modal-actions">
-                <Link to="/auth" className="auth-modal-button-login">
+                <Link to="/auth/login" className="auth-modal-button-login">
                   Iniciar Sesión
                 </Link>
                 <button

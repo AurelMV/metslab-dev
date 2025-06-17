@@ -38,7 +38,7 @@ export default function Cart() {
 
   const handleCheckout = () => {
     if (!user) {
-      navigate("/auth");
+      navigate("/auth/login");
       return;
     }
 

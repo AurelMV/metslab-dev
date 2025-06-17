@@ -1,4 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import {
+  getCurrentUser,
+  logout as logoutService,
+} from "../services/auth-service";
 
 const AuthContext = createContext(undefined);
 
@@ -11,6 +15,11 @@ export function AuthProvider({ children }) {
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
+  }, []);
+
+  // Cargar usuario al montar
+  useEffect(() => {
+    getCurrentUser().then(setUser);
   }, []);
 
   const login = async (email, password) => {
@@ -64,7 +73,8 @@ export function AuthProvider({ children }) {
     return true;
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await logoutService();
     setUser(null);
     localStorage.removeItem("metslab_user");
   };
@@ -83,6 +93,7 @@ export function AuthProvider({ children }) {
     <AuthContext.Provider
       value={{
         user,
+        setUser,
         login,
         register,
         logout,

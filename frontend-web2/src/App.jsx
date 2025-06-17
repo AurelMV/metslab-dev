@@ -8,7 +8,9 @@ import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import Catalog from "./pages/Catalog";
 import ProductDetail from "./pages/ProductDetail";
-import Auth from "./pages/Auth";
+import Login from "./pages/auth/login";
+import Register from "./pages/auth/Register";
+import VerifyCode from "./pages/auth/Verify-code";
 import Cart from "./pages/Cart";
 import Admin from "./pages/Admin";
 import Profile from "./pages/Profile";
@@ -30,7 +32,9 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/catalog" element={<Catalog />} />
                 <Route path="/product/:id" element={<ProductDetail />} />
-                <Route path="/auth" element={<Auth />} />
+                <Route path="/auth/login" element={<Login />} />
+                <Route path="/auth/register" element={<Register />} />
+                <Route path="/auth/verify-code" element={<VerifyCode />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/profile" element={<Profile />} />

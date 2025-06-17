@@ -39,6 +39,7 @@
 .auth-form-wrapper {
   max-width: 28rem; /* max-w-md */
   width: 100%;
+  box-sizing: border-box; /* <-- Añadido */
 }
 
 /* Estilos del encabezado */
@@ -90,6 +91,9 @@
   border-radius: 0.5rem; /* rounded-lg */
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
   padding: 2rem; /* p-8 */
+  box-sizing: border-box; /* <-- Añadido */
+  width: 100%; /* <-- Añadido */
+  overflow: hidden; /* <-- Añadido para evitar overflow visual */
 }
 
 /* Estilos del formulario en sí */
@@ -135,6 +139,7 @@
   border: 1px solid var(--secondary-300);
   border-radius: 0.5rem; /* rounded-lg */
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  box-sizing: border-box; /* <-- Añadido */
 }
 
 .auth-input-field:focus {
@@ -175,6 +180,8 @@
   padding-bottom: 0.75rem;
   padding-left: 2.5rem; /* pl-10 */
   padding-right: 1rem; /* pr-4 */
+  width: 100%;
+  box-sizing: border-box; /* <-- Añadido */
 }
 
 
