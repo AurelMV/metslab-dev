@@ -10,6 +10,7 @@ use App\Http\Controllers\UbicacionController;
 use App\Http\Controllers\CarritoController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\ColorController;
 use App\Http\Controllers\SocialController;
 
 /*
@@ -85,6 +86,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 
 // Rutas públicas y de solo lectura
 Route::get('/categorias', [CategoriaController::class, 'index']);
+Route::get('/color', [ColorController::class, 'index']);
 Route::get('/categorias/{id}', [CategoriaController::class, 'show']);
 Route::get('/modelos', [ModeloController::class, 'index']);
 Route::get('/modelos/categoria/{idCategoria}', [ModeloController::class, 'modelosPorCategoria']);

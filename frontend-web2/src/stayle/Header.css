@@ -1,0 +1,401 @@
+/* Colores y variables (ajusta estos valores para que coincidan con tu paleta de Tailwind) */
+:root {
+  --color-primary-500: #6366f1; /* Ejemplo de Tailwind blue-500 */
+  --color-primary-600: #4f46e5; /* Ejemplo de Tailwind blue-600 */
+  --color-secondary-600: #4b5563; /* Ejemplo de Tailwind gray-600 */
+  --color-secondary-700: #374151; /* Ejemplo de Tailwind gray-700 */
+  --color-secondary-800: #1f2937; /* Ejemplo de Tailwind gray-800 */
+  --color-white: #ffffff;
+}
+
+/* Base del encabezado */
+.header-container {
+  background-color: var(--color-white);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1); /* shadow-lg */
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+/* Contenedor principal para el contenido */
+.header-wrapper {
+  max-width: 1280px; /* max-w-7xl */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem; /* px-4 */
+  padding-right: 1rem; /* px-4 */
+}
+
+@media (min-width: 640px) { /* sm:px-6 */
+  .header-wrapper {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) { /* lg:px-8 */
+  .header-wrapper {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Flexbox para alinear elementos principales */
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 4rem; /* h-16 (64px) */
+}
+
+/* Estilos del Logo */
+.header-logo-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* space-x-2 */
+  text-decoration: none; /* Asegura que no haya subrayado por defecto */
+}
+
+.header-logo-icon-bg {
+  padding: 0.5rem; /* p-2 */
+  background-color: var(--color-primary-500);
+  border-radius: 0.5rem; /* rounded-lg */
+  transition-property: background-color; /* transition-colors */
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Estilo para el hover del grupo Link del logo */
+.header-logo-link:hover .header-logo-icon-bg {
+  background-color: var(--color-primary-600); /* group-hover:bg-primary-600 */
+}
+
+.header-logo-icon {
+  height: 1.5rem; /* h-6 */
+  width: 1.5rem; /* w-6 */
+  color: var(--color-white);
+}
+
+.header-logo-text {
+  font-size: 1.25rem; /* text-xl */
+  font-weight: 700; /* font-bold */
+  color: var(--color-secondary-800);
+}
+
+/* Navegación de escritorio */
+.desktop-nav {
+  display: none; /* hidden */
+}
+
+@media (min-width: 768px) { /* md:flex */
+  .desktop-nav {
+    display: flex;
+    align-items: center;
+    gap: 2rem; /* space-x-8 (32px) */
+  }
+}
+
+.desktop-nav-link {
+  font-weight: 500; /* font-medium */
+  transition-property: color, border-color; /* transition-colors */
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  padding-bottom: 0.125rem; /* Pequeño padding para la línea inferior */
+}
+
+/* Estilos para enlaces inactivos */
+.desktop-nav-link.inactive {
+  color: var(--color-secondary-600);
+}
+
+.desktop-nav-link.inactive:hover {
+  color: var(--color-primary-600); /* hover:text-primary-600 */
+}
+
+/* Estilos para enlaces activos */
+.desktop-nav-link.active {
+  color: var(--color-primary-600);
+  border-bottom: 2px solid var(--color-primary-600); /* border-b-2 border-primary-600 */
+}
+
+/* Acciones de usuario en escritorio (Carrito, Perfil, Login/Logout) */
+.desktop-user-actions {
+  display: none; /* hidden */
+}
+
+@media (min-width: 768px) { /* md:flex */
+  .desktop-user-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem; /* space-x-4 */
+  }
+}
+
+.cart-link {
+  position: relative;
+  padding: 0.5rem; /* p-2 */
+  color: var(--color-secondary-600);
+  transition-property: color; /* transition-colors */
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+}
+
+.cart-link:hover {
+  color: var(--color-primary-600); /* hover:text-primary-600 */
+}
+
+.cart-icon {
+  height: 1.5rem; /* h-6 */
+  width: 1.5rem; /* w-6 */
+}
+
+.cart-item-count {
+  position: absolute;
+  top: -0.25rem; /* -top-1 */
+  right: -0.25rem; /* -right-1 */
+  background-color: var(--color-primary-500);
+  color: var(--color-white);
+  font-size: 0.75rem; /* text-xs */
+  border-radius: 9999px; /* rounded-full */
+  height: 1.25rem; /* h-5 */
+  width: 1.25rem; /* w-5 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Animación de rebote sutil */
+  animation: bounce-subtle 1.5s infinite ease-in-out; /* animate-bounce-subtle */
+}
+
+@keyframes bounce-subtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-0.15rem); /* Un pequeño movimiento hacia arriba */
+  }
+}
+
+
+.user-profile-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem; /* space-x-3 */
+}
+
+.profile-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* space-x-2 */
+  color: var(--color-secondary-700);
+  transition-property: color; /* transition-colors */
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+}
+
+.profile-link:hover {
+  color: var(--color-primary-600); /* hover:text-primary-600 */
+}
+
+.profile-icon {
+  height: 1.25rem; /* h-5 */
+  width: 1.25rem; /* w-5 */
+}
+
+.profile-name {
+  font-weight: 500; /* font-medium */
+}
+
+.logout-button {
+  padding-left: 1rem; /* px-4 */
+  padding-right: 1rem; /* px-4 */
+  padding-top: 0.5rem; /* py-2 */
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 500; /* font-medium */
+  color: var(--color-secondary-600);
+  transition-property: color; /* transition-colors */
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: transparent; /* Asegura que no tenga fondo */
+  border: none; /* Asegura que no tenga borde */
+  cursor: pointer;
+}
+
+.logout-button:hover {
+  color: var(--color-primary-600); /* hover:text-primary-600 */
+}
+
+.login-button {
+  background-color: var(--color-primary-500);
+  color: var(--color-white);
+  padding: 0.5rem 1rem; /* px-4 py-2 */
+  border-radius: 0.5rem; /* rounded-lg */
+  font-weight: 500; /* font-medium */
+  transition-property: background-color; /* transition-colors */
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  display: inline-block; /* Para que aplique padding y margen correctamente */
+}
+
+.login-button:hover {
+  background-color: var(--color-primary-600); /* hover:bg-primary-600 */
+}
+
+/* Botón del menú móvil */
+.mobile-menu-button {
+  display: block; /* md:hidden */
+  padding: 0.5rem; /* p-2 */
+  color: var(--color-secondary-600);
+  transition-property: color; /* transition-colors */
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+@media (min-width: 768px) { /* md:hidden */
+  .mobile-menu-button {
+    display: none;
+  }
+}
+
+.mobile-menu-button:hover {
+  color: var(--color-primary-600); /* hover:text-primary-600 */
+}
+
+.menu-icon {
+  height: 1.5rem; /* h-6 */
+  width: 1.5rem; /* w-6 */
+}
+
+/* Navegación móvil */
+.mobile-nav-panel {
+  display: none; /* hidden por defecto si no está abierto */
+  padding-top: 1rem; /* py-4 */
+  padding-bottom: 1rem; /* py-4 */
+  border-top: 1px solid #e5e7eb; /* border-t (border-gray-200, asumiendo) */
+  /* Animación de deslizamiento */
+  animation: slide-up 0.3s ease-out forwards; /* animate-slide-up */
+}
+
+/* Esto se aplicará condicionalmente con JavaScript */
+.mobile-nav-panel.open {
+  display: block;
+}
+
+@media (min-width: 768px) { /* md:hidden */
+  .mobile-nav-panel {
+    display: none; /* Siempre oculto en escritorio */
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mobile-nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* space-y-4 */
+}
+
+.mobile-nav-link {
+  font-weight: 500; /* font-medium */
+  transition-property: color; /* transition-colors */
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+}
+
+/* Estilos para enlaces activos en móvil */
+.mobile-nav-link.active {
+  color: var(--color-primary-600);
+}
+
+.mobile-nav-link.inactive {
+  color: var(--color-secondary-600);
+}
+
+/* Sección de acciones en móvil (carrito y perfil/login/logout) */
+.mobile-actions-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 1rem; /* pt-4 */
+  border-top: 1px solid #e5e7eb; /* border-t (border-gray-200, asumiendo) */
+}
+
+.mobile-cart-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* space-x-2 */
+  color: var(--color-secondary-600);
+  text-decoration: none;
+}
+
+.mobile-cart-icon {
+  height: 1.25rem; /* h-5 */
+  width: 1.25rem; /* w-5 */
+}
+
+.mobile-cart-text {
+  font-size: 0.875rem; /* text-sm */
+}
+
+.mobile-user-auth-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* space-y-2 */
+}
+
+.mobile-profile-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* space-x-2 */
+  color: var(--color-secondary-700);
+  text-decoration: none;
+}
+
+.mobile-profile-icon {
+  height: 1rem; /* h-4 */
+  width: 1rem; /* w-4 */
+}
+
+.mobile-profile-name {
+  font-size: 0.875rem; /* text-sm */
+}
+
+.mobile-logout-button {
+  font-size: 0.875rem; /* text-sm */
+  color: var(--color-secondary-600);
+  text-align: left;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0; /* Elimina padding que podría agregar el navegador */
+}
+
+.mobile-login-button {
+  background-color: var(--color-primary-500);
+  color: var(--color-white);
+  padding: 0.5rem 1rem; /* px-4 py-2 */
+  border-radius: 0.5rem; /* rounded-lg */
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 500; /* font-medium */
+  text-decoration: none;
+  display: inline-block;
+}
+
+/* Para el efecto "group" del logo, necesitamos JavaScript o replicación de estilos */
+/* La clase `.header-logo-link:hover .header-logo-icon-bg` ya maneja esto. */
