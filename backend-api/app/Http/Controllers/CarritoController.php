@@ -13,7 +13,7 @@ class CarritoController extends Controller
     public function index(Request $request)
     {
         try {
-            $userId = $request->user_id; // Para pruebas con Thunder Client
+            $userId = Auth::id(); // Obtener el ID del usuario autenticado
             $carritoItems = Carrito::where('iduser', $userId)
                 ->with(['modelo' => function ($query) {
                     $query->select('idModelo', 'nombre', 'precio', 'descripcion', 'dimensiones', 'ruta_imagen');
@@ -61,7 +61,6 @@ class CarritoController extends Controller
             $validator = Validator::make($request->all(), [
                 'idModelo' => 'required|exists:modelos,idModelo',
                 'cantidad' => 'required|integer|min:1',
-                'user_id' => 'required|exists:users,id',
             ]);
 
             if ($validator->fails()) {
@@ -72,8 +71,11 @@ class CarritoController extends Controller
                 ], 422);
             }
 
+            // Obtener el ID del usuario autenticado
+            $userId = Auth::id();
+            
             // Verificar si ya existe el item en el carrito
-            $carritoExistente = Carrito::where('iduser', $request->user_id)
+            $carritoExistente = Carrito::where('iduser', $userId)
                 ->where('idModelo', $request->idModelo)
                 ->first();
 
@@ -86,7 +88,7 @@ class CarritoController extends Controller
             } else {
                 // Si no existe, crear nuevo item en carrito
                 $item = Carrito::create([
-                    'iduser' => $request->user_id,
+                    'iduser' => $userId,
                     'idModelo' => $request->idModelo,
                     'cantidad' => $request->cantidad
                 ]);
@@ -122,9 +124,14 @@ class CarritoController extends Controller
     public function show($id)
     {
         try {
-            $carritoItem = Carrito::with(['modelo' => function ($query) {
-                $query->select('idModelo', 'nombre', 'precio', 'descripcion', 'dimensiones', 'ruta_imagen');
-            }])->findOrFail($id);
+            $userId = Auth::id(); // Obtener el ID del usuario autenticado
+            
+            // Verificar que el item del carrito pertenece al usuario autenticado
+            $carritoItem = Carrito::where('id', $id)
+                ->where('iduser', $userId)
+                ->with(['modelo' => function ($query) {
+                    $query->select('idModelo', 'nombre', 'precio', 'descripcion', 'dimensiones', 'ruta_imagen');
+                }])->firstOrFail();
 
             $modelo = $carritoItem->modelo;
             $imagen_url = $modelo->ruta_imagen ? asset($modelo->ruta_imagen) : null;
@@ -166,7 +173,13 @@ class CarritoController extends Controller
                 ], 422);
             }
 
-            $carritoItem = Carrito::findOrFail($id);
+            $userId = Auth::id(); // Obtener el ID del usuario autenticado
+            
+            // Verificar que el item del carrito pertenece al usuario autenticado
+            $carritoItem = Carrito::where('id', $id)
+                ->where('iduser', $userId)
+                ->firstOrFail();
+                
             $carritoItem->cantidad = $request->cantidad;
             $carritoItem->save();
 
@@ -205,7 +218,13 @@ class CarritoController extends Controller
     public function destroy($id)
     {
         try {
-            $carritoItem = Carrito::findOrFail($id);
+            $userId = Auth::id(); // Obtener el ID del usuario autenticado
+            
+            // Verificar que el item del carrito pertenece al usuario autenticado
+            $carritoItem = Carrito::where('id', $id)
+                ->where('iduser', $userId)
+                ->firstOrFail();
+                
             $carritoItem->delete();
 
             return response()->json([
@@ -220,10 +239,15 @@ class CarritoController extends Controller
         }
     }
 
-    public function vaciarCarrito(Request $request)
+    /**
+     * Vaciar todo el carrito de un usuario
+     * 
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function vaciarCarrito()
     {
         try {
-            $userId = $request->user_id;
+            $userId = Auth::id(); // Obtener el ID del usuario autenticado
 
             Carrito::where('iduser', $userId)->delete();
 
