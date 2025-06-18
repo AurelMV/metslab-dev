@@ -39,3 +39,8 @@ export async function getCurrentUser() {
   const data = await response.json();
   return data.user || null;
 }
+// ...código existente...
+
+export function getToken() {
+  return localStorage.getItem("token");
+}

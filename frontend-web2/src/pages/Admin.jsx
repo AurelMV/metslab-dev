@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { Navigate } from "react-router-dom";
+import ModelForm from "./ModelosAdmin";
+import CategoryForm from "./CategoriasAdmin";
 import {
   Package,
   Tag,
@@ -18,6 +20,8 @@ import {
 } from "lucide-react";
 import { models3D, categories, colors, mockOrders } from "../data/mockData"; // Asegúrate de que mockData exista y tenga los datos
 import "../stayle/Admin.css"; // Importa tu archivo CSS puro
+import ModelosAdmin from "./ModelosAdmin";
+import ColoresAdmin from "./ColoresAdmin";
 
 export default function Admin() {
   const { user, isAdmin } = useAuth();
@@ -147,214 +151,12 @@ export default function Admin() {
         model.description.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    return (
-      <div className="section-content">
-        <div className="section-header">
-          <h2>Gestión de Modelos</h2>
-          <button
-            onClick={() => {
-              setEditingItem(null);
-              setShowModal(true);
-            }}
-            className="btn-primary"
-          >
-            <Plus className="icon" />
-            <span>Nuevo Modelo</span>
-          </button>
-        </div>
-
-        <div className="table-container">
-          <div className="p-4 border-b">
-            <div className="search-input-wrapper">
-              <Search className="icon" />
-              <input
-                type="text"
-                placeholder="Buscar modelos..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="search-input"
-              />
-            </div>
-          </div>
-
-          <div className="table-responsive">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Modelo</th>
-                  <th>Categoría</th>
-                  <th>Precio</th>
-                  <th>Dimensiones</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredModels.map((model) => (
-                  <tr key={model.id}>
-                    <td>
-                      <div className="flex items-center">
-                        <img
-                          className="h-12 w-12 rounded-lg object-cover"
-                          src={model.image}
-                          alt={model.name}
-                        />
-                        <div className="ml-4">
-                          <div className="font-medium text-secondary-900">
-                            {model.name}
-                          </div>
-                          <div className="text-sm text-secondary-500 text-truncate max-w-xs">
-                            {model.description}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <span className="badge badge-primary">
-                        {categoriesData.find(
-                          (cat) => cat.id === model.categoryId
-                        )?.name || "Sin categoría"}
-                      </span>
-                    </td>
-                    <td className="font-medium">S/ {model.price.toFixed(2)}</td>
-                    <td className="text-sm text-secondary">
-                      {model.dimensions.width}×{model.dimensions.height}×
-                      {model.dimensions.depth} cm
-                    </td>
-                    <td className="action-buttons">
-                      <button
-                        onClick={() => {
-                          setEditingItem(model);
-                          setShowModal(true);
-                        }}
-                        className="action-btn"
-                      >
-                        <Edit className="icon" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(model.id)}
-                        className="action-btn delete"
-                      >
-                        <Trash2 className="icon" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    );
+    return <ModelosAdmin />;
   };
 
-  const renderCategoriesSection = () => (
-    <div className="section-content">
-      <div className="section-header">
-        <h2>Gestión de Categorías</h2>
-        <button
-          onClick={() => {
-            setEditingItem(null);
-            setShowModal(true);
-          }}
-          className="btn-primary"
-        >
-          <Plus className="icon" />
-          <span>Nueva Categoría</span>
-        </button>
-      </div>
+  const renderCategoriesSection = () => <CategoryForm />;
 
-      <div className="form-grid category-grid">
-        {categoriesData.map((category) => (
-          <div key={category.id} className="card">
-            <div className="flex justify-between items-start mb-4">
-              <h3 className="text-lg font-semibold text-secondary-900">
-                {category.name}
-              </h3>
-              <div className="action-buttons space-x-2">
-                <button
-                  onClick={() => {
-                    setEditingItem(category);
-                    setShowModal(true);
-                  }}
-                  className="action-btn"
-                >
-                  <Edit className="icon" />
-                </button>
-                <button
-                  onClick={() => handleDelete(category.id)}
-                  className="action-btn delete"
-                >
-                  <Trash2 className="icon" />
-                </button>
-              </div>
-            </div>
-            <p className="text-secondary-600 text-sm mb-4">
-              {category.description}
-            </p>
-            <div className="text-xs text-secondary-500">
-              {
-                modelsData.filter((model) => model.categoryId === category.id)
-                  .length
-              }{" "}
-              modelos
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-
-  const renderColorsSection = () => (
-    <div className="section-content">
-      <div className="section-header">
-        <h2>Gestión de Colores</h2>
-        <button
-          onClick={() => {
-            setEditingItem(null);
-            setShowModal(true);
-          }}
-          className="btn-primary"
-        >
-          <Plus className="icon" />
-          <span>Nuevo Color</span>
-        </button>
-      </div>
-
-      <div className="form-grid color-grid lg-cols-6">
-        {colorsData.map((color) => (
-          <div key={color.id} className="card p-4">
-            <div className="flex justify-between items-start mb-3">
-              <div
-                className="color-swatch"
-                style={{ backgroundColor: color.hex }}
-              ></div>
-              <div className="action-buttons color-card-actions space-x-1">
-                <button
-                  onClick={() => {
-                    setEditingItem(color);
-                    setShowModal(true);
-                  }}
-                  className="action-btn"
-                >
-                  <Edit className="icon" />
-                </button>
-                <button
-                  onClick={() => handleDelete(color.id)}
-                  className="action-btn delete"
-                >
-                  <Trash2 className="icon" />
-                </button>
-              </div>
-            </div>
-            <h3 className="font-medium text-secondary-900 text-sm">
-              {color.name}
-            </h3>
-            <p className="text-xs text-secondary-500">{color.hex}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+  const renderColorsSection = () => <ColoresAdmin />;
 
   const renderOrdersSection = () => (
     <div className="section-content">
