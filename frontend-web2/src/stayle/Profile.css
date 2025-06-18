@@ -1,0 +1,546 @@
+/* src/styles/Profile.css */
+
+/* Define CSS Variables for Colors */
+:root {
+    /* Primary Colors */
+    --primary-50: #fff7ed;
+    --primary-500: #f97316;
+    --primary-600: #ea580c;
+    --primary-700: #c2410c;
+
+    /* Secondary/Neutral Colors */
+    --secondary-50: #f9fafb; /* light gray background */
+    --secondary-200: #e5e7eb; /* border color */
+    --secondary-300: #d1d5db; /* border color */
+    --secondary-400: #9ca3af; /* placeholder icon color */
+    --secondary-500: #6b7280; /* text-secondary-500 */
+    --secondary-600: #4b5563; /* text-secondary-600 */
+    --secondary-700: #374151; /* font-medium text-secondary-700 */
+    --secondary-900: #111827; /* text-secondary-900 (darkest) */
+
+    /* Status Colors */
+    --status-yellow-100: #fef9c3;
+    --status-yellow-800: #a16207;
+    --status-blue-100: #dbeafe;
+    --status-blue-800: #1e40af;
+    --status-purple-100: #ede9fe;
+    --status-purple-800: #6d28d9;
+    --status-green-100: #dcfce7;
+    --status-green-800: #166534;
+    --status-red-100: #fee2e2;
+    --status-red-800: #991b1b;
+    --status-gray-100: #f3f4f6;
+    --status-gray-800: #1f2937;
+}
+
+/* --- Base Layout --- */
+.profile-container {
+    min-height: 100vh;
+    background-color: var(--secondary-50);
+    padding-top: 2rem; /* py-8 */
+    padding-bottom: 2rem; /* py-8 */
+}
+
+.profile-content-wrapper {
+    max-width: 64rem; /* max-w-4xl */
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem; /* px-4 */
+    padding-right: 1rem; /* px-4 */
+}
+
+@media (min-width: 640px) { /* sm:px-6 */
+    .profile-content-wrapper {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+}
+
+@media (min-width: 1024px) { /* lg:px-8 */
+    .profile-content-wrapper {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+}
+
+/* --- Header Section --- */
+.profile-header {
+    margin-bottom: 2rem; /* mb-8 */
+}
+
+.profile-title {
+    font-size: 1.875rem; /* text-3xl */
+    font-weight: 700; /* font-bold */
+    color: var(--secondary-900);
+    margin-bottom: 0.5rem; /* mb-2 */
+}
+
+.profile-subtitle {
+    color: var(--secondary-600);
+}
+
+/* --- Main Grid Layout --- */
+.profile-grid {
+    display: grid;
+    grid-template-columns: 1fr; /* grid-cols-1 */
+    gap: 2rem; /* gap-8 */
+}
+
+@media (min-width: 1024px) { /* lg:grid-cols-3 */
+    .profile-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .profile-info-section { /* lg:col-span-2 */
+        grid-column: span 2 / span 2;
+    }
+}
+
+/* --- Profile Info Section (Left Column) --- */
+.profile-info-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem; /* space-y-6 */
+}
+
+/* --- Card Styles --- */
+.profile-card {
+    background-color: white;
+    border-radius: 0.5rem; /* rounded-lg */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+    padding: 1.5rem; /* p-6 */
+}
+
+/* --- Personal Info Card --- */
+.personal-info-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem; /* mb-6 */
+}
+
+.personal-info-title {
+    font-size: 1.25rem; /* text-xl */
+    font-weight: 600; /* font-semibold */
+    color: var(--secondary-900);
+    display: flex;
+    align-items: center;
+}
+
+.personal-info-icon {
+    height: 1.25rem; /* h-5 */
+    width: 1.25rem; /* w-5 */
+    margin-right: 0.5rem; /* mr-2 */
+    color: var(--primary-600);
+}
+
+.edit-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* space-x-2 */
+    color: var(--primary-600);
+    transition: color 150ms ease-in-out; /* transition-colors */
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.875rem; /* text-sm */
+    padding: 0;
+}
+
+.edit-button:hover {
+    color: var(--primary-700);
+}
+
+.edit-button-icon {
+    height: 1rem; /* h-4 */
+    width: 1rem; /* w-4 */
+}
+
+.edit-actions {
+    display: flex;
+    gap: 0.5rem; /* space-x-2 */
+}
+
+.save-button {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem; /* space-x-1 */
+    background-color: var(--primary-500);
+    color: white;
+    padding: 0.25rem 0.75rem; /* px-3 py-1 */
+    border-radius: 0.5rem; /* rounded-lg */
+    transition: background-color 150ms ease-in-out; /* transition-colors */
+    border: none;
+    cursor: pointer;
+    font-size: 0.875rem; /* text-sm */
+}
+
+.save-button:hover {
+    background-color: var(--primary-600);
+}
+
+.cancel-button {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem; /* space-x-1 */
+    border: 1px solid var(--secondary-300);
+    color: var(--secondary-700);
+    padding: 0.25rem 0.75rem; /* px-3 py-1 */
+    border-radius: 0.5rem; /* rounded-lg */
+    transition: background-color 150ms ease-in-out; /* transition-colors */
+    background: none;
+    cursor: pointer;
+    font-size: 0.875rem; /* text-sm */
+}
+
+.cancel-button:hover {
+    background-color: var(--secondary-50);
+}
+
+.form-fields-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; /* space-y-4 */
+}
+
+
+
+.form-label {
+    display: block;
+    font-size: 0.875rem; /* text-sm */
+    font-weight: 500; /* font-medium */
+    color: var(--secondary-700);
+    margin-bottom: 0.5rem; /* mb-2 */
+}
+
+.form-label-icon {
+    height: 1rem; /* h-4 */
+    width: 1rem; /* w-4 */
+    display: inline;
+    margin-right: 0.25rem; /* mr-1 */
+}
+
+.form-input {
+    width: 100%; /* w-full */
+    padding: 0.5rem 0.75rem; /* px-3 py-2 */
+    border: 1px solid var(--secondary-300);
+    border-radius: 0.5rem; /* rounded-lg */
+    outline: none; /* remove default focus outline */
+    transition: all 150ms ease-in-out; /* focus:ring-2 focus:ring-primary-500 focus:border-transparent */
+    resize: vertical; /* resize-none for textarea, but allows vertical if desired */
+}
+
+.form-input:focus {
+    border-color: transparent; /* focus:border-transparent */
+    box-shadow: 0 0 0 2px var(--primary-500); /* focus:ring-2 focus:ring-primary-500 */
+}
+
+.display-text {
+    color: var(--secondary-900);
+    background-color: var(--secondary-50);
+    padding: 0.5rem 0.75rem; /* px-3 py-2 */
+    border-radius: 0.5rem; /* rounded-lg */
+}
+
+/* --- Order History Card --- */
+.order-history-title {
+    font-size: 1.25rem; /* text-xl */
+    font-weight: 600; /* font-semibold */
+    color: var(--secondary-900);
+    margin-bottom: 1.5rem; /* mb-6 */
+    display: flex;
+    align-items: center;
+}
+
+.order-history-icon {
+    height: 1.25rem; /* h-5 */
+    width: 1.25rem; /* w-5 */
+    margin-right: 0.5rem; /* mr-2 */
+    color: var(--primary-600);
+}
+
+.no-orders-message {
+    text-align: center;
+    padding-top: 2rem; /* py-8 */
+    padding-bottom: 2rem; /* py-8 */
+}
+
+.no-orders-icon {
+    height: 3rem; /* h-12 */
+    width: 3rem; /* w-12 */
+    color: var(--secondary-400);
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 1rem; /* mb-4 */
+}
+
+.no-orders-text {
+    color: var(--secondary-600);
+}
+
+.no-orders-cta {
+    font-size: 0.875rem; /* text-sm */
+    color: var(--secondary-500);
+    margin-top: 0.5rem; /* mt-2 */
+}
+
+.orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; /* space-y-4 */
+}
+
+.order-item-card {
+    border: 1px solid var(--secondary-200);
+    border-radius: 0.5rem; /* rounded-lg */
+    padding: 1rem; /* p-4 */
+    transition: background-color 150ms ease-in-out; /* transition-colors */
+}
+
+.order-item-card:hover {
+    background-color: var(--secondary-50);
+}
+
+.order-header {
+    display: flex;
+    align-items: flex-start; /* items-start */
+    justify-content: space-between;
+    margin-bottom: 0.75rem; /* mb-3 */
+}
+
+.order-id {
+    font-weight: 600; /* font-semibold */
+    color: var(--secondary-900);
+}
+
+.order-date {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* space-x-2 */
+    font-size: 0.875rem; /* text-sm */
+    color: var(--secondary-600);
+    margin-top: 0.25rem; /* mt-1 */
+}
+
+.order-date-icon {
+    height: 1rem; /* h-4 */
+    width: 1rem; /* w-4 */
+}
+
+.order-status-tag {
+    padding: 0.25rem 0.75rem; /* px-3 py-1 */
+    font-size: 0.75rem; /* text-xs */
+    font-weight: 500; /* font-medium */
+    border-radius: 9999px; /* rounded-full */
+}
+
+/* Status Colors (dynamic via JS) */
+.status-pending {
+    background-color: var(--status-yellow-100);
+    color: var(--status-yellow-800);
+}
+.status-processing {
+    background-color: var(--status-blue-100);
+    color: var(--status-blue-800);
+}
+.status-shipped {
+    background-color: var(--status-purple-100);
+    color: var(--status-purple-800);
+}
+.status-delivered {
+    background-color: var(--status-green-100);
+    color: var(--status-green-800);
+}
+.status-cancelled {
+    background-color: var(--status-red-100);
+    color: var(--status-red-800);
+}
+.status-default {
+    background-color: var(--status-gray-100);
+    color: var(--status-gray-800);
+}
+
+
+.order-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem; /* space-y-2 */
+    margin-bottom: 0.75rem; /* mb-3 */
+}
+
+.order-item-detail {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem; /* space-x-3 */
+    font-size: 0.875rem; /* text-sm */
+}
+
+.order-item-dot {
+    width: 0.5rem; /* w-2 */
+    height: 0.5rem; /* h-2 */
+    background-color: var(--primary-500);
+    border-radius: 9999px; /* rounded-full */
+}
+
+.order-item-name {
+    color: var(--secondary-900);
+}
+
+.order-item-quantity {
+    color: var(--secondary-600);
+}
+
+.order-item-color-info {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem; /* space-x-1 */
+}
+
+.order-item-color-swatch {
+    width: 0.75rem; /* w-3 */
+    height: 0.75rem; /* h-3 */
+    border-radius: 9999px; /* rounded-full */
+    border: 1px solid var(--secondary-300);
+}
+
+.order-item-color-name {
+    color: var(--secondary-600);
+}
+
+.order-summary-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 0.75rem; /* pt-3 */
+    border-top: 1px solid var(--secondary-200);
+}
+
+.delivery-type-tag {
+    padding: 0.25rem 0.5rem; /* px-2 py-1 */
+    border-radius: 9999px; /* rounded-full */
+    font-size: 0.75rem; /* text-xs */
+}
+
+.delivery-type-delivery {
+    background-color: var(--status-blue-100);
+    color: var(--status-blue-800);
+}
+
+.delivery-type-pickup {
+    background-color: var(--status-green-100);
+    color: var(--status-green-800);
+}
+
+.order-total-amount {
+    font-size: 1.125rem; /* text-lg */
+    font-weight: 600; /* font-semibold */
+    color: var(--primary-600);
+}
+
+.order-address {
+    margin-top: 0.5rem; /* mt-2 */
+    font-size: 0.875rem; /* text-sm */
+    color: var(--secondary-600);
+}
+
+.order-address-icon {
+    height: 0.75rem; /* h-3 */
+    width: 0.75rem; /* w-3 */
+    display: inline;
+    margin-right: 0.25rem; /* mr-1 */
+}
+
+/* --- Sidebar Section (Right Column) --- */
+.sidebar-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem; /* space-y-6 */
+}
+
+/* --- Account Summary Card --- */
+.account-summary-title {
+    font-size: 1.125rem; /* text-lg */
+    font-weight: 600; /* font-semibold */
+    color: var(--secondary-900);
+    margin-bottom: 1rem; /* mb-4 */
+}
+
+.account-summary-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem; /* space-y-3 */
+}
+
+.account-summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.account-summary-label {
+    color: var(--secondary-600);
+}
+
+.account-summary-value {
+    font-weight: 600; /* font-semibold */
+    color: var(--secondary-900);
+}
+
+.account-type-tag {
+    padding: 0.25rem 0.5rem; /* px-2 py-1 */
+    font-size: 0.75rem; /* text-xs */
+    font-weight: 500; /* font-medium */
+    border-radius: 9999px; /* rounded-full */
+}
+
+/* Account Type Colors (dynamic via JS) */
+.account-type-admin {
+    background-color: var(--status-purple-100);
+    color: var(--status-purple-800);
+}
+
+.account-type-client {
+    background-color: var(--status-gray-100);
+    color: var(--status-gray-800);
+}
+
+/* --- Quick Actions Card --- */
+.quick-actions-title {
+    font-size: 1.125rem; /* text-lg */
+    font-weight: 600; /* font-semibold */
+    color: var(--secondary-900);
+    margin-bottom: 1rem; /* mb-4 */
+}
+
+.quick-actions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem; /* space-y-2 */
+}
+
+.quick-action-button {
+    display: block;
+    width: 100%; /* w-full */
+    text-align: center;
+    background-color: var(--primary-500);
+    color: white;
+    padding-top: 0.5rem; /* py-2 */
+    padding-bottom: 0.5rem; /* py-2 */
+    border-radius: 0.5rem; /* rounded-lg */
+    transition: background-color 150ms ease-in-out; /* transition-colors */
+    text-decoration: none;
+}
+
+.quick-action-button:hover {
+    background-color: var(--primary-600);
+}
+
+.quick-action-button.secondary {
+    background-color: transparent;
+    border: 1px solid var(--primary-500);
+    color: var(--primary-600);
+}
+
+.quick-action-button.secondary:hover {
+    background-color: var(--primary-50);
+}

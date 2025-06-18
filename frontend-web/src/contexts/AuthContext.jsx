@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import env from '../config/env';
+import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext(null);
 
@@ -31,6 +32,8 @@ export const AuthProvider = ({ children }) => {
   });
   
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(!!user && !!localStorage.getItem('token'));
+  const navigate = useNavigate();
 
   useEffect(() => {
     const initAuth = async () => {
@@ -42,6 +45,7 @@ export const AuthProvider = ({ children }) => {
           const response = await axios.get(`${env.BASE_URL_API}/api/user`);
           if (response.data) {
             setUser(response.data);
+            setIsAuthenticated(true);
           } else {
             throw new Error('No user data');
           }
@@ -52,6 +56,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('user');
         delete axios.defaults.headers.common['Authorization'];
         setUser(null);
+        setIsAuthenticated(false);
       } finally {
         setLoading(false);
       }
@@ -71,6 +76,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(userData));
         setUser(userData);
+        setIsAuthenticated(true);
         
         console.log('Login social exitoso:', { userData });
         return { success: true };
@@ -91,6 +97,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('token', access_token);
       localStorage.setItem('user', JSON.stringify(responseUser));
       setUser(responseUser);
+      setIsAuthenticated(true);
       
       console.log('Login tradicional exitoso:', { responseUser });
       return { success: true };
@@ -111,14 +118,14 @@ export const AuthProvider = ({ children }) => {
       console.error('Error al cerrar sesión en el backend:', error);
     } finally {
       // Limpiar datos locales independientemente de la respuesta del backend
+      setUser(null);
+      setIsAuthenticated(false);
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       delete axios.defaults.headers.common['Authorization'];
-      setUser(null);
+      navigate('/');
     }
   };
-
-  const isAuthenticated = !!user && !!localStorage.getItem('token');
 
   const value = {
     user,

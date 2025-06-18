@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder
 {
@@ -19,5 +19,33 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+
+        // Crear roles si no existen
+        $adminRole = Role::firstOrCreate(['name' => 'admin']);
+        $clienteRole = Role::firstOrCreate(['name' => 'cliente']);
+
+        // Crear usuario admin si no existe
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@metslab.com'],
+            [
+                'name' => 'Administrador',
+                'password' => bcrypt('12345678'),
+                'email_verified_at' => now(),
+            ]
+        );
+        $admin->assignRole($adminRole);
+
+        // Crear usuario cliente si no existe
+        $cliente = User::firstOrCreate(
+            ['email' => 'cliente@demo.com'],
+            [
+                'name' => 'Cliente Demo',
+                'password' => bcrypt('12345678'),
+                'email_verified_at' => now(),
+            ]
+        );
+        $cliente->assignRole($clienteRole);
+
+        // Puedes agregar más seeders aquí...
     }
 }

@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-         Schema::create('ubicacions', function (Blueprint $table) {
-        $table->id();
-        $table->string('nombre')->nullable(); // opcional
-        $table->decimal('latitud', 10, 7);
-        $table->decimal('longitud', 10, 7);
-        $table->timestamps();
-    });
+        Schema::create('colors', function (Blueprint $table) {
+            $table->id();
+            $table->string('nombre', 50);
+            $table->char('codigo_hex', 7);
+            $table->timestamps();
+        });
     }
 
     /**
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ubicacions');
+        Schema::dropIfExists('colors');
     }
 };
