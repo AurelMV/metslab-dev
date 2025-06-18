@@ -113,7 +113,8 @@ export default function ModelosAdmin() {
   async function fetchCategorias() {
     const res = await fetch(`${API_URL}/categorias`);
     const data = await res.json();
-    setCategorias(data.data || []);
+    // Si data es un array, úsalo directamente
+    setCategorias(Array.isArray(data) ? data : data.data || []);
   }
 
   function handleOpenCreate() {

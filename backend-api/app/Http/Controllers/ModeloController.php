@@ -33,6 +33,7 @@ class ModeloController extends Controller
                     'dimensiones' => $modelo->dimensiones,
                     'nombre' => $modelo->nombre,
                     'precio' => $modelo->precio,
+                    'estado' => $modelo->estado,
                     'modelo_url' => $modelo_url,
                     'imagen_url' => $imagen_url,
 
