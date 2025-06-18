@@ -123,7 +123,7 @@ export default function Register() {
   return (
     <div style={{
       fontFamily: "'Segoe UI', sans-serif",
-      background: "linear-gradient(135deg, #667eea, #764ba2)",
+      background: "linear-gradient(135deg, #ff8000, #764ba2)",
       minHeight: "100vh",
       display: "flex",
       justifyContent: "center",

@@ -142,7 +142,7 @@ export default function AuthCallback() {
         alignItems: 'center',
         justifyContent: 'center',
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #667eea, #764ba2)'
+        background: 'linear-gradient(135deg, #ff8000, #764ba2)'
       }}>
         <div className="error-message" style={{
           background: 'rgba(255, 255, 255, 0.9)',
