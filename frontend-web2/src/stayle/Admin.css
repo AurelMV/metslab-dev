@@ -702,3 +702,63 @@
 .overflow-hidden {
   overflow: hidden;
 }
+
+
+.tabla-modelos-container {
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+.tabla-modelos {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  background-color: #fff;
+}
+
+.tabla-modelos th,
+.tabla-modelos td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.tabla-modelos th {
+  background-color: #f3f3f3;
+  font-weight: bold;
+}
+
+.modelo-img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #fff;
+}
+
+.badge.verde {
+  background-color: #28a745;
+}
+
+.badge.gris {
+  background-color: #6c757d;
+}
+
+.btn-accion {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 16px;
+  margin: 0 4px;
+}
+
+.btn-accion:hover {
+  color: #007bff;
+}

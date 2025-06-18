@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getToken } from "../services/auth-service";
 import { Plus, Edit, Trash2 } from "lucide-react";
 
-const API_URL =
-  import.meta.env.VITE_BASE_URL_API || "http://localhost:8000/api";
+const API_URL = import.meta.env.VITE_BASE_URL_API || `${env.API_BASE_URL}`;
 
 function initialForm() {
   return { nombre: "", codigo_hex: "#000000" };

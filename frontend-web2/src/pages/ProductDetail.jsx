@@ -11,7 +11,7 @@ import {
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
 import env from "../config/env";
-
+import ModelViewer from "./ModelViewer";
 // Import the pure CSS file
 import "../stayle/ProductDetail.css"; // Adjust the path as per your file structure
 
@@ -20,7 +20,7 @@ export default function ProductDetail() {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const { user } = useAuth();
-
+  const [model3DUrl, setModel3DUrl] = useState(null);
   // Estados para el producto
   const [model, setModel] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -34,7 +34,22 @@ export default function ProductDetail() {
   // Estados originales
   const [quantity, setQuantity] = useState(1);
   const [showAuthModal, setShowAuthModal] = useState(false);
-
+  // Nueva función para obtener la URL del modelo 3D con CORS
+  const fetchModel3DUrl = async (idModelo) => {
+    try {
+      const response = await fetch(
+        `${env.BASE_URL_API}/modelos/modelo/${idModelo}`
+      );
+      const result = await response.json();
+      if (result.success && result.data?.modelo_url) {
+        setModel3DUrl(result.data.modelo_url);
+      } else {
+        setModel3DUrl(null);
+      }
+    } catch (err) {
+      setModel3DUrl(null);
+    }
+  };
   // Función para obtener colores desde la API
   const fetchColors = async () => {
     try {
@@ -47,7 +62,7 @@ export default function ProductDetail() {
         const mappedColors = result.map((color) => ({
           id: color.id,
           name: color.nombre,
-          hex: `#${color.codigo_hex}`, // Agregar # si no lo tiene
+          hex: `${color.codigo_hex}`, // Agregar # si no lo tiene
         }));
         setColors(mappedColors);
 
@@ -120,12 +135,10 @@ export default function ProductDetail() {
   };
 
   useEffect(() => {
-    // Cargar colores primero
     fetchColors();
-
-    // Luego cargar el modelo si hay ID
     if (id) {
       fetchModel();
+      fetchModel3DUrl(id);
     }
   }, [id]);
 
@@ -232,13 +245,23 @@ export default function ProductDetail() {
             {/* 3D Model Viewer Placeholder - Ahora con enlace real */}
             <div className="viewer-placeholder-card">
               <Package className="viewer-icon" />
-              <h3 className="viewer-title">Archivo 3D Disponible</h3>
+              <h3 className="viewer-title">Vista Previa 3D</h3>
               <p className="viewer-description">
-                Modelo en formato .OBJ listo para descargar
+                Interactúa con el modelo y cambia el color de impresión
               </p>
-              {model.modelo_url && (
+              {model3DUrl ? (
+                <ModelViewer
+                  url={model3DUrl}
+                  color={selectedColor?.hex || "#ffffff"}
+                />
+              ) : (
+                <div style={{ color: "#888", fontStyle: "italic" }}>
+                  No hay modelo 3D disponible
+                </div>
+              )}
+              {model3DUrl && (
                 <a
-                  href={model.modelo_url}
+                  href={model3DUrl}
                   download
                   style={{
                     display: "inline-block",
