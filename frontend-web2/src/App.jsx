@@ -14,6 +14,11 @@ import VerifyCode from "./pages/auth/Verify-code";
 import Cart from "./pages/Cart";
 import Admin from "./pages/Admin";
 import Profile from "./pages/Profile";
+import AddressPage from "./pages/Direcciones/AddressPage";
+
+import 'leaflet/dist/leaflet.css';
+import './fixLeafletIcon';
+
 
 // Import the new CSS file
 import "./App.css"; // Adjust the path if your App.css is in a different directory
@@ -38,6 +43,7 @@ function App() {
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/direcciones" element={<AddressPage />} />
               </Routes>
             </main>
             <Footer />
