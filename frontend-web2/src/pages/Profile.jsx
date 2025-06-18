@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import { Navigate } from "react-router-dom";
+import { Navigate, Link } from "react-router-dom";
 import {
   User,
   Mail,
@@ -11,6 +11,8 @@ import {
   Edit,
   Save,
   X,
+  Settings,
+  ArrowRight,
 } from "lucide-react";
 import { mockOrders } from "../data/mockData";
 
@@ -163,52 +165,6 @@ export default function Profile() {
                     <p className="display-text">{user.email}</p>
                   )}
                 </div>
-
-                {/* Phone */}
-                <div className="form-field">
-                  <label className="form-label">
-                    <Phone className="form-label-icon" />
-                    Teléfono
-                  </label>
-                  {isEditing ? (
-                    <input
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) =>
-                        setFormData({ ...formData, phone: e.target.value })
-                      }
-                      placeholder="Ingresa tu teléfono"
-                      className="form-input"
-                    />
-                  ) : (
-                    <p className="display-text">
-                      {user.phone || "No especificado"}
-                    </p>
-                  )}
-                </div>
-
-                {/* Address */}
-                <div className="form-field">
-                  <label className="form-label">
-                    <MapPin className="form-label-icon" />
-                    Dirección
-                  </label>
-                  {isEditing ? (
-                    <textarea
-                      value={formData.address}
-                      onChange={(e) =>
-                        setFormData({ ...formData, address: e.target.value })
-                      }
-                      placeholder="Ingresa tu dirección completa"
-                      rows={3}
-                      className="form-input"
-                    />
-                  ) : (
-                    <p className="display-text">
-                      {user.address || "No especificada"}
-                    </p>
-                  )}
-                </div>
               </div>
             </div>
 
@@ -357,6 +313,34 @@ export default function Profile() {
                   Ver Carrito
                 </a>
               </div>
+            </div>
+
+            {/* Address Management Card */}
+            <div className="profile-card address-management-card">
+              <div className="address-card-header">
+                <div className="address-icon-container">
+                  <MapPin className="address-main-icon" />
+                </div>
+                <div className="address-content">
+                  <h3 className="address-card-title">Mis Direcciones</h3>
+                  <p className="address-card-description">
+                    Administra tus direcciones de entrega guardadas
+                  </p>
+                </div>
+              </div>
+              
+              <Link to="/direcciones" className="manage-addresses-button">
+                <div className="button-content">
+                  <div className="button-icon-wrapper">
+                    <Settings className="button-icon" />
+                  </div>
+                  <div className="button-text-content">
+                    <span className="button-main-text">Gestionar Direcciones</span>
+                    <span className="button-sub-text">Agregar, editar o eliminar</span>
+                  </div>
+                  <ArrowRight className="button-arrow" />
+                </div>
+              </Link>
             </div>
           </div>
         </div>

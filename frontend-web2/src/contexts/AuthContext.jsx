@@ -25,24 +25,7 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     // Mock authentication - in real app, this would call an API
     const mockUsers = [
-      {
-        id: "1",
-        name: "Admin MetsLab",
-        email: "admin@metslab.com",
-        password: "admin123",
-        role: "admin",
-        phone: "+51 984 123 456",
-        address: "Av. El Sol 123, Cusco",
-      },
-      {
-        id: "2",
-        name: "Cliente Ejemplo",
-        email: "cliente@example.com",
-        password: "cliente123",
-        role: "customer",
-        phone: "+51 987 654 321",
-        address: "Jr. Comercio 456, Cusco",
-      },
+
     ];
 
     const foundUser = mockUsers.find(
