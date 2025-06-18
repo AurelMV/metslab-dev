@@ -125,12 +125,6 @@ export default function CategoriasAdmin() {
                 >
                   <Edit className="icon" />
                 </button>
-                <button
-                  onClick={() => handleDelete(categoria.idCategoria)}
-                  className="action-btn delete"
-                >
-                  <Trash2 className="icon" />
-                </button>
               </div>
             </div>
           </div>

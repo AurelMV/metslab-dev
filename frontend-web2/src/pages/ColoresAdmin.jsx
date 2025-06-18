@@ -100,6 +100,9 @@ export default function ColoresAdmin() {
       alert("No se pudo eliminar el color");
     }
   }
+  function handleCancel() {
+    setShowModal(false);
+  }
 
   return (
     <div className="section-content">
@@ -125,12 +128,6 @@ export default function ColoresAdmin() {
                 >
                   <Edit className="icon" />
                 </button>
-                <button
-                  onClick={() => handleDelete(color.id)}
-                  className="action-btn delete"
-                >
-                  <Trash2 className="icon" />
-                </button>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -155,54 +152,59 @@ export default function ColoresAdmin() {
         <div className="modal-overlay">
           <div className="modal">
             <h3>{editing ? "Editar Color" : "Nuevo Color"}</h3>
-            <form onSubmit={handleSubmit} className="form-grid">
-              <div className="form-group">
-                <label>Nombre</label>
-                <input
-                  name="nombre"
-                  value={form.nombre}
-                  onChange={handleChange}
-                  required
-                  className="form-input"
-                />
+            <form onSubmit={handleSubmit}>
+              <h3>Nuevo Color</h3>
+              <div className="form-grid-2col">
+                <div className="form-group">
+                  <label className="form-label">Nombre</label>
+                  <input
+                    name="nombre"
+                    value={form.nombre}
+                    onChange={handleChange}
+                    className="form-input"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Código HEX</label>
+                  <div className="color-input-row">
+                    <input
+                      type="color"
+                      name="codigo_hex"
+                      value={form.codigo_hex}
+                      onChange={handleChange}
+                      className="color-picker"
+                      style={{
+                        width: 36,
+                        height: 36,
+                        border: "none",
+                        background: "none",
+                        padding: 0,
+                        marginRight: 8,
+                      }}
+                    />
+                    <input
+                      type="text"
+                      name="codigo_hex"
+                      value={form.codigo_hex}
+                      onChange={handleChange}
+                      className="form-input"
+                      style={{ width: 100 }}
+                      required
+                    />
+                  </div>
+                </div>
               </div>
-              <div className="form-group">
-                <label>Código HEX</label>
-                <input
-                  name="codigo_hex"
-                  value={form.codigo_hex}
-                  onChange={handleChange}
-                  required
-                  className="form-input"
-                  type="color"
-                  style={{ width: 50, height: 40, padding: 0 }}
-                />
-                <input
-                  name="codigo_hex"
-                  value={form.codigo_hex}
-                  onChange={handleChange}
-                  required
-                  className="form-input"
-                  type="text"
-                  maxLength={7}
-                  pattern="^#[0-9A-Fa-f]{6}$"
-                  style={{ width: 90, marginLeft: 8 }}
-                />
-              </div>
-              <div className="form-group col-span-2 flex justify-end space-x-2">
+              <div className="form-actions">
                 <button
                   type="button"
                   className="btn-secondary"
-                  onClick={() => setShowModal(false)}
+                  onClick={handleCancel}
                 >
                   Cancelar
                 </button>
-                <button
-                  type="submit"
-                  className="btn-primary"
-                  disabled={loading}
-                >
-                  {loading ? "Guardando..." : "Guardar"}
+                <button type="submit" className="btn-primary">
+                  Guardar
                 </button>
               </div>
             </form>
