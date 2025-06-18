@@ -15,10 +15,11 @@ import "./AddressPage.css";
 
 const API_URL = "http://localhost:8000/api";
 
-export default function AddressPage() {
+export default function AddressPage({ onSelect }) {
   const [addresses, setAddresses] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editAddress, setEditAddress] = useState(null);
+  const [selectedAddress, setSelectedAddress] = useState(null);
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -58,6 +59,11 @@ export default function AddressPage() {
     alert("Dirección copiada al portapapeles");
   };
 
+  const handleSelect = (address) => {
+    setSelectedAddress(address);
+    if (onSelect) onSelect(address);
+  };
+
   return (
     <div className="address-page-container">
       <div className="address-header">
@@ -87,7 +93,14 @@ export default function AddressPage() {
           </div>
         ) : (
           addresses.map((address, idx) => (
-            <div className="address-card" key={address.id}>
+            <div
+              className={`address-card ${
+                selectedAddress && selectedAddress.id === address.id ? "selected" : ""
+              }`}
+              key={address.id}
+              onClick={() => handleSelect(address)}
+              style={{ cursor: "pointer" }}
+            >
               <div className="address-card-header">
                 <span className="recent-badge">
                   {idx === 0 ? "Usada recientemente" : ""}

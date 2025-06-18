@@ -12,9 +12,9 @@ import {
 } from "lucide-react";
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
+import AddressPage from "../pages/Direcciones/AddressPage"; // <-- Agrega esto
 
-// Import the pure CSS file
-import "../stayle/Cart.css"; // Adjust the path as per your file structure
+import "../stayle/Cart.css";
 
 export default function Cart() {
   const { items, updateQuantity, removeFromCart, total, clearCart } = useCart();
@@ -24,6 +24,9 @@ export default function Cart() {
   const [deliveryType, setDeliveryType] = useState("pickup");
   const [paymentMethod, setPaymentMethod] = useState("card");
   const [address, setAddress] = useState(user?.address || "");
+
+  // Nuevo estado para la dirección seleccionada
+  const [selectedAddress, setSelectedAddress] = useState(null);
 
   const deliveryFee = deliveryType === "delivery" ? 10.0 : 0;
   const finalTotal = total + deliveryFee;
@@ -201,6 +204,32 @@ export default function Cart() {
           {/* Order Summary */}
           <div className="cart-summary-section">
             <div className="cart-summary-card">
+              {/* MOSTRAR DIRECCIÓN SOLO SI ES DELIVERY */}
+              {deliveryType === "delivery" && selectedAddress && (
+                <div className="cart-address-card">
+                  <h3>Dirección de entrega</h3>
+                  <p>
+                    <b>
+                      {selectedAddress.first_name} {selectedAddress.last_name}
+                    </b>
+                    <br />
+                    {selectedAddress.street_name}
+                    <br />
+                    {selectedAddress.district}, {selectedAddress.province},{" "}
+                    {selectedAddress.department}, {selectedAddress.postal_code}
+                    <br />
+                    Tel: {selectedAddress.phone_number}
+                  </p>
+                </div>
+              )}
+
+              {/* SELECTOR DE DIRECCIÓN SOLO SI ES DELIVERY */}
+              {deliveryType === "delivery" && (
+                <div style={{ marginBottom: 16 }}>
+                  <AddressPage onSelect={setSelectedAddress} />
+                </div>
+              )}
+
               <h2 className="cart-summary-title">Resumen del Pedido</h2>
 
               {/* Delivery Type */}
