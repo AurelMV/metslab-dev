@@ -18,7 +18,7 @@ class Modelo extends Model
         'precio',
         'descripcion',
         'dimensiones',
-        'estado',  // true = activo, false = inactivo
+        'estado',
         'idCategoria'
     ];
 

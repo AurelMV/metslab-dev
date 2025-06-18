@@ -12,6 +12,8 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ColorController;
 use App\Http\Controllers\SocialController;
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\Auth\UserController;
+use App\Http\Controllers\Auth\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -57,6 +59,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Cerrar sesión
     Route::post('/logout', [AuthController::class, 'logout']);
+    // Cambiar contraseña y actualizar perfil
+    Route::post('/user/change-password', [ProfileController::class, 'changePassword']);
+    Route::put('/user/profile', [ProfileController::class, 'updateProfile']);
 });
 
 // Rutas protegidas para usuarios autenticados (cliente)
@@ -83,6 +88,9 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::put('/color/{id}', [ColorController::class, 'update']);
     Route::put('/modelos/{id}', [ModeloController::class, 'update']);
     Route::delete('/modelos/{id}', [ModeloController::class, 'destroy']);
+    // Rutas de usuarios
+    Route::get('/users', [UserController::class, 'getUsers']);
+    Route::put('/users/{id}/role', [UserController::class, 'changeUserRole']);
     // Puedes agregar aquí otras rutas exclusivas para admin
 });
 Route::post('/categorias', [CategoriaController::class, 'store']);
