@@ -30,10 +30,10 @@ export default function ProductDetail() {
   const [colors, setColors] = useState([]);
   const [colorsLoading, setColorsLoading] = useState(true);
   const [selectedColor, setSelectedColor] = useState(null);
-
   // Estados originales
   const [quantity, setQuantity] = useState(1);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [addedToCart, setAddedToCart] = useState(false);
 
   // Función para obtener colores desde la API
   const fetchColors = async () => {
@@ -128,17 +128,23 @@ export default function ProductDetail() {
       fetchModel();
     }
   }, [id]);
-
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!user) {
       setShowAuthModal(true);
       return;
     }
 
-    addToCart(model, selectedColor, quantity);
-
-    // Show success feedback (could be a toast notification)
-    alert(`${model.name} agregado al carrito`);
+    try {
+      await addToCart(model, selectedColor, quantity);
+      
+      setAddedToCart(true);
+      setTimeout(() => {
+        setAddedToCart(false);
+      }, 2000);
+    } catch (error) {
+      console.error("Error al agregar al carrito:", error);
+      alert("Ocurrió un error al agregar al carrito. Por favor, inténtalo de nuevo.");
+    }
   };
 
   // Loading state
@@ -374,11 +380,19 @@ export default function ProductDetail() {
             </div>
 
             {/* Add to Cart */}
-            <div className="add-to-cart-section">
-              <button onClick={handleAddToCart} className="add-to-cart-button">
+            <div className="add-to-cart-section">              <button 
+                onClick={handleAddToCart} 
+                className={`add-to-cart-button ${addedToCart ? 'added' : ''}`}
+                disabled={addedToCart}
+              >
                 <ShoppingCart className="add-to-cart-icon" />
-                <span>Agregar al Carrito</span>
+                <span>{addedToCart ? 'Agregado' : 'Agregar al Carrito'}</span>
               </button>
+              {addedToCart && (
+                <div className="added-to-cart-message">
+                  Producto agregado al carrito correctamente
+                </div>
+              )}
 
               <div className="shipping-info-list">
                 <p>• Entrega gratuita con recojo en tienda</p>

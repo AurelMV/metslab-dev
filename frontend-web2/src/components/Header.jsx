@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { ShoppingCart, User, Menu, X, Cuboid as Cube } from "lucide-react";
+import { User, Menu, X, Cuboid as Cube } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
+import MiniCart from "../components/MiniCart";
 // Importa tu archivo CSS. Asegúrate de que la ruta sea correcta.
 import "../stayle/Header.css";
 
@@ -54,16 +55,11 @@ export default function Header() {
                 Admin Panel
               </Link>
             )}
-          </nav>
-
-          {/* Desktop User Actions */}
+          </nav>          {/* Desktop User Actions */}
           <div className="desktop-user-actions">
-            <Link to="/cart" className="cart-link">
-              <ShoppingCart className="cart-icon" />
-              {itemCount > 0 && (
-                <span className="cart-item-count">{itemCount}</span>
-              )}
-            </Link>
+            <div className="cart-container">
+              <MiniCart />
+            </div>
 
             {user ? (
               <div className="user-profile-actions">

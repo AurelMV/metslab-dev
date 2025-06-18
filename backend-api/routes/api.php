@@ -85,7 +85,15 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::delete('/modelos/{id}', [ModeloController::class, 'destroy']);
     // Puedes agregar aquí otras rutas exclusivas para admin
 });
-
+Route::post('/categorias', [CategoriaController::class, 'store']);
+    Route::put('/categorias/{id}', [CategoriaController::class, 'update']);
+    Route::delete('/categorias/{id}', [CategoriaController::class, 'destroy']);
+    // Rutas de modelos (crear, editar, eliminar)
+    Route::post('/modelos', [ModeloController::class, 'store']);
+    Route::post('/color', [ColorController::class, 'store']);
+    Route::put('/color/{id}', [ColorController::class, 'update']);
+    Route::put('/modelos/{id}', [ModeloController::class, 'update']);
+    Route::delete('/modelos/{id}', [ModeloController::class, 'destroy']);
 // Rutas públicas y de solo lectura
 Route::get('/categorias', [CategoriaController::class, 'index']);
 Route::get('/color', [ColorController::class, 'index']);
