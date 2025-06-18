@@ -8,7 +8,7 @@ import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import Catalog from "./pages/Catalog";
 import ProductDetail from "./pages/ProductDetail";
-import Login from "./pages/auth/login";
+import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import VerifyCode from "./pages/auth/Verify-code";
 import Cart from "./pages/Cart";
@@ -16,9 +16,8 @@ import Admin from "./pages/Admin";
 import Profile from "./pages/Profile";
 import AddressPage from "./pages/Direcciones/AddressPage";
 
-import 'leaflet/dist/leaflet.css';
-import './fixLeafletIcon';
-
+import "leaflet/dist/leaflet.css";
+import "./fixLeafletIcon";
 
 // Import the new CSS file
 import "./App.css"; // Adjust the path if your App.css is in a different directory
