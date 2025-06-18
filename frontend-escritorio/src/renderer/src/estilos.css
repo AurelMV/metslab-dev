@@ -1735,131 +1735,138 @@ html, body, #root {
 }
 
 .users-table {
-  width: 100%; /* w-full */
-  border-collapse: collapse; /* Ensure borders collapse nicely */
+  width: 100%;
+  border-collapse: collapse;
 }
 
 .users-table-header {
-  background-color: #f9fafb; /* bg-gray-50 */
+  background-color: #f9fafb;
 }
 
 .users-table-header th {
-  padding: 0.75rem 1.5rem; /* px-6 py-3 */
-  text-align: left; /* text-left */
-  font-size: 0.75rem; /* text-xs */
-  font-weight: 500; /* font-medium */
-  color: #6b7280; /* text-gray-500 */
-  text-transform: uppercase; /* uppercase */
-  letter-spacing: 0.05em; /* tracking-wider */
-  white-space: nowrap; /* Prevent wrapping for small text */
+  padding: 0.75rem 1.5rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
 }
 
 .users-table-body {
-  background-color: #ffffff; /* bg-white */
-  border-bottom: 1px solid #e5e7eb; /* divide-y divide-gray-200 (applied to parent) */
+  background-color: #fff;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .users-table-body tr {
-  border-bottom: 1px solid #e5e7eb; /* mimic divide-y */
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .users-table-body tr:last-child {
-    border-bottom: none; /* No border for the last row */
+  border-bottom: none;
 }
 
 .users-table-body tr:hover {
-  background-color: #f9fafb; /* hover:bg-gray-50 */
+  background-color: #f9fafb;
 }
 
 .users-table-data {
-  padding: 1rem 1.5rem; /* px-6 py-4 */
-  white-space: nowrap; /* whitespace-nowrap */
-  font-size: 0.875rem; /* text-sm */
-  color: #1a202c; /* default text color */
+  padding: 1rem 1.5rem;
+  white-space: nowrap;
+  font-size: 0.875rem;
+  color: #1a202c;
 }
 
-.users-table-data-medium {
-  font-weight: 500; /* font-medium */
-  color: #1a202c; /* text-gray-900 */
-}
-
-/* User Info Cell (Avatar + Name) */
 .user-info-cell {
-  display: flex; /* flex */
-  align-items: center; /* items-center */
+  display: flex;
+  align-items: center;
 }
 
 .user-avatar-wrapper {
-  flex-shrink: 0; /* flex-shrink-0 */
-  height: 2.5rem; /* h-10 */
-  width: 2.5rem; /* w-10 */
+  flex-shrink: 0;
+  height: 2.5rem;
+  width: 2.5rem;
 }
 
 .user-avatar {
-  height: 2.5rem; /* h-10 */
-  width: 2.5rem; /* w-10 */
-  border-radius: 9999px; /* rounded-full */
-  background-color: #ffedd5; /* bg-orange-100 */
-  display: flex; /* flex */
-  align-items: center; /* items-center */
-  justify-content: center; /* justify-center */
+  height: 2.5rem;
+  width: 2.5rem;
+  border-radius: 9999px;
+  background-color: #ffedd5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .user-avatar-initials {
-  font-size: 0.875rem; /* text-sm */
-  font-weight: 500; /* font-medium */
-  color: #ea580c; /* text-orange-600 */
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #ea580c;
 }
 
 .user-name-wrapper {
-  margin-left: 1rem; /* ml-4 */
+  margin-left: 1rem;
 }
 
 .user-name {
-  font-size: 0.875rem; /* text-sm */
-  font-weight: 500; /* font-medium */
-  color: #1a202c; /* text-gray-900 */
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1a202c;
 }
 
-/* Contact Info (Email/Phone) */
 .contact-info {
-  display: flex; /* flex */
-  align-items: center; /* items-center */
-  font-size: 0.875rem; /* text-sm */
-  color: #4b5563; /* text-gray-600 */
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+  color: #4b5563;
 }
 
 .contact-icon {
-  width: 1rem; /* w-4 */
-  height: 1rem; /* h-4 */
-  margin-right: 0.5rem; /* mr-2 */
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.5rem;
 }
 
-/* Action Button */
+/* Action buttons */
 .view-orders-button {
-  display: flex; /* flex */
-  align-items: center; /* items-center */
-  gap: 0.25rem; /* space-x-1 */
-  color: #ea580c; /* text-orange-600 */
-  transition-property: color; /* transition-colors */
-  transition-duration: 150ms;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #ea580c;
+  transition: color 0.2s;
   cursor: pointer;
-  border: none;
   background: none;
+  border: none;
   padding: 0;
 }
 
 .view-orders-button:hover {
-  color: #9a3412; /* hover:text-orange-900 */
+  color: #9a3412;
+}
+
+.edit-role-button {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #2563eb;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.edit-role-button:hover {
+  color: #1e40af;
 }
 
 .view-orders-icon {
-  width: 1rem; /* w-4 */
-  height: 1rem; /* h-4 */
+  width: 1rem;
+  height: 1rem;
 }
 
-/* Modal Styling */
+/* Modal overlay and content */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -1871,11 +1878,11 @@ html, body, #root {
 }
 
 .modal-content {
-  background-color: #ffffff;
+  background-color: #fff;
   border-radius: 0.5rem;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   width: 100%;
-  max-width: 56rem;
+  max-width: 400px;
   max-height: 90vh;
   overflow-y: auto;
 }
@@ -1907,8 +1914,7 @@ html, body, #root {
   border: none;
   cursor: pointer;
   padding: 0;
-  transition-property: color;
-  transition-duration: 150ms;
+  transition: color 0.15s;
 }
 
 .modal-close-button:hover {
@@ -2282,4 +2288,243 @@ html, body, #root {
 .model-detail-value {
   color: #1f2937;
   font-weight: 500;
+}
+
+/* UsersManager styles */
+.users-manager-container {
+  padding: 2rem;
+}
+
+.users-manager-card {
+  background-color: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06);
+}
+
+.users-manager-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.users-manager-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2d3748;
+}
+
+.users-table-container {
+  overflow-x: auto;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.users-table-header {
+  background-color: #f9fafb;
+}
+
+.users-table-header th {
+  padding: 0.75rem 1.5rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.users-table-body {
+  background-color: #fff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.users-table-body tr {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.users-table-body tr:last-child {
+  border-bottom: none;
+}
+
+.users-table-body tr:hover {
+  background-color: #f9fafb;
+}
+
+.users-table-data {
+  padding: 1rem 1.5rem;
+  white-space: nowrap;
+  font-size: 0.875rem;
+  color: #1a202c;
+}
+
+.user-info-cell {
+  display: flex;
+  align-items: center;
+}
+
+.user-avatar-wrapper {
+  flex-shrink: 0;
+  height: 2.5rem;
+  width: 2.5rem;
+}
+
+.user-avatar {
+  height: 2.5rem;
+  width: 2.5rem;
+  border-radius: 9999px;
+  background-color: #ffedd5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-avatar-initials {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #ea580c;
+}
+
+.user-name-wrapper {
+  margin-left: 1rem;
+}
+
+.user-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1a202c;
+}
+
+.contact-info {
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.contact-icon {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.5rem;
+}
+
+/* Action buttons */
+.view-orders-button {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #ea580c;
+  transition: color 0.2s;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.view-orders-button:hover {
+  color: #9a3412;
+}
+
+.edit-role-button {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #2563eb;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.edit-role-button:hover {
+  color: #1e40af;
+}
+
+.view-orders-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Modal overlay and content */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.modal-content {
+  background-color: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  width: 100%;
+  max-width: 400px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.modal-subtitle {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.modal-close-button {
+  color: #9ca3af;
+  font-size: 1.5rem;
+  line-height: 1;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.modal-close-button:hover {
+  color: #4b5563;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 0.25em 0.75em;
+  font-size: 0.85em;
+  font-weight: 600;
+  border-radius: 9999px;
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+
+.role-badge-admin {
+  background-color: #ea580c;
+}
+
+.role-badge-cliente {
+  background-color: #2563eb;
+}
+
+.role-badge-default {
+  background-color: #6b7280;
 }
