@@ -14,6 +14,7 @@ use App\Http\Controllers\SocialController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Auth\UserController;
 use App\Http\Controllers\Auth\ProfileController;
+use App\Http\Controllers\PedidoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -74,6 +75,12 @@ Route::middleware(['auth:sanctum', 'role:cliente'])->group(function () {
     Route::delete('/carrito/{id}', [CarritoController::class, 'destroy']);
     Route::delete('/carrito/vaciar/todo', [CarritoController::class, 'vaciarCarrito']);
     // Puedes agregar aquí otras rutas exclusivas para clientes
+    // Rutas para gestionar pedidos
+Route::post('/pedidos', [PedidoController::class, 'crearPedido']);
+Route::get('/pedidos/{id}', [PedidoController::class, 'mostrarPedido']);
+Route::get('/pedidos', [PedidoController::class, 'listarPedidos']);
+Route::put('/pedidos/{id}', [PedidoController::class, 'actualizarPedido']);
+Route::delete('/pedidos/{id}', [PedidoController::class, 'eliminarPedido']);
 });
 
 // Rutas protegidas solo para admin
@@ -128,6 +135,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/addresses', [AddressController::class, 'index']);
     Route::post('/addresses', [AddressController::class, 'store']);
     Route::get('/addresses/{address}', [AddressController::class, 'show']);
-    Route::put('/addresses/{address}', [AddressController::class, 'update']); // ✅ ESTA
+    Route::put('/addresses/{address}', [AddressController::class, 'update']);
     Route::delete('/addresses/{address}', [AddressController::class, 'destroy']);
 });
