@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import env from "../../config/env" ;
 import {
   User,
   MapPin,
@@ -16,7 +17,7 @@ import {
 import MapSelector from "../../components/MapSelector";
 import "./AddressForm.css";
 
-const API_URL = "http://localhost:8000/api";
+const API_URL = env.BASE_URL_API;
 
 const distritosCusco = [
   "Cusco",
