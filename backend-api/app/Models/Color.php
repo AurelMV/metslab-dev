@@ -12,5 +12,6 @@ class Color extends Model
     protected $fillable = [
         'nombre',
         'codigo_hex',
+        'estado',
     ];
 }

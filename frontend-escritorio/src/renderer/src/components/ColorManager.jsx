@@ -1,115 +1,117 @@
-import React, { useEffect, useState } from "react";
-import { getToken } from "../services/auth-service";
-import { Plus, Edit, Trash2 } from "lucide-react";
-
-const API_URL = import.meta.env.VITE_BASE_URL_API || `${env.API_BASE_URL}`;
+import React, { useEffect, useState } from 'react'
+import { getColores, createColor, updateColor, deleteColor } from '../services/color-service'
+import {} from '../services/auth-service' // Debes tener este servicio
+import { Plus, Edit, Trash2 } from 'lucide-react'
 
 function initialForm() {
-  return { nombre: "", codigo_hex: "#000000" };
+  return { nombre: '', codigo_hex: '#000000', estado: true }
 }
-import {
-  getColores,
-  createColor,
-  updateColor,
-} from "../services/colores-service";
 
-export default function ColoresAdmin() {
-  const [colores, setColores] = useState([]);
-  const [showModal, setShowModal] = useState(false);
-  const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState(initialForm());
-  const [loading, setLoading] = useState(false);
+export default function ColorManager() {
+  const [colores, setColores] = useState([])
+  const [showModal, setShowModal] = useState(false)
+  const [editing, setEditing] = useState(null)
+  const [form, setForm] = useState(initialForm())
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    fetchColores();
-  }, []);
+    fetchColores()
+  }, [])
 
   async function fetchColores() {
-    setLoading(true);
+    setLoading(true)
     try {
-      const data = await getColores();
-      setColores(Array.isArray(data) ? data : []);
-    } catch {
-      setColores([]);
+      // ...en fetchColores()
+      const data = await getColores()
+      setColores(Array.isArray(data) ? data : [])
+    } catch (err) {
+      setColores([])
     }
-    setLoading(false);
+    setLoading(false)
   }
 
   function handleOpenCreate() {
-    setEditing(null);
-    setForm(initialForm());
-    setShowModal(true);
+    setEditing(null)
+    setForm(initialForm())
+    setShowModal(true)
   }
+
+  function handleOpenEdit(color) {
+    setEditing(color.id)
+    setForm({
+      nombre: color.nombre,
+      codigo_hex: color.codigo_hex,
+      estado: !!color.estado
+    })
+    setShowModal(true)
+  }
+
   function handleChange(e) {
-    const { name, value, type } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? e.target.checked : value,
-    }));
+    const { name, value } = e.target
+    setForm((f) => ({ ...f, [name]: value }))
   }
 
   async function handleSubmit(e) {
-    e.preventDefault();
-    setLoading(true);
-    const token = getToken();
+    e.preventDefault()
+    setLoading(true)
+    const token = localStorage.getItem('token')
     const payload = {
       nombre: form.nombre,
       codigo_hex: form.codigo_hex,
-      estado: form.estado,
-    };
+      estado: form.estado
+    }
+
     try {
       if (editing) {
-        await updateColor(editing, payload, token);
+        await updateColor(editing, payload, token)
       } else {
-        await createColor(payload, token);
+        await createColor(payload, token)
       }
-      setShowModal(false);
-      fetchColores();
-    } catch (data) {
-      alert(
-        data.error ||
-          (data.errors && Object.values(data.errors).join("\n")) ||
-          "Error al guardar el color"
-      );
+      setShowModal(false)
+      fetchColores()
+    } catch (err) {
+      alert('Error al guardar el color')
     }
-    setLoading(false);
+    setLoading(false)
   }
 
-  // Function to handle cancel action
-  // This will close the modal without saving changes
+  async function handleDelete(id) {
+    if (!window.confirm('¿Eliminar este color?')) return
+    setLoading(true)
+    const token = getToken()
+    try {
+      await deleteColor(id, token)
+      fetchColores()
+    } catch (err) {
+      alert('Error al eliminar el color')
+    }
+    setLoading(false)
+  }
+
   function handleCancel() {
-    setShowModal(false);
+    setShowModal(false)
   }
 
   return (
     <div className="section-content">
       <div className="section-header">
-        <h2>Colores</h2>
+        <h2 className="text-lg font-semibold text-secondary-900">Colores</h2>
         <button onClick={handleOpenCreate} className="btn-primary">
           <Plus className="icon" />
           <span>Nuevo Color</span>
         </button>
       </div>
-      {loading && <div>Cargando...</div>}
+      // ...existing code...
       <div className="form-grid color-grid">
         {colores.map((color) => (
           <div key={color.id} className="card">
             <div className="flex justify-between items-start mb-4">
-              <h3 className="text-lg font-semibold text-secondary-900">
-                {color.nombre}
-              </h3>
-              <span
-                className={`status-indicator ${
-                  color.estado ? "active" : "inactive"
-                }`}
-              >
-                {color.estado ? "Activo" : "Inactivo"}
+              <h3 className="text-lg font-semibold text-secondary-900">{color.nombre}</h3>
+              <span className={`status-indicator ${color.estado ? 'active' : 'inactive'}`}>
+                {color.estado ? 'Activo' : 'Inactivo'}
               </span>
-              <div className="action-buttons space-x-2">
-                <button
-                  onClick={() => handleOpenEdit(color)}
-                  className="action-btn"
-                >
+              <div className="action-buttons">
+                <button className="action-btn" title="Editar" onClick={() => handleOpenEdit(color)}>
                   <Edit className="icon" />
                 </button>
               </div>
@@ -117,12 +119,12 @@ export default function ColoresAdmin() {
             <div className="flex items-center gap-2">
               <span
                 style={{
-                  display: "inline-block",
+                  display: 'inline-block',
                   width: 24,
                   height: 24,
-                  borderRadius: "50%",
+                  borderRadius: '50%',
                   background: color.codigo_hex,
-                  border: "1px solid #ccc",
+                  border: '1px solid #ccc'
                 }}
                 title={color.codigo_hex}
               />
@@ -131,13 +133,11 @@ export default function ColoresAdmin() {
           </div>
         ))}
       </div>
-
       {showModal && (
         <div className="modal-overlay">
           <div className="modal">
-            <h3>{editing ? "Editar Color" : "Nuevo Color"}</h3>
+            <h3>{editing ? 'Editar Color' : 'Nuevo Color'}</h3>
             <form onSubmit={handleSubmit}>
-              <h3>Nuevo Color</h3>
               <div className="form-grid-2col">
                 <div className="form-group">
                   <label className="form-label">Nombre</label>
@@ -161,10 +161,10 @@ export default function ColoresAdmin() {
                       style={{
                         width: 36,
                         height: 36,
-                        border: "none",
-                        background: "none",
+                        border: 'none',
+                        background: 'none',
                         padding: 0,
-                        marginRight: 8,
+                        marginRight: 8
                       }}
                     />
                     <input
@@ -186,7 +186,7 @@ export default function ColoresAdmin() {
                     onChange={(e) =>
                       setForm((f) => ({
                         ...f,
-                        estado: e.target.value === "true",
+                        estado: e.target.value === 'true'
                       }))
                     }
                     required
@@ -198,11 +198,7 @@ export default function ColoresAdmin() {
                 </div>
               </div>
               <div className="form-actions">
-                <button
-                  type="button"
-                  className="btn-secondary"
-                  onClick={handleCancel}
-                >
+                <button type="button" className="btn-secondary" onClick={handleCancel}>
                   Cancelar
                 </button>
                 <button type="submit" className="btn-primary">
@@ -214,5 +210,5 @@ export default function ColoresAdmin() {
         </div>
       )}
     </div>
-  );
+  )
 }

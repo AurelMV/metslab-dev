@@ -162,7 +162,7 @@ const ModelForm = ({ model, onSubmit, onCancel, categories, token }) => {
                 <input
                   type="file"
                   name="modelo_3d"
-                  accept=".obj,.txt"
+                  accept=".glb"
                   onChange={handleFileChange}
                   className="file-upload-input"
                 />

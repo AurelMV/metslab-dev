@@ -3,8 +3,11 @@ import { Link } from "react-router-dom";
 import { Search, Filter, Grid, List, Loader } from "lucide-react";
 
 // Import the pure CSS file
+import { getCategorias } from "../services/categoria-service";
+
 import "../stayle/Catalog.css"; // Adjust the path as per your file structure
-import env from "../config/env"; // Import your environment variables
+
+import { getModelosCatalogo } from "../services/modelo-service"; // Import your environment variables
 export default function Catalog() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -17,33 +20,38 @@ export default function Catalog() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Función para obtener modelos desde la API
-  const fetchModels = async () => {
+  // Función para obtener categorías desde la API
+  const fetchCategories = async () => {
     try {
-      setLoading(true);
-      const response = await fetch(
-        `${env.BASE_URL_API}/modelos/recursocatalogo`
-      );
-      const result = await response.json();
-
-      if (result.success) {
-        setModels(result.data);
-
-        // Extraer categorías únicas (si tienes endpoint de categorías, úsalo)
-        // Por ahora creamos categorías dummy ya que el endpoint de catálogo no incluye categorías
-        const uniqueCategories = [
-          { id: 1, name: "Decoración" },
-          { id: 2, name: "Figuras" },
-          { id: 3, name: "Herramientas" },
-          { id: 4, name: "Juguetes" },
-        ];
-        setCategories(uniqueCategories);
-      } else {
-        setError("Error al cargar los modelos");
+      const response = await getCategorias();
+      if (Array.isArray(response)) {
+        setCategories(
+          response.map((cat) => ({
+            id: cat.idCategoria,
+            name: cat.nombre,
+          }))
+        );
+      } else if (response.data) {
+        setCategories(
+          response.data.map((cat) => ({
+            id: cat.idCategoria,
+            name: cat.nombre,
+          }))
+        );
       }
     } catch (err) {
-      setError("Error de conexión con el servidor");
-      console.error("Error fetching models:", err);
+      setCategories([]);
+    }
+  };
+
+  // Función para obtener modelos desde la API
+  const fetchModels = async (categoryId = "") => {
+    try {
+      setLoading(true);
+      const modelos = await getModelosCatalogo(categoryId);
+      setModels(modelos);
+    } catch (err) {
+      setError("Error al cargar los modelos");
     } finally {
       setLoading(false);
     }
@@ -51,20 +59,18 @@ export default function Catalog() {
 
   // Cargar datos al montar el componente
   useEffect(() => {
-    fetchModels();
-  }, []);
-
+    fetchCategories();
+    // Solo recargar modelos si cambia la categoría seleccionada
+    fetchModels(selectedCategory);
+  }, [selectedCategory]);
   const filteredAndSortedModels = useMemo(() => {
     let filtered = models.filter((model) => {
       const matchesSearch = model.nombre
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
-      // Por ahora no filtramos por categoría ya que la API de catálogo no incluye idCategoria
-      // const matchesCategory = !selectedCategory || model.idCategoria === parseInt(selectedCategory);
       return matchesSearch;
     });
 
-    // Sort models
     filtered.sort((a, b) => {
       switch (sortBy) {
         case "price-low":
@@ -78,7 +84,7 @@ export default function Catalog() {
     });
 
     return filtered;
-  }, [searchTerm, selectedCategory, sortBy, models]);
+  }, [searchTerm, sortBy, models]);
 
   // Loading state
   if (loading) {
@@ -114,7 +120,7 @@ export default function Catalog() {
               {error}
             </p>
             <button
-              onClick={fetchModels}
+              onClick={() => fetchModels(selectedCategory)}
               style={{
                 padding: "0.5rem 1rem",
                 backgroundColor: "#3b82f6",
@@ -164,7 +170,7 @@ export default function Catalog() {
               </div>
             </div>
 
-            {/* Category Filter - Deshabilitado temporalmente */}
+            {/* Category Filter */}
             <div className="filter-group">
               <label htmlFor="category-select" className="filter-label">
                 Categoría
@@ -174,7 +180,6 @@ export default function Catalog() {
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 className="filter-select"
-                disabled // Deshabilitado hasta que tengas endpoint de categorías
               >
                 <option value="">Todas las categorías</option>
                 {categories.map((category) => (
@@ -247,7 +252,7 @@ export default function Catalog() {
                       alt={model.nombre}
                       className="product-image-grid"
                       onError={(e) => {
-                        e.target.src = "/placeholder-image.jpg"; // Imagen por defecto si falla
+                        e.target.src = "/placeholder-image.jpg";
                       }}
                     />
                     <div className="product-overlay-grid">
@@ -323,7 +328,6 @@ export default function Catalog() {
             </div>
           )
         ) : (
-          /* No Results */
           <div className="no-results">
             <Filter className="no-results-icon" />
             <h3 className="no-results-title">No se encontraron modelos</h3>
