@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nombre', 50);
             $table->char('codigo_hex', 7);
+            $table->boolean('estado')->default(true);
             $table->timestamps();
         });
     }

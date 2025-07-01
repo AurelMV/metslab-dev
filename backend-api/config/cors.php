@@ -1,6 +1,6 @@
 <?php
 return [
-    'paths' => ['api/*', 'auth/*', 'sanctum/*'],
+    'paths' => ['api/*', 'auth/*', 'sanctum/*', 'storage/*'],
     'allowed_methods' => ['*'],
     'allowed_origins' => ['*'],
     'allowed_headers' => ['*'],
