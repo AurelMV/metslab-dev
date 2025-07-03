@@ -63,6 +63,14 @@ Route::middleware('auth:sanctum')->group(function () {
     // Cambiar contraseña y actualizar perfil
     Route::post('/user/change-password', [ProfileController::class, 'changePassword']);
     Route::put('/user/profile', [ProfileController::class, 'updateProfile']);
+
+    // Rutas protegidas
+    Route::post('/create-preference', [App\Http\Controllers\PaymentController::class, 'createPreferenceFromCart']);
+    Route::post('/create-custom-preference', [App\Http\Controllers\PaymentController::class, 'createPreferenceWithPaymentMethods']);
+    Route::post('/process-payment', [App\Http\Controllers\PaymentController::class, 'processPaymentRequest']);
+    Route::get('/status/{paymentId}', [App\Http\Controllers\PaymentController::class, 'getPaymentStatus']);
+    Route::get('/user-payments', [App\Http\Controllers\PaymentController::class, 'getUserPayments']);
+    Route::post('/orders/create', [PedidoController::class, 'create']);
 });
 
 // Rutas protegidas para usuarios autenticados (cliente)
@@ -100,6 +108,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::put('/users/{id}/role', [UserController::class, 'changeUserRole']);
     // Puedes agregar aquí otras rutas exclusivas para admin
 });
+
 Route::post('/categorias', [CategoriaController::class, 'store']);
 Route::put('/categorias/{id}', [CategoriaController::class, 'update']);
 Route::delete('/categorias/{id}', [CategoriaController::class, 'destroy']);
@@ -139,4 +148,23 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/addresses/{address}', [AddressController::class, 'show']);
     Route::put('/addresses/{address}', [AddressController::class, 'update']);
     Route::delete('/addresses/{address}', [AddressController::class, 'destroy']);
+});
+
+// Rutas de pagos
+Route::prefix('payments')->group(function () {
+    // Ruta pública para webhook
+    Route::post('/webhook', [App\Http\Controllers\PaymentController::class, 'webhook']);
+
+    // Ruta de prueba
+    Route::get('/test', [App\Http\Controllers\PaymentController::class, 'test']);
+    Route::post('/test-minimal-preference', [App\Http\Controllers\PaymentController::class, 'testMinimalPreference']);
+
+    // Rutas protegidas
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/create-preference', [App\Http\Controllers\PaymentController::class, 'createPreferenceFromCart']);
+        Route::post('/create-custom-preference', [App\Http\Controllers\PaymentController::class, 'createPreferenceWithPaymentMethods']);
+        Route::post('/process-payment', [App\Http\Controllers\PaymentController::class, 'processPaymentRequest']);
+        Route::get('/status/{paymentId}', [App\Http\Controllers\PaymentController::class, 'getPaymentStatus']);
+        Route::get('/user-payments', [App\Http\Controllers\PaymentController::class, 'getUserPayments']);
+    });
 });
