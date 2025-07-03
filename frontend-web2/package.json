@@ -12,10 +12,12 @@
   "dependencies": {
     "@mercadopago/sdk-react": "^1.0.3",
     "@react-three/drei": "^10.3.0",
-    "@react-three/fiber": "^9.1.2",
+    "@react-three/fiber": "^9.1.4",
+    "@react-three/postprocessing": "^3.0.4",
     "axios": "^1.10.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.516.0",
+    "postprocessing": "^6.37.4",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-leaflet": "^5.0.0",

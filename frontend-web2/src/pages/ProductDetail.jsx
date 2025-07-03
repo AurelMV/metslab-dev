@@ -1,3 +1,4 @@
+// ProductDetail.jsx
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
@@ -11,9 +12,12 @@ import {
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
 import env from "../config/env";
+// *** ASEGÚRATE DE QUE ESTE ES TU ARCHIVO ModelViewer AJUSTADO CON LUCES, CÁMARA Y POST-PROCESADO ***
 import ModelViewer from "./ModelViewer";
 // Import the pure CSS file
 import "../stayle/ProductDetail.css"; // Adjust the path as per your file structure
+import { getColoresDisponibles } from "../services/colores-service";
+import { getModelo3D, getModeloById } from "../services/modelo-service";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -33,32 +37,23 @@ export default function ProductDetail() {
   // Estados originales
   const [quantity, setQuantity] = useState(1);
   const [showAuthModal, setShowAuthModal] = useState(false);
- 
+
   const [addedToCart, setAddedToCart] = useState(false);
 
   // Nueva función para obtener la URL del modelo 3D con CORS
   const fetchModel3DUrl = async (idModelo) => {
     try {
-      const response = await fetch(
-        `${env.BASE_URL_API}/modelos/modelo/${idModelo}`
-      );
-      const result = await response.json();
-      if (result.success && result.data?.modelo_url) {
-        setModel3DUrl(result.data.modelo_url);
-      } else {
-        setModel3DUrl(null);
-      }
+      const modeloUrl = await getModelo3D(idModelo);
+      setModel3DUrl(modeloUrl);
     } catch (err) {
       setModel3DUrl(null);
     }
   };
-
   // Función para obtener colores desde la API
   const fetchColors = async () => {
     try {
       setColorsLoading(true);
-      const response = await fetch(`${env.BASE_URL_API}/color`);
-      const result = await response.json();
+      const result = await getColoresDisponibles();
 
       if (Array.isArray(result)) {
         // Mapear la estructura de tu API a la estructura esperada
@@ -100,38 +95,40 @@ export default function ProductDetail() {
   // Función para obtener el modelo desde la API
   const fetchModel = async () => {
     try {
-      setLoading(true);
-      const response = await fetch(`${env.BASE_URL_API}/modelos/${id}`);
-      const result = await response.json();
-
-      if (result.success) {
-        // Procesar las dimensiones desde el string "12*13*14"
-        const dimensionsArray = result.data.dimensiones.split("*");
-        const processedModel = {
-          ...result.data,
-          id: result.data.idModelo, // Para mantener compatibilidad
-          name: result.data.nombre,
-          description: result.data.descripcion,
-          price: result.data.precio,
-          image: result.data.imagen_url,
-          category: {
-            id: result.data.idCategoria,
-            name: result.data.nombreCategoria,
-          },
-          dimensions: {
-            width: dimensionsArray[0] || "0",
-            height: dimensionsArray[1] || "0",
-            depth: dimensionsArray[2] || "0",
-          },
-          modelo_url: result.data.modelo_url,
-        };
-        setModel(processedModel);
-      } else {
-        setError("Modelo no encontrado");
+      if (!id) {
+        setError("ID del modelo no especificado");
+        return;
       }
+
+      setLoading(true);
+      const data = await getModeloById(id);
+
+      const [width = "0", height = "0", depth = "0"] = (
+        data.dimensiones || ""
+      ).split("*");
+
+      const processedModel = {
+        ...data,
+        id: data.idModelo,
+        name: data.nombre,
+        description: data.descripcion,
+        price: data.precio,
+        image: data.imagen_url,
+        category: {
+          id: data.idCategoria,
+          name: data.nombreCategoria,
+        },
+        dimensions: {
+          width,
+          height,
+          depth,
+        },
+        modelo_url: data.modelo_url,
+      };
+
+      setModel(processedModel);
     } catch (err) {
-      setError("Error de conexión con el servidor");
-      console.error("Error fetching model:", err);
+      setError(err.message || "Error al obtener el modelo");
     } finally {
       setLoading(false);
     }
@@ -141,9 +138,10 @@ export default function ProductDetail() {
     fetchColors();
     if (id) {
       fetchModel();
-      fetchModel3DUrl(id);
+      fetchModel3DUrl(id); // Llama a esta función para obtener la URL del modelo 3D
     }
   }, [id]);
+
   const handleAddToCart = async () => {
     if (!user) {
       setShowAuthModal(true);
@@ -152,14 +150,16 @@ export default function ProductDetail() {
 
     try {
       await addToCart(model, selectedColor, quantity);
-      
+
       setAddedToCart(true);
       setTimeout(() => {
         setAddedToCart(false);
       }, 2000);
     } catch (error) {
       console.error("Error al agregar al carrito:", error);
-      alert("Ocurrió un error al agregar al carrito. Por favor, inténtalo de nuevo.");
+      alert(
+        "Ocurrió un error al agregar al carrito. Por favor, inténtalo de nuevo."
+      );
     }
   };
 
@@ -259,9 +259,10 @@ export default function ProductDetail() {
                 Interactúa con el modelo y cambia el color de impresión
               </p>
               {model3DUrl ? (
+                // *** AQUÍ ESTÁS USANDO EL MODELVIEWER CON LA URL DEL GLB ***
                 <ModelViewer
                   url={model3DUrl}
-                  color={selectedColor?.hex || "#ffffff"}
+                  color={selectedColor?.hex || "#ffffff"} // Este prop 'color' ahora cambiará el color del material principal
                 />
               ) : (
                 <div style={{ color: "#888", fontStyle: "italic" }}>
@@ -338,7 +339,11 @@ export default function ProductDetail() {
                 </div>
                 <div>
                   <span className="spec-label">Formato:</span>
-                  <span className="spec-value">.OBJ</span>
+                  <span className="spec-value">
+                    {model.modelo_url?.toLowerCase().endsWith(".glb")
+                      ? ".GLB"
+                      : ".OBJ"}
+                  </span>
                 </div>
               </div>
             </div>
@@ -406,20 +411,21 @@ export default function ProductDetail() {
             </div>
 
             {/* Add to Cart */}
-            <div className="add-to-cart-section">              <button 
-                onClick={handleAddToCart} 
-                className={`add-to-cart-button ${addedToCart ? 'added' : ''}`}
+            <div className="add-to-cart-section">
+              {" "}
+              <button
+                onClick={handleAddToCart}
+                className={`add-to-cart-button ${addedToCart ? "added" : ""}`}
                 disabled={addedToCart}
               >
                 <ShoppingCart className="add-to-cart-icon" />
-                <span>{addedToCart ? 'Agregado' : 'Agregar al Carrito'}</span>
+                <span>{addedToCart ? "Agregado" : "Agregar al Carrito"}</span>
               </button>
               {addedToCart && (
                 <div className="added-to-cart-message">
                   Producto agregado al carrito correctamente
                 </div>
               )}
-
               <div className="shipping-info-list">
                 <p>• Entrega gratuita con recojo en tienda</p>
                 <p>• Delivery disponible en Cusco (+S/ 10.00)</p>

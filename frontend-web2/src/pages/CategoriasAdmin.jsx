@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { getToken } from "../services/auth-service";
 import { Plus, Edit, Trash2 } from "lucide-react";
-
-const API_URL = import.meta.env.VITE_BASE_URL_API || `${env.API_BASE_URL}`;
+import {
+  getCategorias,
+  createCategoria,
+  updateCategoria,
+} from "../services/categoria-service";
 
 function initialForm() {
   return {
@@ -23,9 +26,12 @@ export default function CategoriasAdmin() {
 
   async function fetchCategorias() {
     setLoading(true);
-    const res = await fetch(`${API_URL}/categorias`);
-    const data = await res.json();
-    setCategorias(Array.isArray(data) ? data : []);
+    try {
+      const data = await getCategorias();
+      setCategorias(Array.isArray(data) ? data : []);
+    } catch (err) {
+      setCategorias([]);
+    }
     setLoading(false);
   }
 
@@ -52,51 +58,31 @@ export default function CategoriasAdmin() {
     e.preventDefault();
     setLoading(true);
     const token = getToken();
-    const payload = {
-      nombre: form.nombre,
-    };
-
-    let url = `${API_URL}/categorias`;
-    let method = "POST";
-    let headers = {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    };
-
-    if (editing) {
-      url = `${API_URL}/categorias/${editing}`;
-      method = "PUT";
-    }
-
-    const res = await fetch(url, {
-      method,
-      headers,
-      body: JSON.stringify(payload),
-    });
-    const data = await res.json();
-    setLoading(false);
-    if (res.ok) {
+    try {
+      if (editing) {
+        await updateCategoria(editing, form.nombre, token);
+      } else {
+        await createCategoria(form.nombre, token);
+      }
       setShowModal(false);
       fetchCategorias();
-    } else {
+    } catch (err) {
       alert(
-        data.error ||
-          (data.errors && Object.values(data.errors).join("\n")) ||
+        err.message ||
+          (err.errors && Object.values(err.errors).join("\n")) ||
           "Error al guardar la categoría"
       );
     }
+    setLoading(false);
   }
 
   async function handleDelete(idCategoria) {
     if (!window.confirm("¿Seguro que deseas eliminar esta categoría?")) return;
     const token = getToken();
-    const res = await fetch(`${API_URL}/categorias/${idCategoria}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (res.ok) {
+    try {
+      await deleteCategoria(idCategoria, token);
       fetchCategorias();
-    } else {
+    } catch {
       alert("No se pudo eliminar la categoría");
     }
   }
@@ -111,6 +97,7 @@ export default function CategoriasAdmin() {
         </button>
       </div>
       {loading && <div>Cargando...</div>}
+
       <div className="form-grid category-grid">
         {categorias.map((categoria) => (
           <div key={categoria.idCategoria} className="card">
@@ -125,6 +112,13 @@ export default function CategoriasAdmin() {
                 >
                   <Edit className="icon" />
                 </button>
+                <button
+                  onClick={() => handleDelete(categoria.idCategoria)}
+                  className="action-btn"
+                  title="Eliminar"
+                >
+                  <Trash2 className="icon" />
+                </button>
               </div>
             </div>
           </div>
@@ -138,7 +132,6 @@ export default function CategoriasAdmin() {
             <form onSubmit={handleSubmit} className="form-grid">
               <div className="form-group">
                 <label>Nombre</label>
-
                 <input
                   name="nombre"
                   value={form.nombre}

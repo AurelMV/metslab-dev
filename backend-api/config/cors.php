@@ -1,6 +1,6 @@
 <?php
 return [
-    'paths' => ['api/*', 'storage/*', 'auth/*', 'sanctum/*'],
+    'paths' => ['api/*', 'auth/*', 'sanctum/*', 'storage/*'],
     'allowed_methods' => ['*'],
     'allowed_origins' => [
         'https://www.metslab3d.com',
