@@ -1,0 +1,391 @@
+/* Estilos para el contenedor principal de MercadoPago Bricks */
+.mercadopago-bricks-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.payment-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.payment-header h3 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.payment-header p {
+  color: #666;
+  font-size: 16px;
+}
+
+.payment-summary {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.payment-summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.payment-summary-item:last-child {
+  border-bottom: none;
+}
+
+.payment-summary-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  font-weight: 600;
+  font-size: 18px;
+  color: #333;
+  border-top: 2px solid #007bff;
+  margin-top: 8px;
+}
+
+.payment-info {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.payment-security {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #28a745;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.payment-security-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.payment-currency {
+  color: #666;
+  font-size: 12px;
+}
+
+/* Estados de carga y error */
+.payment-loading,
+.payment-error {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.payment-loading-icon {
+  width: 48px;
+  height: 48px;
+  color: #007bff;
+  margin-bottom: 16px;
+}
+
+.payment-error-icon {
+  width: 48px;
+  height: 48px;
+  color: #dc3545;
+  margin-bottom: 16px;
+}
+
+.payment-loading h3,
+.payment-error h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.payment-loading p,
+.payment-error p {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.payment-error-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.payment-retry-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.payment-retry-button:hover {
+  background: #0056b3;
+}
+
+.payment-retry-icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Estilos para PaymentMethodsConfig */
+.payment-methods-config {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.config-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.config-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.config-icon {
+  width: 20px;
+  height: 20px;
+  color: #007bff;
+}
+
+.config-toggle-button {
+  padding: 8px 16px;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  color: #495057;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.config-toggle-button:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.config-content {
+  padding: 20px;
+}
+
+.config-section {
+  margin-bottom: 30px;
+}
+
+.config-section h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16px;
+}
+
+.config-select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  font-size: 14px;
+  background: #fff;
+}
+
+.config-select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.payment-methods-grid,
+.payment-types-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.payment-method-item,
+.payment-type-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #fff;
+}
+
+.payment-method-item:hover,
+.payment-type-item:hover {
+  border-color: #007bff;
+  background: #f8f9ff;
+}
+
+.payment-method-item input[type="checkbox"],
+.payment-type-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #007bff;
+}
+
+.payment-method-icon,
+.payment-type-icon {
+  width: 20px;
+  height: 20px;
+  color: #6c757d;
+}
+
+.payment-method-item span,
+.payment-type-item span {
+  font-size: 14px;
+  color: #333;
+  flex: 1;
+}
+
+.config-summary {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.config-summary h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.summary-item:last-child {
+  border-bottom: none;
+}
+
+.summary-item span:first-child {
+  color: #666;
+  font-size: 14px;
+}
+
+.summary-item span:last-child {
+  font-weight: 600;
+  color: #333;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .mercadopago-bricks-container {
+    padding: 16px;
+    margin: 0 10px;
+  }
+
+  .payment-methods-grid,
+  .payment-types-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .config-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .config-toggle-button {
+    align-self: stretch;
+  }
+
+  .payment-loading,
+  .payment-error {
+    padding: 2rem 1rem;
+  }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.config-content {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Estados de los checkboxes */
+.payment-method-item input[type="checkbox"]:checked + .payment-method-icon,
+.payment-type-item input[type="checkbox"]:checked + .payment-type-icon {
+  color: #007bff;
+}
+
+.payment-method-item input[type="checkbox"]:checked ~ span,
+.payment-type-item input[type="checkbox"]:checked ~ span {
+  color: #007bff;
+  font-weight: 500;
+}
+
+/* Animación de carga */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .mercadopago-bricks-container {
+    padding: 1rem;
+    margin: 0 1rem;
+  }
+  
+  .payment-header h3 {
+    font-size: 1.25rem;
+  }
+  
+  .payment-loading,
+  .payment-error {
+    padding: 2rem 1rem;
+  }
+} 

@@ -17,7 +17,8 @@ return new class extends Migration
             $table->string('estado', 45);
             $table->decimal('monto', 10, 2);
             $table->string('order_id', 255)->nullable();
-            $table->string('Pagocol', 45)->nullable();
+            $table->longText('Pagocol')->nullable();
+            $table->string('payment_method')->nullable();
             $table->timestamps();
         });
     }
