@@ -116,22 +116,6 @@ export default function Catalog() {
         <div className="catalog-content-wrapper">
           <div className="catalog-header">
             <h1 className="catalog-title">Error</h1>
-            <p className="catalog-description" style={{ color: "red" }}>
-              {error}
-            </p>
-            <button
-              onClick={() => fetchModels(selectedCategory)}
-              style={{
-                padding: "0.5rem 1rem",
-                backgroundColor: "#3b82f6",
-                color: "white",
-                border: "none",
-                borderRadius: "0.5rem",
-                cursor: "pointer",
-              }}
-            >
-              Reintentar
-            </button>
           </div>
         </div>
       </div>

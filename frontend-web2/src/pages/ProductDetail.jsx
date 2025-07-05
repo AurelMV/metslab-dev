@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
-import env from "../config/env";
+//import env from "../config/env";
 // *** ASEGÚRATE DE QUE ESTE ES TU ARCHIVO ModelViewer AJUSTADO CON LUCES, CÁMARA Y POST-PROCESADO ***
 import ModelViewer from "./ModelViewer";
 // Import the pure CSS file
@@ -254,10 +254,7 @@ export default function ProductDetail() {
             {/* 3D Model Viewer Placeholder - Ahora con enlace real */}
             <div className="viewer-placeholder-card">
               <Package className="viewer-icon" />
-              <h3 className="viewer-title">Vista Previa 3D</h3>
-              <p className="viewer-description">
-                Interactúa con el modelo y cambia el color de impresión
-              </p>
+
               {model3DUrl ? (
                 // *** AQUÍ ESTÁS USANDO EL MODELVIEWER CON LA URL DEL GLB ***
                 <ModelViewer
@@ -346,48 +343,6 @@ export default function ProductDetail() {
                   </span>
                 </div>
               </div>
-            </div>
-
-            {/* Color Selection */}
-            <div>
-              <h3 className="color-selection-title">
-                <Tag className="color-selection-icon" />
-                Seleccionar Color de Impresión
-              </h3>
-              {colors.length > 0 ? (
-                <div className="color-options-grid">
-                  {colors.map((color) => (
-                    <button
-                      key={color.id}
-                      onClick={() => setSelectedColor(color)}
-                      className={`color-option-button ${
-                        selectedColor && selectedColor.id === color.id
-                          ? "selected"
-                          : ""
-                      }`}
-                    >
-                      <div className="color-option-content">
-                        <div
-                          className="color-swatch"
-                          style={{ backgroundColor: color.hex }}
-                        ></div>
-                        <span className="color-name">{color.name}</span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <div
-                  style={{
-                    padding: "1rem",
-                    textAlign: "center",
-                    color: "#666",
-                    fontStyle: "italic",
-                  }}
-                >
-                  No hay colores disponibles
-                </div>
-              )}
             </div>
 
             {/* Quantity */}
