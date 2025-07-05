@@ -10,7 +10,7 @@ import { OrbitControls } from "@react-three/drei";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"; // Corrected import path
 import * as THREE from "three";
 
-function CenteredModel({ url, color, onCenterComputed }) {
+function CenteredModel({ url, onCenterComputed }) {
   const gltf = useLoader(GLTFLoader, url);
   const modelRef = useRef();
 
@@ -20,62 +20,32 @@ function CenteredModel({ url, color, onCenterComputed }) {
       const box = new THREE.Box3().setFromObject(model);
       const size = new THREE.Vector3();
       box.getSize(size);
-      // Determine the maximum dimension (width, height, or depth)
       const maxDim = Math.max(size.x, size.y, size.z);
-      // Calculate a scale factor to fit the model within a desired dimension (e.g., 2 units)
       const scale = 2 / maxDim;
-      model.scale.setScalar(scale); // Apply the uniform scale to the model
+      model.scale.setScalar(scale);
 
-      // Calculate the center of the bounding box before scaling
       const centerX = (box.max.x + box.min.x) / 2;
       const centerZ = (box.max.z + box.min.z) / 2;
-      const baseY = box.min.y; // Get the lowest Y-coordinate of the model
+      const baseY = box.min.y;
       model.position.set(-centerX * scale, -baseY * scale, -centerZ * scale);
+
       if (onCenterComputed) {
-        // Recalculate the bounding box after scaling and positioning
         const newBox = new THREE.Box3().setFromObject(model);
         const newCenter = new THREE.Vector3();
-        newBox.getCenter(newCenter); // Get the world-space center of the transformed model
-        onCenterComputed(newCenter.toArray()); // Pass the center as an array [x, y, z]
+        newBox.getCenter(newCenter);
+        onCenterComputed(newCenter.toArray());
       }
-      model.traverse((child) => {
-        if (child.isMesh) {
-          child.material = new THREE.MeshStandardMaterial({ color });
-        }
-      });
-      // Store the transformed model in the ref for rendering
+
       modelRef.current = model;
     }
-  }, [gltf, color, onCenterComputed]); // Dependencies for useLayoutEffect
+  }, [gltf, onCenterComputed]);
 
-  // useEffect to update material color if the 'color' prop changes
-  useEffect(() => {
-    const displayColor = color || "#cccccc"; // Default color if none provided
-    if (modelRef.current) {
-      modelRef.current.traverse((child) => {
-        if (child.isMesh && child.material) {
-          // Handle both single materials and arrays of materials
-          const materials = Array.isArray(child.material)
-            ? child.material
-            : [child.material];
-          materials.forEach((mat) => {
-            if (mat.color) mat.color.set(displayColor);
-            // Remove any existing textures to ensure only the pure color is visible
-            if (mat.map) mat.map = null;
-            if (mat.emissiveMap) mat.emissiveMap = null;
-            if (mat.normalMap) mat.normalMap = null;
-            if (mat.roughnessMap) mat.roughnessMap = null;
-            if (mat.metalnessMap) mat.metalnessMap = null;
-          });
-        }
-      });
-    }
-  }, [color]);
   useFrame(() => {
     if (modelRef.current) {
-      modelRef.current.rotation.y += 0.005; // Rotate around the Y-axis
+      modelRef.current.rotation.y += 0.005;
     }
   });
+
   return (
     <group>{modelRef.current && <primitive object={modelRef.current} />}</group>
   );

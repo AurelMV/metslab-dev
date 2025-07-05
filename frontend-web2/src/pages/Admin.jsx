@@ -21,7 +21,6 @@ import {
 import { models3D, categories, colors, mockOrders } from "../data/mockData"; // Asegúrate de que mockData exista y tenga los datos
 import "../stayle/Admin.css"; // Importa tu archivo CSS puro
 import ModelosAdmin from "./ModelosAdmin";
-import ColoresAdmin from "./ColoresAdmin";
 
 export default function Admin() {
   const { user, isAdmin } = useAuth();
@@ -33,7 +32,6 @@ export default function Admin() {
   // Mock data states (in real app, these would come from API/database)
   const [modelsData, setModelsData] = useState(models3D);
   const [categoriesData, setCategoriesData] = useState(categories);
-  const [colorsData, setColorsData] = useState(colors);
   const [ordersData, setOrdersData] = useState(mockOrders);
   const [usersData, setUsersData] = useState([
     {
@@ -61,7 +59,6 @@ export default function Admin() {
   const menuItems = [
     { id: "models", label: "Gestión de Modelos", icon: Package },
     { id: "categories", label: "Categorías", icon: Tag },
-    { id: "colors", label: "Colores", icon: Palette },
     { id: "orders", label: "Pedidos", icon: ShoppingBag },
     { id: "users", label: "Usuarios", icon: Users },
     { id: "profile", label: "Mi Perfil", icon: User },

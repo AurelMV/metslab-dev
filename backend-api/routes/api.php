@@ -9,7 +9,7 @@ use App\Http\Controllers\ModeloController;
 use App\Http\Controllers\CarritoController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\ColorController;
+//use App\Http\Controllers\ColorController;
 use App\Http\Controllers\SocialController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Auth\UserController;
@@ -84,11 +84,11 @@ Route::middleware(['auth:sanctum', 'role:cliente'])->group(function () {
     Route::delete('/carrito/vaciar/todo', [CarritoController::class, 'vaciarCarrito']);
     // Puedes agregar aquí otras rutas exclusivas para clientes
     // Rutas para gestionar pedidos
-Route::post('/pedidos', [PedidoController::class, 'crearPedido']);
-Route::get('/pedidos/{id}', [PedidoController::class, 'mostrarPedido']);
-Route::get('/pedidos', [PedidoController::class, 'listarPedidos']);
-Route::put('/pedidos/{id}', [PedidoController::class, 'actualizarPedido']);
-Route::delete('/pedidos/{id}', [PedidoController::class, 'eliminarPedido']);
+    Route::post('/pedidos', [PedidoController::class, 'crearPedido']);
+    Route::get('/pedidos/{id}', [PedidoController::class, 'mostrarPedido']);
+    Route::get('/pedidos', [PedidoController::class, 'listarPedidos']);
+    Route::put('/pedidos/{id}', [PedidoController::class, 'actualizarPedido']);
+    Route::delete('/pedidos/{id}', [PedidoController::class, 'eliminarPedido']);
 });
 
 // Rutas protegidas solo para admin
@@ -99,8 +99,6 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::delete('/categorias/{id}', [CategoriaController::class, 'destroy']);
     // Rutas de modelos (crear, editar, eliminar)
     Route::post('/modelos', [ModeloController::class, 'store']);
-    Route::post('/color', [ColorController::class, 'store']);
-    Route::put('/color/{id}', [ColorController::class, 'update']);
     Route::put('/modelos/{id}', [ModeloController::class, 'update']);
     Route::delete('/modelos/{id}', [ModeloController::class, 'destroy']);
     // Rutas de usuarios
@@ -114,15 +112,13 @@ Route::put('/categorias/{id}', [CategoriaController::class, 'update']);
 Route::delete('/categorias/{id}', [CategoriaController::class, 'destroy']);
 // Rutas de modelos (crear, editar, eliminar)
 Route::post('/modelos', [ModeloController::class, 'store']);
-Route::post('/color', [ColorController::class, 'store']);
-Route::put('/color/{id}', [ColorController::class, 'update']);
+
 Route::put('/modelos/{id}', [ModeloController::class, 'update']);
 Route::delete('/modelos/{id}', [ModeloController::class, 'destroy']);
 // Rutas públicas y de solo lectura
 Route::get('/categorias', [CategoriaController::class, 'index']);
 
-Route::get('/color', [ColorController::class, 'index']);
-Route::get('/color/disponibles', [ColorController::class, 'indexDisponible']);
+
 Route::get('/categorias/{id}', [CategoriaController::class, 'show']);
 Route::get('/modelos', [ModeloController::class, 'index']);
 Route::get('/modelos/categoria/{idCategoria}', [ModeloController::class, 'modelosPorCategoria']);
