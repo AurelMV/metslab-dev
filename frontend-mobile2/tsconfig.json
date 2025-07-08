@@ -1,0 +1,29 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "jsx": "react-native",
+    "lib": ["es6", "dom"],
+    "allowJs": true,          // permite archivos .js y .jsx
+    "checkJs": false, 
+      "noEmit": true, 
+    "module": "esnext",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": [
+    "**/*.ts",
+      "src/**/*",
+    "**/*.js",
+    "**/*.jsx",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts",
+    "nativewind-env.d.ts"
+, "config/env.jsx", "services/cart-service.jsx", "services/auth-service.jsx"    
+  ],"exclude": ["node_modules", "babel.config.js", "metro.config.js"]
+  
+}
