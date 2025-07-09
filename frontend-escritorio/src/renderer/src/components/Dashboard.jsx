@@ -6,6 +6,7 @@ import CategoriesManager from './CategoriesManager'
 import OrdersManager from './OrdersManager.jsx'
 import UsersManager from './UsersManager'
 import ModelDetail from './ModelDetail'
+//import ColorManager from './ColorManager.jsx'
 
 const Dashboard = ({ onLogout, isOnline }) => {
   const [activeSection, setActiveSection] = useState('profile')

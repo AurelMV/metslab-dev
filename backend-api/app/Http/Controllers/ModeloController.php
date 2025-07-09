@@ -62,7 +62,7 @@ class ModeloController extends Controller
                 'nombre' => 'required|string|max:45',
                 'descripcion' => 'nullable|string|max:255',
                 'dimensiones' => 'nullable|string|max:45',
-                'modelo_3d' => 'required|file|mimes:obj,txt|max:18240',
+                'modelo_3d' => 'required|file|mimes:glb|max:18240',
 
 
                 'imagen' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
@@ -170,7 +170,7 @@ class ModeloController extends Controller
                 'nombre' => 'sometimes|required|string|max:45',
                 'descripcion' => 'nullable|string|max:255',
                 'dimensiones' => 'nullable|string|max:45',
-                'modelo_3d' => 'nullable|file|mimes:obj,txt|max:18240',
+                'modelo_3d' => 'nullable|file|mimes:glb|max:18240',
                 'imagen' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
                 'precio' => 'sometimes|required|integer|min:0',
                 'idCategoria' => 'nullable|exists:categorias,idCategoria',
@@ -234,11 +234,21 @@ class ModeloController extends Controller
 
 
 
-    public function RecursoCatalogo()
+    public function RecursoCatalogo(Request $request)
     {
         try {
-            // Solo obtener modelos con estado true
-            $modelos = Modelo::where('estado', true)->get();
+            // Obtener el idCategoria si viene en la consulta
+            $idCategoria = $request->query('idCategoria');
+
+            // Construir la consulta base
+            $query = Modelo::where('estado', true);
+
+            // Si se pasa idCategoria, filtrar por esa categoría
+            if ($idCategoria) {
+                $query->where('idCategoria', $idCategoria);
+            }
+
+            $modelos = $query->get();
 
             $data = $modelos->map(function ($modelo) {
                 $imagen_url = $modelo->ruta_imagen ? asset($modelo->ruta_imagen) : null;

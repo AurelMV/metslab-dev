@@ -2,10 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getToken } from "../services/auth-service";
 import { Plus, Edit, Eye, Trash2, Search, Filter } from "lucide-react";
 import ModelViewer from "./ModelViewer";
-
-const API_URL =
-  import.meta.env.VITE_BASE_URL_API || "http://localhost:8000/api";
-
+//import { env } from "../config/env";
 function initialForm() {
   return {
     nombre: "",
@@ -18,6 +15,13 @@ function initialForm() {
     imagen: null,
   };
 }
+import {
+  getModelos,
+  createModelo,
+  updateModelo,
+  getModelo3D,
+} from "../services/modelo-service";
+import { getCategorias } from "../services/categoria-service";
 
 export default function ModelosAdmin() {
   const [viewerUrl, setViewerUrl] = useState(null);
@@ -83,13 +87,12 @@ export default function ModelosAdmin() {
       matchPrecioMax
     );
   });
-
   async function handleView3D(modeloId) {
     try {
-      const res = await fetch(`${API_URL}/modelos/modelo/${modeloId}`);
-      const data = await res.json();
-      if (data.success && data.data?.modelo_url) {
-        setViewerUrl(data.data.modelo_url);
+      const modeloUrl = await getModelo3D(modeloId);
+      console.log("URL recibida:", modeloUrl);
+      if (modeloUrl) {
+        setViewerUrl(modeloUrl);
         setViewerOpen(true);
       } else {
         alert("No se pudo obtener el modelo 3D.");
@@ -101,22 +104,24 @@ export default function ModelosAdmin() {
 
   async function fetchModelos() {
     setLoading(true);
-    const token = getToken();
-    const res = await fetch(`${API_URL}/modelos`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const data = await res.json();
-    setModelos(data.data || []);
+    try {
+      const token = getToken();
+      const modelos = await getModelos(token);
+      setModelos(modelos);
+    } catch (err) {
+      setModelos([]);
+    }
     setLoading(false);
   }
 
   async function fetchCategorias() {
-    const res = await fetch(`${API_URL}/categorias`);
-    const data = await res.json();
-    // Si data es un array, úsalo directamente
-    setCategorias(Array.isArray(data) ? data : data.data || []);
+    try {
+      const data = await getCategorias();
+      setCategorias(Array.isArray(data) ? data : []);
+    } catch {
+      setCategorias([]);
+    }
   }
-
   function handleOpenCreate() {
     setEditing(null);
     setForm(initialForm());
@@ -198,32 +203,11 @@ export default function ModelosAdmin() {
     });
 
     try {
-      let url = `${API_URL}/modelos`;
-      let method = "POST";
-
       if (editing) {
-        url = `${API_URL}/modelos/${editing}`;
-        method = "POST"; // Usar POST con _method para Laravel
-        formData.append("_method", "PUT");
+        await updateModelo(editing, formData, token);
+      } else {
+        await createModelo(formData, token);
       }
-
-      const res = await fetch(url, {
-        method,
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        // Manejar errores de validación del backend
-        if (data.errors) {
-          setFormErrors(data.errors);
-          throw new Error("Error de validación");
-        }
-        throw new Error(data.message || "Error al guardar el modelo");
-      }
-
       setShowModal(false);
       fetchModelos();
     } catch (error) {
@@ -913,7 +897,7 @@ export default function ModelosAdmin() {
                         <input
                           name="modelo_3d"
                           type="file"
-                          accept=".obj,.txt"
+                          accept=".glb"
                           onChange={handleChange}
                           className={`form-input ${
                             formErrors.modelo_3d ? "input-error" : ""

@@ -1,0 +1,269 @@
+/* Contenedor principal */
+.payment-failure-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.payment-failure-content {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  padding: 3rem;
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+}
+
+/* Header de error */
+.payment-failure-header {
+  margin-bottom: 2rem;
+}
+
+.payment-failure-icon {
+  width: 4rem;
+  height: 4rem;
+  color: #dc2626;
+  margin: 0 auto 1rem;
+}
+
+.payment-failure-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.payment-failure-header p {
+  color: #6b7280;
+  font-size: 1.125rem;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+/* Detalles del pago */
+.payment-details {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.payment-details h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #991b1b;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.payment-detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #fecaca;
+}
+
+.payment-detail-item:last-child {
+  border-bottom: none;
+}
+
+.payment-detail-item span:first-child {
+  font-weight: 500;
+  color: #7f1d1d;
+}
+
+.payment-detail-item span:last-child {
+  font-weight: 600;
+  color: #991b1b;
+}
+
+.payment-status {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.payment-status.rejected {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.payment-status.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.payment-status.cancelled {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+/* Solución de problemas */
+.payment-troubleshooting {
+  margin-bottom: 2rem;
+}
+
+.payment-troubleshooting h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1.5rem;
+}
+
+.troubleshooting-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.troubleshooting-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  text-align: left;
+}
+
+.step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 50%;
+  font-weight: 600;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.step-content h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.25rem;
+}
+
+.step-content p {
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Botones de acción */
+.payment-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.payment-action-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+}
+
+.payment-action-button.primary {
+  background: #dc2626;
+  color: white;
+}
+
+.payment-action-button.primary:hover {
+  background: #b91c1c;
+  transform: translateY(-1px);
+}
+
+.payment-action-button.secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.payment-action-button.secondary:hover {
+  background: #e5e7eb;
+  transform: translateY(-1px);
+}
+
+.payment-action-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Soporte */
+.payment-support {
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.payment-support h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.payment-support p {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.payment-support a {
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.payment-support a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .payment-failure-content {
+    padding: 2rem 1.5rem;
+  }
+  
+  .payment-failure-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .troubleshooting-step {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .step-number {
+    align-self: center;
+  }
+  
+  .payment-actions {
+    flex-direction: column;
+  }
+  
+  .payment-action-button {
+    justify-content: center;
+  }
+} 

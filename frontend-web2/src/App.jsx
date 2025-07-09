@@ -15,6 +15,8 @@ import Cart from "./pages/Cart";
 import Admin from "./pages/Admin";
 import Profile from "./pages/Profile";
 import AddressPage from "./pages/Direcciones/AddressPage";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentFailure from "./pages/PaymentFailure";
 
 import "leaflet/dist/leaflet.css";
 import "./fixLeafletIcon";
@@ -43,6 +45,9 @@ function App() {
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/direcciones" element={<AddressPage />} />
+                <Route path="/payment/success" element={<PaymentSuccess />} />
+                <Route path="/payment/failure" element={<PaymentFailure />} />
+                <Route path="/payment/pending" element={<PaymentFailure />} />
               </Routes>
             </main>
             <Footer />

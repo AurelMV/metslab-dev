@@ -9,11 +9,12 @@ use App\Http\Controllers\ModeloController;
 use App\Http\Controllers\CarritoController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\ColorController;
+//use App\Http\Controllers\ColorController;
 use App\Http\Controllers\SocialController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Auth\UserController;
 use App\Http\Controllers\Auth\ProfileController;
+use App\Http\Controllers\PedidoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -62,6 +63,14 @@ Route::middleware('auth:sanctum')->group(function () {
     // Cambiar contraseña y actualizar perfil
     Route::post('/user/change-password', [ProfileController::class, 'changePassword']);
     Route::put('/user/profile', [ProfileController::class, 'updateProfile']);
+
+    // Rutas protegidas
+    Route::post('/create-preference', [App\Http\Controllers\PaymentController::class, 'createPreferenceFromCart']);
+    Route::post('/create-custom-preference', [App\Http\Controllers\PaymentController::class, 'createPreferenceWithPaymentMethods']);
+    Route::post('/process-payment', [App\Http\Controllers\PaymentController::class, 'processPaymentRequest']);
+    Route::get('/status/{paymentId}', [App\Http\Controllers\PaymentController::class, 'getPaymentStatus']);
+    Route::get('/user-payments', [App\Http\Controllers\PaymentController::class, 'getUserPayments']);
+    Route::post('/orders/create', [PedidoController::class, 'create']);
 });
 
 // Rutas protegidas para usuarios autenticados (cliente)
@@ -74,6 +83,12 @@ Route::middleware(['auth:sanctum', 'role:cliente'])->group(function () {
     Route::delete('/carrito/{id}', [CarritoController::class, 'destroy']);
     Route::delete('/carrito/vaciar/todo', [CarritoController::class, 'vaciarCarrito']);
     // Puedes agregar aquí otras rutas exclusivas para clientes
+    // Rutas para gestionar pedidos
+    Route::post('/pedidos', [PedidoController::class, 'crearPedido']);
+    Route::get('/pedidos/{id}', [PedidoController::class, 'mostrarPedido']);
+    Route::get('/pedidos', [PedidoController::class, 'listarPedidos']);
+    Route::put('/pedidos/{id}', [PedidoController::class, 'actualizarPedido']);
+    Route::delete('/pedidos/{id}', [PedidoController::class, 'eliminarPedido']);
 });
 
 // Rutas protegidas solo para admin
@@ -84,8 +99,6 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::delete('/categorias/{id}', [CategoriaController::class, 'destroy']);
     // Rutas de modelos (crear, editar, eliminar)
     Route::post('/modelos', [ModeloController::class, 'store']);
-    Route::post('/color', [ColorController::class, 'store']);
-    Route::put('/color/{id}', [ColorController::class, 'update']);
     Route::put('/modelos/{id}', [ModeloController::class, 'update']);
     Route::delete('/modelos/{id}', [ModeloController::class, 'destroy']);
     // Rutas de usuarios
@@ -93,18 +106,19 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::put('/users/{id}/role', [UserController::class, 'changeUserRole']);
     // Puedes agregar aquí otras rutas exclusivas para admin
 });
+
 Route::post('/categorias', [CategoriaController::class, 'store']);
-    Route::put('/categorias/{id}', [CategoriaController::class, 'update']);
-    Route::delete('/categorias/{id}', [CategoriaController::class, 'destroy']);
-    // Rutas de modelos (crear, editar, eliminar)
-    Route::post('/modelos', [ModeloController::class, 'store']);
-    Route::post('/color', [ColorController::class, 'store']);
-    Route::put('/color/{id}', [ColorController::class, 'update']);
-    Route::put('/modelos/{id}', [ModeloController::class, 'update']);
-    Route::delete('/modelos/{id}', [ModeloController::class, 'destroy']);
+Route::put('/categorias/{id}', [CategoriaController::class, 'update']);
+Route::delete('/categorias/{id}', [CategoriaController::class, 'destroy']);
+// Rutas de modelos (crear, editar, eliminar)
+Route::post('/modelos', [ModeloController::class, 'store']);
+
+Route::put('/modelos/{id}', [ModeloController::class, 'update']);
+Route::delete('/modelos/{id}', [ModeloController::class, 'destroy']);
 // Rutas públicas y de solo lectura
 Route::get('/categorias', [CategoriaController::class, 'index']);
-Route::get('/color', [ColorController::class, 'index']);
+
+
 Route::get('/categorias/{id}', [CategoriaController::class, 'show']);
 Route::get('/modelos', [ModeloController::class, 'index']);
 Route::get('/modelos/categoria/{idCategoria}', [ModeloController::class, 'modelosPorCategoria']);
@@ -128,6 +142,25 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/addresses', [AddressController::class, 'index']);
     Route::post('/addresses', [AddressController::class, 'store']);
     Route::get('/addresses/{address}', [AddressController::class, 'show']);
-    Route::put('/addresses/{address}', [AddressController::class, 'update']); // ✅ ESTA
+    Route::put('/addresses/{address}', [AddressController::class, 'update']);
     Route::delete('/addresses/{address}', [AddressController::class, 'destroy']);
+});
+
+// Rutas de pagos
+Route::prefix('payments')->group(function () {
+    // Ruta pública para webhook
+    Route::post('/webhook', [App\Http\Controllers\PaymentController::class, 'webhook']);
+
+    // Ruta de prueba
+    Route::get('/test', [App\Http\Controllers\PaymentController::class, 'test']);
+    Route::post('/test-minimal-preference', [App\Http\Controllers\PaymentController::class, 'testMinimalPreference']);
+
+    // Rutas protegidas
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/create-preference', [App\Http\Controllers\PaymentController::class, 'createPreferenceFromCart']);
+        Route::post('/create-custom-preference', [App\Http\Controllers\PaymentController::class, 'createPreferenceWithPaymentMethods']);
+        Route::post('/process-payment', [App\Http\Controllers\PaymentController::class, 'processPaymentRequest']);
+        Route::get('/status/{paymentId}', [App\Http\Controllers\PaymentController::class, 'getPaymentStatus']);
+        Route::get('/user-payments', [App\Http\Controllers\PaymentController::class, 'getUserPayments']);
+    });
 });

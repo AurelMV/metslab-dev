@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import env from "../../config/env" ;
 import AddressForm from "./AddressForm";
 import Modal from "../../components/Modal";
 import {
@@ -13,7 +14,7 @@ import {
 } from "lucide-react";
 import "./AddressPage.css";
 
-const API_URL = "http://localhost:8000/api";
+const API_URL = env.BASE_URL_API;
 
 export default function AddressPage({ onSelect }) {
   const [addresses, setAddresses] = useState([]);
