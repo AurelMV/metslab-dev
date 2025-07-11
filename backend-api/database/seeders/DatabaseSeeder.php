@@ -46,6 +46,8 @@ class DatabaseSeeder extends Seeder
         );
         $cliente->assignRole($clienteRole);
 
-        // Puedes agregar más seeders aquí...
+        $this->call([
+            PedidoSeeder::class
+        ]);
     }
 }
