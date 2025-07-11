@@ -15,8 +15,8 @@ use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Auth\UserController;
 use App\Http\Controllers\Auth\ProfileController;
 use App\Http\Controllers\PedidoController;
+use App\Http\Controllers\MetricsController;
 use App\Http\Controllers\SeguimientoController;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -111,6 +111,9 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('/users', [UserController::class, 'getUsers']);
     Route::get('/users-with-pedidos', [UserController::class, 'getUsersWithPedidos']);
     Route::put('/users/{id}/role', [UserController::class, 'changeUserRole']);
+    // Rutas de métricas
+    Route::get('/metricas/pedidos-por-mes', [MetricsController::class, 'pedidosPorMes']);
+    Route::get('/metricas/ingresos-por-mes', [MetricsController::class, 'ingresosPorMes']);
     // Puedes agregar aquí otras rutas exclusivas para admin
 });
 Route::post('/categorias', [CategoriaController::class, 'store']);

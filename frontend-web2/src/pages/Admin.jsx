@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import { Navigate } from "react-router-dom";
+import { data, Navigate } from "react-router-dom";
 import ModelForm from "./ModelosAdmin";
 import CategoryForm from "./CategoriasAdmin";
 import {
@@ -17,10 +17,13 @@ import {
   Save,
   X,
   Search,
+  ChartBar,
 } from "lucide-react";
 import { models3D, categories, colors, mockOrders } from "../data/mockData"; // Asegúrate de que mockData exista y tenga los datos
 import "../stayle/Admin.css"; // Importa tu archivo CSS puro
 import ModelosAdmin from "./ModelosAdmin";
+import { getPedidosPorMes, getIngresosPorMes } from "../services/metrick-service";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import UsuariosAdmin from "../components/UsuariosAdmin";
 export default function Admin() {
   const { user, isAdmin } = useAuth();
@@ -33,6 +36,49 @@ export default function Admin() {
   const [modelsData, setModelsData] = useState(models3D);
   const [categoriesData, setCategoriesData] = useState(categories);
   const [ordersData, setOrdersData] = useState(mockOrders);
+  const [usersData, setUsersData] = useState([
+    {
+      id: "1",
+      name: "Admin MetsLab",
+      email: "admin@metslab.com",
+      role: "admin",
+      phone: "+51 984 123 456",
+      address: "Av. El Sol 123, Cusco",
+    },
+    {
+      id: "2",
+      name: "Cliente Ejemplo",
+      email: "cliente@example.com",
+      role: "customer",
+      phone: "+51 987 654 321",
+      address: "Jr. Comercio 456, Cusco",
+    },
+  ]);
+  const [pedidosPorMes, setPedidosPorMes] = useState([]);
+  const [ingresosPorMes, setIngresosPorMes] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const cargarMetricas = async () => {
+      if (activeSection === 'metric') {
+        setLoading(true);
+        try {
+          const [pedidos, ingresos] = await Promise.all([
+            getPedidosPorMes(),
+            getIngresosPorMes()
+          ]);
+          setPedidosPorMes(pedidos);
+          setIngresosPorMes(ingresos);
+        } catch (error) {
+          console.error('Error al cargar métricas:', error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    cargarMetricas();
+  }, [activeSection]);
 
   if (!isAdmin) {
     return <Navigate to="/" replace />;
@@ -42,6 +88,7 @@ export default function Admin() {
     { id: "models", label: "Gestión de Modelos", icon: Package },
     { id: "categories", label: "Categorías", icon: Tag },
     { id: "orders", label: "Pedidos", icon: ShoppingBag },
+    { id: "metric", label: "Metricas", icon: ChartBar},
     { id: "users", label: "Usuarios", icon: Users },
     { id: "profile", label: "Mi Perfil", icon: User },
   ];
@@ -235,6 +282,85 @@ export default function Admin() {
       </div>
     </div>
   );
+  const renderMetricSection = () => {
+    const nombresMeses = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+
+    return (
+      <div className="section-content">
+        <h2 className="text-2xl font-bold text-secondary-900 mb-6">
+          Métricas de la Tienda
+        </h2>
+
+        {loading ? (
+          <div>Cargando métricas...</div>
+        ) : (
+          <>
+            <div className="metric-cards grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <div className="metric-card bg-white p-6 rounded-lg shadow-md">
+                <h3 className="metric-title text-lg font-semibold mb-2">
+                  Total de Pedidos
+                </h3>
+                <p className="metric-value text-3xl font-bold text-primary-600">
+                  {pedidosPorMes.reduce((acc, item) => acc + item.cantidad, 0)}
+                </p>
+              </div>
+              <div className="metric-card bg-white p-6 rounded-lg shadow-md">
+                <h3 className="metric-title text-lg font-semibold mb-2">
+                  Total de Ingresos
+                </h3>
+                <p className="metric-value text-3xl font-bold text-primary-600">
+                  S/ {ingresosPorMes.reduce((acc, item) => acc + item.ingresos, 0).toFixed(2)}
+                </p>
+              </div>
+            </div>
+
+            <div className="charts-container grid grid-cols-1 gap-6">
+              <div className="chart-card bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-lg font-semibold mb-4">Pedidos por Mes</h3>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={pedidosPorMes}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis 
+                      dataKey="mes" 
+                      tickFormatter={(value) => nombresMeses[value - 1]} 
+                    />
+                    <YAxis />
+                    <Tooltip 
+                      formatter={(value, name) => [value, 'Pedidos']}
+                      labelFormatter={(mes) => nombresMeses[mes - 1]}
+                    />
+                    <Bar dataKey="cantidad" fill="#8884d8" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              <div className="chart-card bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-lg font-semibold mb-4">Ingresos por Mes</h3>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={ingresosPorMes}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis 
+                      dataKey="mes" 
+                      tickFormatter={(value) => nombresMeses[value - 1]} 
+                    />
+                    <YAxis />
+                    <Tooltip 
+                      formatter={(value) => [`S/ ${value.toFixed(2)}`, 'Ingresos']}
+                      labelFormatter={(mes) => nombresMeses[mes - 1]}
+                    />
+                    <Bar dataKey="ingresos" fill="#82ca9d" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    );
+  };
 
   const renderUsersSection = () => <UsuariosAdmin />;
 
@@ -350,6 +476,8 @@ export default function Admin() {
         return renderColorsSection();
       case "orders":
         return renderOrdersSection();
+      case "metric":
+        return renderMetricSection();
       case "users":
         return renderUsersSection();
       case "profile":
