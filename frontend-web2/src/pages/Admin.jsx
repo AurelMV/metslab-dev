@@ -24,7 +24,7 @@ import "../stayle/Admin.css"; // Importa tu archivo CSS puro
 import ModelosAdmin from "./ModelosAdmin";
 import { getPedidosPorMes, getIngresosPorMes } from "../services/metrick-service";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-
+import UsuariosAdmin from "../components/UsuariosAdmin";
 export default function Admin() {
   const { user, isAdmin } = useAuth();
   const [activeSection, setActiveSection] = useState("models");
@@ -362,80 +362,7 @@ export default function Admin() {
     );
   };
 
-  const renderUsersSection = () => (
-    <div className="section-content">
-      <h2 className="text-2xl font-bold text-secondary-900">
-        Usuarios Registrados
-      </h2>
-
-      <div className="table-container">
-        <div className="table-responsive">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Usuario</th>
-                <th>Contacto</th>
-                <th>Rol</th>
-                <th>Pedidos</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {usersData.map((userData) => (
-                <tr key={userData.id}>
-                  <td>
-                    <div className="flex items-center">
-                      <div className="user-avatar-placeholder">
-                        <User className="icon" />
-                      </div>
-                      <div className="ml-4">
-                        <div className="font-medium text-secondary-900">
-                          {userData.name}
-                        </div>
-                        <div className="text-sm text-secondary-500">
-                          {userData.email}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <div className="text-sm text-secondary-900">
-                      {userData.phone}
-                    </div>
-                    <div className="text-sm text-secondary-500">
-                      {userData.address}
-                    </div>
-                  </td>
-                  <td>
-                    <span
-                      className={`badge ${
-                        userData.role === "admin"
-                          ? "badge-purple"
-                          : "badge-gray"
-                      }`}
-                    >
-                      {userData.role === "admin" ? "Administrador" : "Cliente"}
-                    </span>
-                  </td>
-                  <td className="text-sm text-secondary-900">
-                    {
-                      ordersData.filter((order) => order.userId === userData.id)
-                        .length
-                    }
-                  </td>
-                  <td>
-                    <button className="action-btn">
-                      <Eye className="icon" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
+  const renderUsersSection = () => <UsuariosAdmin />;
 
   const renderProfileSection = () => (
     <div className="section-content">

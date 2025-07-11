@@ -14,4 +14,9 @@ class DetallePedido extends Model
         'idModelo',
         'idPedido'
     ];
+
+    public function modelo()
+    {
+        return $this->belongsTo(Modelo::class, 'idModelo');
+    }
 }

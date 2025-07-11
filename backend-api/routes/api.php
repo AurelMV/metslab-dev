@@ -9,15 +9,14 @@ use App\Http\Controllers\ModeloController;
 use App\Http\Controllers\CarritoController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\RegisterController;
-//use App\Http\Controllers\ColorController;
+use App\Http\Controllers\ColorController;
 use App\Http\Controllers\SocialController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Auth\UserController;
 use App\Http\Controllers\Auth\ProfileController;
 use App\Http\Controllers\PedidoController;
-//metricas
 use App\Http\Controllers\MetricsController;
-
+use App\Http\Controllers\SeguimientoController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -84,6 +83,12 @@ Route::middleware(['auth:sanctum', 'role:cliente'])->group(function () {
     Route::put('/carrito/{id}', [CarritoController::class, 'update']);
     Route::delete('/carrito/{id}', [CarritoController::class, 'destroy']);
     Route::delete('/carrito/vaciar/todo', [CarritoController::class, 'vaciarCarrito']);
+    
+    // Seguimiento de pedidos solo para clientes autenticados
+    Route::get('/seguimiento', [SeguimientoController::class, 'seguimiento']); // Pedidos activos que se pueden seguir
+    Route::get('/historial', [SeguimientoController::class, 'historial']); // Historial completo de pedidos
+    Route::get('/pedido/{id}/detalles', [SeguimientoController::class, 'detalles']); // Detalles completos de un pedido
+    
     // Puedes agregar aquí otras rutas exclusivas para clientes
     // Rutas para gestionar pedidos
     Route::post('/pedidos', [PedidoController::class, 'crearPedido']);
@@ -98,6 +103,21 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     // Rutas de categorías
     Route::post('/categorias', [CategoriaController::class, 'store']);
     Route::put('/categorias/{id}', [CategoriaController::class, 'update']);
+    //Route::delete('/categorias/{id}', [CategoriaController::class, 'destroy']);
+    // Rutas de modelos (crear, editar, eliminar)
+    Route::post('/modelos', [ModeloController::class, 'store']);
+    Route::put('/modelos/{id}', [ModeloController::class, 'update']);
+    // Rutas de usuarios
+    Route::get('/users', [UserController::class, 'getUsers']);
+    Route::get('/users-with-pedidos', [UserController::class, 'getUsersWithPedidos']);
+    Route::put('/users/{id}/role', [UserController::class, 'changeUserRole']);
+    // Rutas de métricas
+    Route::get('/metricas/pedidos-por-mes', [MetricsController::class, 'pedidosPorMes']);
+    Route::get('/metricas/ingresos-por-mes', [MetricsController::class, 'ingresosPorMes']);
+    // Puedes agregar aquí otras rutas exclusivas para admin
+});
+Route::post('/categorias', [CategoriaController::class, 'store']);
+    Route::put('/categorias/{id}', [CategoriaController::class, 'update']);
     Route::delete('/categorias/{id}', [CategoriaController::class, 'destroy']);
     // Rutas de modelos (crear, editar, eliminar)
     Route::post('/modelos', [ModeloController::class, 'store']);
@@ -106,12 +126,6 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     // Rutas de usuarios
     Route::get('/users', [UserController::class, 'getUsers']);
     Route::put('/users/{id}/role', [UserController::class, 'changeUserRole']);
-    // Rutas de métricas
-    Route::get('/metricas/pedidos-por-mes', [MetricsController::class, 'pedidosPorMes']);
-    Route::get('/metricas/ingresos-por-mes', [MetricsController::class, 'ingresosPorMes']);
-    // Puedes agregar aquí otras rutas exclusivas para admin
-});
-
 Route::post('/categorias', [CategoriaController::class, 'store']);
 Route::put('/categorias/{id}', [CategoriaController::class, 'update']);
 Route::delete('/categorias/{id}', [CategoriaController::class, 'destroy']);
@@ -119,7 +133,7 @@ Route::delete('/categorias/{id}', [CategoriaController::class, 'destroy']);
 Route::post('/modelos', [ModeloController::class, 'store']);
 
 Route::put('/modelos/{id}', [ModeloController::class, 'update']);
-Route::delete('/modelos/{id}', [ModeloController::class, 'destroy']);
+//Route::delete('/modelos/{id}', [ModeloController::class, 'destroy']);
 // Rutas públicas y de solo lectura
 Route::get('/categorias', [CategoriaController::class, 'index']);
 

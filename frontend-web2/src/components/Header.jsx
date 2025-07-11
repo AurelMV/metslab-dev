@@ -127,7 +127,7 @@ export default function Header() {
                   className="mobile-cart-link"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  <ShoppingCart className="mobile-cart-icon" />
+                  <MiniCart className="mobile-cart-icon" />
                   <span className="mobile-cart-text">
                     Carrito ({itemCount})
                   </span>

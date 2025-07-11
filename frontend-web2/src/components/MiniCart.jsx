@@ -2,12 +2,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ShoppingCart, Plus, Minus, Trash, X } from "lucide-react";
 import { useCart } from "../contexts/CartContext";
-import { useAuth } from "../contexts/AuthContext";
 import "../stayle/MiniCart.css";
 
 export function MiniCart() {
     const { items, removeFromCart, updateQuantity, clearCart, total, itemCount } = useCart();
-    const { user } = useAuth();
     const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
     const miniCartRef = useRef(null);
