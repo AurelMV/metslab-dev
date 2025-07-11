@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { Navigate, Link } from "react-router-dom";
 import {
@@ -13,8 +13,15 @@ import {
   X,
   Settings,
   ArrowRight,
+  Eye,
+  Truck,
+  CheckCircle,
+  AlertCircle,
+  TrendingUp,
+  Calendar
 } from "lucide-react";
-import { mockOrders } from "../data/mockData";
+import { getSeguimientoPedidos, getHistorialPedidos, getDetallesPedido } from "../services/tracking-service";
+import OrderDetailsModal from "../components/OrderDetailsModal";
 
 // Import the pure CSS file
 import "../stayle/Profile.css"; // Adjust the path as per your file structure
@@ -29,12 +36,60 @@ export default function Profile() {
     address: user?.address || "",
   });
 
+  // Estados para el seguimiento y historial
+  const [seguimientoPedidos, setSeguimientoPedidos] = useState([]);
+  const [historialPedidos, setHistorialPedidos] = useState([]);
+  const [estadisticas, setEstadisticas] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('seguimiento'); // 'seguimiento' o 'historial'
+  const [orderDetails, setOrderDetails] = useState(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+
+  // Cargar datos de pedidos
+  useEffect(() => {
+    const loadOrdersData = async () => {
+      setLoading(true);
+      try {
+        // Cargar seguimiento de pedidos activos
+        const seguimientoData = await getSeguimientoPedidos();
+        if (seguimientoData?.success) {
+          setSeguimientoPedidos(seguimientoData.data);
+        }
+
+        // Cargar historial de pedidos
+        const historialData = await getHistorialPedidos(1, 10);
+        if (historialData?.success) {
+          setHistorialPedidos(historialData.data);
+          setEstadisticas(historialData.estadisticas);
+        }
+      } catch (error) {
+        console.error('Error cargando datos de pedidos:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user) {
+      loadOrdersData();
+    }
+  }, [user]);
+
+  // Función para ver detalles del pedido
+  const handleViewDetails = async (pedidoId) => {
+    try {
+      const detalles = await getDetallesPedido(pedidoId);
+      if (detalles?.success) {
+        setOrderDetails(detalles.data);
+        setShowDetailsModal(true);
+      }
+    } catch (error) {
+      console.error('Error cargando detalles del pedido:', error);
+    }
+  };
+
   if (!user) {
     return <Navigate to="/auth" replace />;
   }
-
-  // Mock user orders (in real app, this would come from API)
-  const userOrders = mockOrders.filter((order) => order.userId === user.id);
 
   const handleSave = () => {
     updateUser(formData);
@@ -49,40 +104,6 @@ export default function Profile() {
       address: user.address || "",
     });
     setIsEditing(false);
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "pending":
-        return "status-yellow-100 text-yellow-800"; // Assuming a class that maps to specific colors
-      case "processing":
-        return "status-blue-100 text-blue-800";
-      case "shipped":
-        return "status-purple-100 text-purple-800";
-      case "delivered":
-        return "status-green-100 text-green-800";
-      case "cancelled":
-        return "status-red-100 text-red-800";
-      default:
-        return "status-gray-100 text-gray-800";
-    }
-  };
-
-  const getStatusText = (status) => {
-    switch (status) {
-      case "pending":
-        return "Pendiente";
-      case "processing":
-        return "Procesando";
-      case "shipped":
-        return "Enviado";
-      case "delivered":
-        return "Entregado";
-      case "cancelled":
-        return "Cancelado";
-      default:
-        return status;
-    }
   };
 
   return (
@@ -168,103 +189,195 @@ export default function Profile() {
               </div>
             </div>
 
-            {/* Order History */}
+            {/* Order Tracking and History */}
             <div className="profile-card">
-              <h2 className="order-history-title">
-                <Package className="order-history-icon" />
-                Historial de Pedidos
-              </h2>
+              {/* Tabs para Seguimiento e Historial */}
+              <div className="order-tabs">
+                <button 
+                  className={`tab-button ${activeTab === 'seguimiento' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('seguimiento')}
+                >
+                  <Truck className="tab-icon" />
+                  Seguimiento
+                </button>
+                <button 
+                  className={`tab-button ${activeTab === 'historial' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('historial')}
+                >
+                  <Package className="tab-icon" />
+                  Historial
+                </button>
+              </div>
 
-              {userOrders.length === 0 ? (
-                <div className="no-orders-message">
-                  <Package className="no-orders-icon" />
-                  <p className="no-orders-text">No tienes pedidos aún</p>
-
-                  <p className="no-orders-cta">
-                    Explora nuestro catálogo y realiza tu primera compra
-                  </p>
+              {/* Contenido del Tab Activo */}
+              {loading ? (
+                <div className="loading-state">
+                  <div className="loading-spinner"></div>
+                  <p>Cargando pedidos...</p>
                 </div>
               ) : (
-                <div className="orders-list">
-                  {userOrders.map((order) => (
-                    <div key={order.id} className="order-item-card">
-                      <div className="order-header">
-                        <div>
-                          <h3 className="order-id">Pedido #{order.id}</h3>
-                          <div className="order-date">
-                            <Clock className="order-date-icon" />
-                            <span>
-                              {new Date(order.createdAt).toLocaleDateString(
-                                "es-ES",
-                                {
-                                  year: "numeric",
-                                  month: "long",
-                                  day: "numeric",
-                                }
+                <>
+                  {activeTab === 'seguimiento' && (
+                    <div className="tracking-section">
+                      <div className="section-header">
+                        <h3>Pedidos en Seguimiento</h3>
+                        <p>Revisa el estado actual de tus pedidos activos</p>
+                      </div>
+                      
+                      {seguimientoPedidos.length === 0 ? (
+                        <div className="no-orders-message">
+                          <Truck className="no-orders-icon" />
+                          <p className="no-orders-text">No tienes pedidos en seguimiento</p>
+                          <p className="no-orders-cta">
+                            Todos tus pedidos han sido entregados o no tienes pedidos activos
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="tracking-orders-list">
+                          {seguimientoPedidos.map((pedido) => (
+                            <div key={pedido.id} className="tracking-order-card">
+                              <div className="tracking-order-header">
+                                <div className="order-info">
+                                  <h4>Pedido #{pedido.numero_pedido}</h4>
+                                  <div className="order-date">
+                                    <Calendar className="date-icon" />
+                                    <span>{pedido.fecha_pedido}</span>
+                                  </div>
+                                </div>
+                                <div className={`tracking-status status-${pedido.estado}`}>
+                                  {pedido.estado === 'entregado' && <CheckCircle className="status-icon" />}
+                                  {pedido.estado === 'enviado' && <Truck className="status-icon" />}
+                                  {pedido.estado === 'en_proceso' && <Package className="status-icon" />}
+                                  {pedido.estado === 'pagado' && <CheckCircle className="status-icon" />}
+                                  {pedido.estado === 'pendiente' && <Clock className="status-icon" />}
+                                  <span>{pedido.estado_formateado}</span>
+                                </div>
+                              </div>
+
+                              <div className="tracking-progress">
+                                <div className="progress-bar">
+                                  <div 
+                                    className="progress-fill" 
+                                    style={{ width: `${pedido.progreso}%` }}
+                                  ></div>
+                                </div>
+                                <div className="progress-info">
+                                  <span className="progress-text">{pedido.progreso}% completado</span>
+                                  <span className="next-step">{pedido.proximo_paso}</span>
+                                </div>
+                              </div>
+
+                              {pedido.producto_principal && (
+                                <div className="main-product">
+                                  <span className="product-name">{pedido.producto_principal.nombre}</span>
+                                  <span className="product-quantity">
+                                    {pedido.total_productos > 1 
+                                      ? `y ${pedido.total_productos - 1} producto(s) más` 
+                                      : `Cantidad: ${pedido.producto_principal.cantidad}`
+                                    }
+                                  </span>
+                                </div>
                               )}
-                            </span>
-                          </div>
-                        </div>
-                        <span
-                          className={`order-status-tag ${getStatusColor(
-                            order.status
-                          )}`}
-                        >
-                          {getStatusText(order.status)}
-                        </span>
-                      </div>
 
-                      <div className="order-items-list">
-                        {order.items.map((item, index) => (
-                          <div key={index} className="order-item-detail">
-                            <div className="order-item-dot"></div>
-                            <span className="order-item-name">
-                              {item.model.name}
-                            </span>
-                            <span className="order-item-quantity">
-                              x{item.quantity}
-                            </span>
-                            <div className="order-item-color-info">
-                              <div
-                                className="order-item-color-swatch"
-                                style={{ backgroundColor: item.color.hex }}
-                              ></div>
-                              <span className="order-item-color-name">
-                                {item.color.name}
-                              </span>
+                              <div className="tracking-order-footer">
+                                <div className="order-total">S/ {pedido.total_pago}</div>
+                                <button 
+                                  className="view-details-btn"
+                                  onClick={() => handleViewDetails(pedido.id)}
+                                >
+                                  <Eye className="btn-icon" />
+                                  Ver Detalles
+                                </button>
+                              </div>
                             </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="order-summary-footer">
-                        <div className="delivery-type-tag">
-                          <span
-                            className={
-                              order.deliveryType === "delivery"
-                                ? "delivery-type-delivery"
-                                : "delivery-type-pickup"
-                            }
-                          >
-                            {order.deliveryType === "delivery"
-                              ? "Delivery"
-                              : "Recojo en tienda"}
-                          </span>
-                        </div>
-                        <div className="order-total-amount">
-                          S/ {order.totalAmount.toFixed(2)}
-                        </div>
-                      </div>
-
-                      {order.address && (
-                        <div className="order-address">
-                          <MapPin className="order-address-icon" />
-                          {order.address}
+                          ))}
                         </div>
                       )}
                     </div>
-                  ))}
-                </div>
+                  )}
+
+                  {activeTab === 'historial' && (
+                    <div className="history-section">
+                      <div className="section-header">
+                        <h3>Historial de Pedidos</h3>
+                        <p>Todos tus pedidos realizados</p>
+                      </div>
+                      
+                      {historialPedidos.length === 0 ? (
+                        <div className="no-orders-message">
+                          <Package className="no-orders-icon" />
+                          <p className="no-orders-text">No tienes pedidos en tu historial</p>
+                          <p className="no-orders-cta">
+                            Explora nuestro catálogo y realiza tu primera compra
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="history-orders-list">
+                          {historialPedidos.map((pedido) => (
+                            <div key={pedido.id} className="history-order-card">
+                              <div className="history-order-header">
+                                <div className="order-basic-info">
+                                  <h4>Pedido #{pedido.numero_pedido}</h4>
+                                  <div className="order-meta">
+                                    <span className="order-date">{pedido.fecha_pedido}</span>
+                                    <span className="order-days">
+                                      Hace {pedido.dias_desde_pedido} día(s)
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className={`order-status-badge status-${pedido.estado}`}>
+                                  {pedido.estado_formateado}
+                                </div>
+                              </div>
+
+                              {pedido.producto_preview && (
+                                <div className="product-preview">
+                                  <div className="product-preview-info">
+                                    <span className="product-name">{pedido.producto_preview.nombre}</span>
+                                    <span className="product-summary">
+                                      {pedido.resumen.total_productos} producto(s) • {pedido.resumen.metodo_pago}
+                                    </span>
+                                  </div>
+                                  {pedido.se_puede_seguir && (
+                                    <div className="can-track-indicator">
+                                      <TrendingUp className="track-icon" />
+                                      <span>Se puede seguir</span>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+
+                              <div className="history-order-footer">
+                                <div className="order-total-section">
+                                  <span className="total-label">Total:</span>
+                                  <span className="total-amount">S/ {pedido.total_pago}</span>
+                                </div>
+                                <div className="order-actions">
+                                  {pedido.se_puede_seguir && (
+                                    <button 
+                                      className="track-btn"
+                                      onClick={() => setActiveTab('seguimiento')}
+                                    >
+                                      <Truck className="btn-icon" />
+                                      Seguir
+                                    </button>
+                                  )}
+                                  <button 
+                                    className="view-details-btn"
+                                    onClick={() => handleViewDetails(pedido.id)}
+                                  >
+                                    <Eye className="btn-icon" />
+                                    Detalles
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>
@@ -280,7 +393,23 @@ export default function Profile() {
                     Pedidos totales:
                   </span>
                   <span className="account-summary-value">
-                    {userOrders.length}
+                    {estadisticas?.total_pedidos || 0}
+                  </span>
+                </div>
+                <div className="account-summary-item">
+                  <span className="account-summary-label">
+                    Pedidos completados:
+                  </span>
+                  <span className="account-summary-value">
+                    {estadisticas?.pedidos_completados || 0}
+                  </span>
+                </div>
+                <div className="account-summary-item">
+                  <span className="account-summary-label">
+                    Pedidos activos:
+                  </span>
+                  <span className="account-summary-value">
+                    {estadisticas?.pedidos_activos || 0}
                   </span>
                 </div>
                 <div className="account-summary-item">
@@ -344,6 +473,13 @@ export default function Profile() {
             </div>
           </div>
         </div>
+
+        {/* Modal para detalles del pedido */}
+        <OrderDetailsModal 
+          isOpen={showDetailsModal}
+          onClose={() => setShowDetailsModal(false)}
+          orderDetails={orderDetails}
+        />
       </div>
     </div>
   );
