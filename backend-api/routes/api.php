@@ -96,13 +96,13 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     // Rutas de categorías
     Route::post('/categorias', [CategoriaController::class, 'store']);
     Route::put('/categorias/{id}', [CategoriaController::class, 'update']);
-    Route::delete('/categorias/{id}', [CategoriaController::class, 'destroy']);
+    //Route::delete('/categorias/{id}', [CategoriaController::class, 'destroy']);
     // Rutas de modelos (crear, editar, eliminar)
     Route::post('/modelos', [ModeloController::class, 'store']);
     Route::put('/modelos/{id}', [ModeloController::class, 'update']);
-    Route::delete('/modelos/{id}', [ModeloController::class, 'destroy']);
     // Rutas de usuarios
     Route::get('/users', [UserController::class, 'getUsers']);
+    Route::get('/users-with-pedidos', [UserController::class, 'getUsersWithPedidos']);
     Route::put('/users/{id}/role', [UserController::class, 'changeUserRole']);
     // Puedes agregar aquí otras rutas exclusivas para admin
 });
@@ -114,7 +114,7 @@ Route::delete('/categorias/{id}', [CategoriaController::class, 'destroy']);
 Route::post('/modelos', [ModeloController::class, 'store']);
 
 Route::put('/modelos/{id}', [ModeloController::class, 'update']);
-Route::delete('/modelos/{id}', [ModeloController::class, 'destroy']);
+//Route::delete('/modelos/{id}', [ModeloController::class, 'destroy']);
 // Rutas públicas y de solo lectura
 Route::get('/categorias', [CategoriaController::class, 'index']);
 
