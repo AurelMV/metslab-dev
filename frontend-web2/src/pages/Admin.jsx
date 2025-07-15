@@ -57,28 +57,63 @@ export default function Admin() {
   const [pedidosPorMes, setPedidosPorMes] = useState([]);
   const [ingresosPorMes, setIngresosPorMes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [anioSeleccionado, setAnioSeleccionado] = useState(new Date().getFullYear());
+  const [aniosDisponibles, setAniosDisponibles] = useState([]);
 
-  useEffect(() => {
-    const cargarMetricas = async () => {
-      if (activeSection === 'metric') {
-        setLoading(true);
-        try {
-          const [pedidos, ingresos] = await Promise.all([
-            getPedidosPorMes(),
-            getIngresosPorMes()
-          ]);
+ useEffect(() => {
+  let isMounted = true;
+
+  const cargarMetricas = async () => {
+    if (activeSection === 'metric') {
+      console.log('Iniciando carga de métricas...');
+      setLoading(true);
+      setError(null);
+      
+      try {
+        const [pedidos, ingresos] = await Promise.all([
+          getPedidosPorMes(),
+          getIngresosPorMes()
+        ]);
+        
+        console.log('Datos recibidos:', { pedidos, ingresos });
+        
+        // Extraer años disponibles
+        const todosAnios = [...new Set([
+          ...pedidos.map(p => p.anio),
+          ...ingresos.map(i => i.anio)
+        ])].sort((a, b) => b - a); // Orden descendente
+        
+        if (isMounted) {
+          setAniosDisponibles(todosAnios);
+          if (todosAnios.length > 0 && !todosAnios.includes(anioSeleccionado)) {
+            setAnioSeleccionado(todosAnios[0]); // Establecer el año más reciente
+          }
           setPedidosPorMes(pedidos);
           setIngresosPorMes(ingresos);
-        } catch (error) {
-          console.error('Error al cargar métricas:', error);
-        } finally {
+        }
+      } catch (err) {
+        console.error('Error al cargar métricas:', err);
+        if (isMounted) {
+          setError(err.message || 'Error al cargar métricas');
+          setPedidosPorMes([]);
+          setIngresosPorMes([]);
+        }
+      } finally {
+        if (isMounted) {
           setLoading(false);
         }
       }
-    };
+    }
+  };
 
-    cargarMetricas();
-  }, [activeSection]);
+  cargarMetricas();
+
+  return () => {
+    isMounted = false;
+  };
+}, [activeSection, anioSeleccionado]); // Añade anioSeleccionado como dependencia
+
 
   if (!isAdmin) {
     return <Navigate to="/" replace />;
@@ -282,85 +317,135 @@ export default function Admin() {
       </div>
     </div>
   );
-  const renderMetricSection = () => {
+const renderMetricSection = () => {
     const nombresMeses = [
-      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-    ];
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+];
 
+    const formatCurrency = (value) => {
+        return new Intl.NumberFormat('es-PE', {
+            style: 'currency',
+            currency: 'PEN'
+        }).format(value);
+    };
+
+    // Filtrar datos por año seleccionado
+    const pedidosFiltrados = pedidosPorMes.filter(item => item.anio === anioSeleccionado);
+    const ingresosFiltrados = ingresosPorMes.filter(item => item.anio === anioSeleccionado);
+
+    // Crear estructura completa de 12 meses
+    const crearEstructuraMensual = (datos, campo) => {
+        const estructuraCompleta = nombresMeses.map((nombre, index) => {
+            const mes = index + 1;
+            const datoExistente = datos.find(d => d.mes === mes);
+            return {
+                mes,
+                mesNombre: nombre,
+                [campo]: datoExistente ? datoExistente[campo] : 0,
+                anio: anioSeleccionado
+            };
+        });
+        return estructuraCompleta;
+    };
+
+    // Datos para gráficos con todos los meses
+    const datosGraficoPedidos = crearEstructuraMensual(pedidosFiltrados, 'cantidad');
+    const datosGraficoIngresos = crearEstructuraMensual(ingresosFiltrados, 'ingresos');
+    
+
+    // Calcular totales
+    const totalPedidos = datosGraficoPedidos.reduce((acc, item) => acc + item.cantidad, 0);
+    const totalIngresos = datosGraficoIngresos.reduce((acc, item) => acc + item.ingresos, 0);
     return (
-      <div className="section-content">
-        <h2 className="text-2xl font-bold text-secondary-900 mb-6">
-          Métricas de la Tienda
-        </h2>
+        <div className="section-content">
+            <h2 className="text-2xl font-bold text-secondary-900 mb-6">
+                Métricas de la Tienda
+            </h2>
 
-        {loading ? (
-          <div>Cargando métricas...</div>
-        ) : (
-          <>
-            <div className="metric-cards grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <div className="metric-card bg-white p-6 rounded-lg shadow-md">
-                <h3 className="metric-title text-lg font-semibold mb-2">
-                  Total de Pedidos
-                </h3>
-                <p className="metric-value text-3xl font-bold text-primary-600">
-                  {pedidosPorMes.reduce((acc, item) => acc + item.cantidad, 0)}
-                </p>
-              </div>
-              <div className="metric-card bg-white p-6 rounded-lg shadow-md">
-                <h3 className="metric-title text-lg font-semibold mb-2">
-                  Total de Ingresos
-                </h3>
-                <p className="metric-value text-3xl font-bold text-primary-600">
-                  S/ {ingresosPorMes.reduce((acc, item) => acc + item.ingresos, 0).toFixed(2)}
-                </p>
-              </div>
+            {/* Selector de Año */}
+            <div className="mb-6 flex items-center">
+                <label htmlFor="anio-select" className="mr-2 font-medium">Año:</label>
+                <select
+                    id="anio-select"
+                    value={anioSeleccionado}
+                    onChange={(e) => setAnioSeleccionado(Number(e.target.value))}
+                    className="border rounded px-3 py-1"
+                    disabled={loading}
+                >
+                    {aniosDisponibles.map(anio => (
+                        <option key={anio} value={anio}>{anio}</option>
+                    ))}
+                </select>
             </div>
 
-            <div className="charts-container grid grid-cols-1 gap-6">
-              <div className="chart-card bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-lg font-semibold mb-4">Pedidos por Mes</h3>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={pedidosPorMes}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
-                      dataKey="mes" 
-                      tickFormatter={(value) => nombresMeses[value - 1]} 
-                    />
-                    <YAxis />
-                    <Tooltip 
-                      formatter={(value, name) => [value, 'Pedidos']}
-                      labelFormatter={(mes) => nombresMeses[mes - 1]}
-                    />
-                    <Bar dataKey="cantidad" fill="#8884d8" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-
-              <div className="chart-card bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-lg font-semibold mb-4">Ingresos por Mes</h3>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={ingresosPorMes}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
-                      dataKey="mes" 
-                      tickFormatter={(value) => nombresMeses[value - 1]} 
-                    />
-                    <YAxis />
-                    <Tooltip 
-                      formatter={(value) => [`S/ ${value.toFixed(2)}`, 'Ingresos']}
-                      labelFormatter={(mes) => nombresMeses[mes - 1]}
-                    />
-                    <Bar dataKey="ingresos" fill="#82ca9d" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+            {/* Tarjetas de Total */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div className="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
+                    <h3 className="text-lg font-semibold text-gray-700">Total de Pedidos</h3>
+                    <p className="text-2xl font-bold text-blue-600">{totalPedidos}</p>
+                    <p className="text-sm text-gray-500">Año {anioSeleccionado}</p>
+                </div>
+                <div className="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
+                    <h3 className="text-lg font-semibold text-gray-700">Total de Ingresos</h3>
+                    <p className="text-2xl font-bold text-green-600">{formatCurrency(totalIngresos)}</p>
+                    <p className="text-sm text-gray-500">Año {anioSeleccionado}</p>
+                </div>
             </div>
-          </>
-        )}
-      </div>
+
+            {/* Gráficos */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-white p-4 rounded-lg shadow">
+                    <h3 className="text-lg font-semibold mb-4">Pedidos por Mes</h3>
+                    <div style={{ height: 300  }}>
+                        {datosGraficoPedidos.length > 0 ? (
+                            <ResponsiveContainer width="120%" height="100%">
+                                <BarChart data={datosGraficoPedidos}>
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis dataKey="mesNombre" />
+                                    <YAxis />
+                                    <Tooltip 
+                                        formatter={(value) => [value, 'Pedidos']}
+                                        labelFormatter={(value) => `Mes: ${value}`}
+                                    />
+                                    <Bar dataKey="cantidad" fill="#8884d8" name="Pedidos" />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div className="flex items-center justify-center h-full text-gray-500">
+                                No hay datos para el año seleccionado
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                <div className="bg-white p-4 rounded-lg shadow">
+                    <h3 className="text-lg font-semibold mb-4">Ingresos por Mes</h3>
+                    <div style={{ height: 300 }}>
+                        {datosGraficoIngresos.length > 0 ? (
+                            <ResponsiveContainer width="120%" height="100%">
+                                <BarChart data={datosGraficoIngresos}>
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis dataKey="mesNombre" />
+                                    <YAxis />
+                                    <Tooltip 
+                                        formatter={(value) => [formatCurrency(value), 'Ingresos']}
+                                        labelFormatter={(value) => `Mes: ${value}`}
+                                    />
+                                    <Bar dataKey="ingresos" fill="#82ca9d" name="Ingresos" />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div className="flex items-center justify-center h-full text-gray-500">
+                                No hay datos para el año seleccionado
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
     );
-  };
+};
 
   const renderUsersSection = () => <UsuariosAdmin />;
 
