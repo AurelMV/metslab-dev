@@ -50,17 +50,23 @@ export default function Profile() {
     const loadOrdersData = async () => {
       setLoading(true);
       try {
+        console.log('Cargando datos de pedidos...');
+        
         // Cargar seguimiento de pedidos activos
         const seguimientoData = await getSeguimientoPedidos();
+        console.log('Datos de seguimiento:', seguimientoData);
         if (seguimientoData?.success) {
           setSeguimientoPedidos(seguimientoData.data);
+          console.log('Pedidos de seguimiento cargados:', seguimientoData.data);
         }
 
         // Cargar historial de pedidos
         const historialData = await getHistorialPedidos(1, 10);
+        console.log('Datos de historial:', historialData);
         if (historialData?.success) {
           setHistorialPedidos(historialData.data);
           setEstadisticas(historialData.estadisticas);
+          console.log('Pedidos de historial cargados:', historialData.data);
         }
       } catch (error) {
         console.error('Error cargando datos de pedidos:', error);
@@ -246,6 +252,21 @@ export default function Profile() {
                                 </div>
                                 <div className={`tracking-status status-${pedido.estado}`}>
                                   {pedido.estado === 'entregado' && <CheckCircle className="status-icon" />}
+                                  {pedido.estado === 'completado' && <CheckCircle className="status-icon" />}
+                                  {pedido.estado === 'en_camino' && <Truck className="status-icon" />}
+                                  {pedido.estado === 'en_transito' && <Truck className="status-icon" />}
+                                  {pedido.estado === 'en_reparto' && <Truck className="status-icon" />}
+                                  {pedido.estado === 'en_preparacion' && <Package className="status-icon" />}
+                                  {pedido.estado === 'pago_confirmado' && <CheckCircle className="status-icon" />}
+                                  {pedido.estado === 'pedido_realizado' && <Clock className="status-icon" />}
+                                  {pedido.estado === 'capturado' && <CheckCircle className="status-icon" />}
+                                  {pedido.estado === 'en_espera' && <Clock className="status-icon" />}
+                                  {pedido.estado === 'pendiente_envio' && <Clock className="status-icon" />}
+                                  {pedido.estado === 'intento_entrega' && <AlertCircle className="status-icon" />}
+                                  {pedido.estado === 'pendiente_recogida' && <Package className="status-icon" />}
+                                  {pedido.estado === 'retrasado' && <AlertCircle className="status-icon" />}
+                                  {pedido.estado === 'perdido' && <AlertCircle className="status-icon" />}
+                                  {/* Estados antiguos por compatibilidad */}
                                   {pedido.estado === 'enviado' && <Truck className="status-icon" />}
                                   {pedido.estado === 'en_proceso' && <Package className="status-icon" />}
                                   {pedido.estado === 'pagado' && <CheckCircle className="status-icon" />}

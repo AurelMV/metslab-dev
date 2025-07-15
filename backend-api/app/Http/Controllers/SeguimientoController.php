@@ -10,16 +10,15 @@ class SeguimientoController extends Controller
 {
     /**
      * SEGUIMIENTO DE PEDIDOS ACTIVOS
-     * Muestra solo los pedidos que se pueden seguir con información mínima
-     * Similar al seguimiento de AliExpress
+     * Muestra solo los pedidos que se pueden seguir según el tipo de entrega
      */
     public function seguimiento(Request $request)
     {
         try {
             $userId = Auth::id();
 
-            // Estados que se pueden seguir (pedidos activos)
-            $estadosActivos = ['pendiente', 'pagado', 'en_proceso', 'enviado'];
+            // Estados que se pueden seguir (excluyendo estados finales)
+            $estadosActivos = $this->getEstadosActivos();
 
             $pedidosActivos = Pedido::where('iduser', $userId)
                 ->whereIn('estado', $estadosActivos)
@@ -31,6 +30,9 @@ class SeguimientoController extends Controller
                 ->get();
 
             $seguimiento = $pedidosActivos->map(function ($pedido) {
+                // Determinar el tipo de entrega
+                $tipoEntrega = $pedido->TipoPedido;
+                
                 // Obtener el primer producto como representativo
                 $productoRepresentativo = $pedido->detalles->first();
 
@@ -38,30 +40,25 @@ class SeguimientoController extends Controller
                     'id' => $pedido->id,
                     'numero_pedido' => str_pad($pedido->id, 6, '0', STR_PAD_LEFT),
                     'estado' => $pedido->estado,
-                    'estado_formateado' => $this->getEstadoSeguimiento($pedido->estado),
+                    'estado_formateado' => $this->getEstadoFormateado($pedido->estado),
                     'fecha_pedido' => $pedido->fecha_pedido->format('d/m/Y'),
                     'fecha_entrega_estimada' => $pedido->fentrega ? $pedido->fentrega->format('d/m/Y') : null,
                     'total_pago' => $pedido->totalPago,
-                    'tipo_pedido' => $pedido->TipoPedido,
+                    'tipo_pedido' => $tipoEntrega,
 
-                    // Información mínima del producto principal
+                    // Información del producto principal
                     'producto_principal' => $productoRepresentativo ? [
                         'nombre' => $productoRepresentativo->nombre,
                         'cantidad' => $productoRepresentativo->cantidad,
                         'precio' => $productoRepresentativo->precio
                     ] : null,
 
-                    // Cantidad total de productos en el pedido
                     'total_productos' => $pedido->detalles->sum('cantidad'),
-
-                    // Estado del pago (importante para seguimiento)
                     'estado_pago' => $pedido->pago ? $pedido->pago->estado : null,
-
-                    // Progreso del pedido (porcentaje)
-                    'progreso' => $this->calcularProgreso($pedido->estado),
-
-                    // Próximo paso en el proceso
-                    'proximo_paso' => $this->getProximoPaso($pedido->estado)
+                    'progreso' => $this->calcularProgreso($pedido->estado, $tipoEntrega),
+                    'proximo_paso' => $this->getProximoPaso($pedido->estado, $tipoEntrega),
+                    'fase_actual' => $this->getFaseActual($pedido->estado, $tipoEntrega),
+                    'visible_para_usuario' => $this->esVisibleParaUsuario($pedido->estado)
                 ];
             });
 
@@ -113,7 +110,7 @@ class SeguimientoController extends Controller
                     'id' => $pedido->id,
                     'numero_pedido' => str_pad($pedido->id, 6, '0', STR_PAD_LEFT),
                     'estado' => $pedido->estado,
-                    'estado_formateado' => $pedido->estado_formateado,
+                    'estado_formateado' => $this->getEstadoFormateado($pedido->estado),
                     'fecha_pedido' => $pedido->fecha_pedido->format('d/m/Y H:i'),
                     'total_pago' => $pedido->totalPago,
                     'tipo_pedido' => $pedido->TipoPedido,
@@ -132,7 +129,7 @@ class SeguimientoController extends Controller
                     ],
 
                     // Indicador si se puede seguir
-                    'se_puede_seguir' => in_array($pedido->estado, ['pendiente', 'pagado', 'en_proceso', 'enviado']),
+                    'se_puede_seguir' => in_array($pedido->estado, $this->getEstadosActivos()),
 
                     // Fechas importantes
                     'fecha_entrega' => $pedido->fentrega ? $pedido->fentrega->format('d/m/Y') : null,
@@ -152,8 +149,8 @@ class SeguimientoController extends Controller
                 ],
                 'estadisticas' => [
                     'total_pedidos' => Pedido::where('iduser', $userId)->count(),
-                    'pedidos_completados' => Pedido::where('iduser', $userId)->where('estado', 'entregado')->count(),
-                    'pedidos_activos' => Pedido::where('iduser', $userId)->whereIn('estado', ['pendiente', 'pagado', 'en_proceso', 'enviado'])->count()
+                    'pedidos_completados' => Pedido::where('iduser', $userId)->where('estado', 'completado')->count(),
+                    'pedidos_activos' => Pedido::where('iduser', $userId)->whereIn('estado', $this->getEstadosActivos())->count()
                 ]
             ]);
         } catch (\Exception $e) {
@@ -257,10 +254,10 @@ class SeguimientoController extends Controller
                 // Información de seguimiento
                 'seguimiento' => [
                     'estado_actual' => $pedido->estado,
-                    'progreso' => $this->calcularProgreso($pedido->estado),
-                    'se_puede_seguir' => in_array($pedido->estado, ['pendiente', 'pagado', 'en_proceso', 'enviado']),
-                    'timeline' => $this->getTimelineDetallado($pedido->estado),
-                    'proximo_paso' => $this->getProximoPaso($pedido->estado)
+                    'progreso' => $this->calcularProgreso($pedido->estado, $pedido->TipoPedido),
+                    'se_puede_seguir' => in_array($pedido->estado, $this->getEstadosActivos()),
+                    'timeline' => $this->getTimelineDetallado($pedido->estado, $pedido->TipoPedido),
+                    'proximo_paso' => $this->getProximoPaso($pedido->estado, $pedido->TipoPedido)
                 ],
 
                 // Estadísticas del pedido
@@ -288,6 +285,259 @@ class SeguimientoController extends Controller
      * MÉTODOS PRIVADOS DE APOYO
      */
 
+    /**
+     * Obtiene los estados que se consideran activos (no finales)
+     */
+    private function getEstadosActivos()
+    {
+        return [
+            'pedido_realizado', 'capturado', 'pago_confirmado', 'en_espera',
+            'pendiente_envio', 'en_preparacion', 'en_camino', 'en_transito',
+            'en_reparto', 'intento_entrega', 'retrasado', 'perdido', 'pendiente_recogida'
+        ];
+    }
+
+    /**
+     * Obtiene el texto formateado del estado
+     */
+    private function getEstadoFormateado($estado)
+    {
+        return match ($estado) {
+            'pedido_realizado' => 'Pedido Realizado',
+            'capturado' => 'Capturado',
+            'pago_confirmado' => 'Pago Confirmado',
+            'en_espera' => 'En Espera',
+            'pendiente_envio' => 'Pendiente de Envío',
+            'en_preparacion' => 'En Preparación',
+            'en_camino' => 'En Camino',
+            'en_transito' => 'En Tránsito',
+            'en_reparto' => 'En Reparto',
+            'intento_entrega' => 'Intento de Entrega',
+            'entregado' => 'Entregado',
+            'pendiente_recogida' => 'Pendiente de Recogida',
+            'completado' => 'Completado',
+            'devuelto' => 'Devuelto',
+            'cancelado' => 'Cancelado',
+            'rechazado' => 'Rechazado',
+            'retrasado' => 'Retrasado',
+            'perdido' => 'Perdido',
+            'archivado' => 'Archivado',
+            default => ucfirst(str_replace('_', ' ', $estado))
+        };
+    }
+
+    /**
+     * Obtiene la fase actual del pedido
+     */
+    private function getFaseActual($estado, $tipoEntrega)
+    {
+        if (in_array($estado, ['pedido_realizado', 'capturado', 'pago_confirmado', 'en_espera'])) {
+            return 'Pre-procesamiento';
+        }
+        
+        if (in_array($estado, ['pendiente_envio', 'en_preparacion'])) {
+            return 'Preparación & Programación';
+        }
+        
+        if ($tipoEntrega === 'delivery') {
+            if (in_array($estado, ['en_camino', 'en_transito', 'en_reparto', 'intento_entrega', 'entregado', 'retrasado', 'perdido'])) {
+                return 'Envío & Entrega';
+            }
+        } else {
+            if ($estado === 'pendiente_recogida') {
+                return 'Listo para Recogida';
+            }
+        }
+        
+        if (in_array($estado, ['completado', 'devuelto', 'cancelado', 'rechazado', 'archivado'])) {
+            return 'Post-entrega & Cierre';
+        }
+        
+        return 'Fase no definida';
+    }
+
+    /**
+     * Calcula el progreso del pedido según el tipo de entrega
+     */
+    private function calcularProgreso($estado, $tipoEntrega)
+    {
+        if ($tipoEntrega === 'delivery') {
+            return match ($estado) {
+                'pedido_realizado' => 10,
+                'capturado' => 20,
+                'pago_confirmado' => 30,
+                'en_espera' => 40,
+                'pendiente_envio' => 50,
+                'en_preparacion' => 60,
+                'en_camino' => 70,
+                'en_transito' => 80,
+                'en_reparto' => 90,
+                'intento_entrega' => 85,
+                'entregado' => 100,
+                'completado' => 100,
+                'retrasado' => 75,
+                'perdido' => 50,
+                'devuelto' => 30,
+                'cancelado' => 0,
+                'rechazado' => 0,
+                'archivado' => 100,
+                default => 0
+            };
+        } else {
+            return match ($estado) {
+                'pedido_realizado' => 15,
+                'capturado' => 25,
+                'pago_confirmado' => 40,
+                'en_espera' => 50,
+                'pendiente_envio' => 60,
+                'en_preparacion' => 80,
+                'pendiente_recogida' => 90,
+                'completado' => 100,
+                'cancelado' => 0,
+                'archivado' => 100,
+                default => 0
+            };
+        }
+    }
+
+    /**
+     * Obtiene el próximo paso según el estado y tipo de entrega
+     */
+    private function getProximoPaso($estado, $tipoEntrega)
+    {
+        if ($tipoEntrega === 'delivery') {
+            return match ($estado) {
+                'pedido_realizado' => 'Procesamiento del pago',
+                'capturado' => 'Confirmación del pago',
+                'pago_confirmado' => 'Preparación del pedido',
+                'en_espera' => 'Programación del envío',
+                'pendiente_envio' => 'Preparación del producto',
+                'en_preparacion' => 'Envío del pedido',
+                'en_camino' => 'Entrega en destino',
+                'en_transito' => 'Reparto final',
+                'en_reparto' => 'Entrega al cliente',
+                'intento_entrega' => 'Nuevo intento de entrega',
+                'entregado' => 'Confirmación de recepción',
+                'retrasado' => 'Reprogramación de entrega',
+                'perdido' => 'Investigación y reposición',
+                'completado' => 'Proceso finalizado',
+                'devuelto' => 'Proceso de devolución',
+                'cancelado' => 'Proceso finalizado',
+                'rechazado' => 'Proceso finalizado',
+                'archivado' => 'Proceso finalizado',
+                default => 'Paso no definido'
+            };
+        } else {
+            return match ($estado) {
+                'pedido_realizado' => 'Procesamiento del pago',
+                'capturado' => 'Confirmación del pago',
+                'pago_confirmado' => 'Preparación del pedido',
+                'en_espera' => 'Programación de preparación',
+                'pendiente_envio' => 'Preparación del producto',
+                'en_preparacion' => 'Notificación de recogida',
+                'pendiente_recogida' => 'Recogida del cliente',
+                'completado' => 'Proceso finalizado',
+                'cancelado' => 'Proceso finalizado',
+                'archivado' => 'Proceso finalizado',
+                default => 'Paso no definido'
+            };
+        }
+    }
+
+    /**
+     * Verifica si el estado es visible para el usuario
+     */
+    private function esVisibleParaUsuario($estado)
+    {
+        return !in_array($estado, ['archivado', 'rechazado']);
+    }
+
+    /**
+     * Obtiene el timeline detallado según el tipo de entrega
+     */
+    private function getTimelineDetallado($estado, $tipoEntrega)
+    {
+        if ($tipoEntrega === 'delivery') {
+            return [
+                'pedido_realizado' => [
+                    'nombre' => 'Pedido Realizado',
+                    'descripcion' => 'Tu pedido ha sido registrado',
+                    'completado' => true,
+                    'fecha' => null
+                ],
+                'capturado' => [
+                    'nombre' => 'Capturado',
+                    'descripcion' => 'El pedido ha sido capturado por el administrador',
+                    'completado' => in_array($estado, ['capturado', 'pago_confirmado', 'en_espera', 'pendiente_envio', 'en_preparacion', 'en_camino', 'en_transito', 'en_reparto', 'intento_entrega', 'entregado', 'completado']),
+                    'fecha' => null
+                ],
+                'pago_confirmado' => [
+                    'nombre' => 'Pago Confirmado',
+                    'descripcion' => 'El pago ha sido procesado exitosamente',
+                    'completado' => in_array($estado, ['pago_confirmado', 'en_espera', 'pendiente_envio', 'en_preparacion', 'en_camino', 'en_transito', 'en_reparto', 'intento_entrega', 'entregado', 'completado']),
+                    'fecha' => null
+                ],
+                'en_preparacion' => [
+                    'nombre' => 'En Preparación',
+                    'descripcion' => 'Estamos preparando tu pedido',
+                    'completado' => in_array($estado, ['en_preparacion', 'en_camino', 'en_transito', 'en_reparto', 'intento_entrega', 'entregado', 'completado']),
+                    'fecha' => null
+                ],
+                'en_camino' => [
+                    'nombre' => 'En Camino',
+                    'descripcion' => 'Tu pedido está en ruta',
+                    'completado' => in_array($estado, ['en_camino', 'en_transito', 'en_reparto', 'intento_entrega', 'entregado', 'completado']),
+                    'fecha' => null
+                ],
+                'entregado' => [
+                    'nombre' => 'Entregado',
+                    'descripcion' => 'Tu pedido ha sido entregado exitosamente',
+                    'completado' => in_array($estado, ['entregado', 'completado']),
+                    'fecha' => null
+                ]
+            ];
+        } else {
+            return [
+                'pedido_realizado' => [
+                    'nombre' => 'Pedido Realizado',
+                    'descripcion' => 'Tu pedido ha sido registrado',
+                    'completado' => true,
+                    'fecha' => null
+                ],
+                'capturado' => [
+                    'nombre' => 'Capturado',
+                    'descripcion' => 'El pedido ha sido capturado por el administrador',
+                    'completado' => in_array($estado, ['capturado', 'pago_confirmado', 'en_espera', 'pendiente_envio', 'en_preparacion', 'pendiente_recogida', 'completado']),
+                    'fecha' => null
+                ],
+                'pago_confirmado' => [
+                    'nombre' => 'Pago Confirmado',
+                    'descripcion' => 'El pago ha sido procesado exitosamente',
+                    'completado' => in_array($estado, ['pago_confirmado', 'en_espera', 'pendiente_envio', 'en_preparacion', 'pendiente_recogida', 'completado']),
+                    'fecha' => null
+                ],
+                'en_preparacion' => [
+                    'nombre' => 'En Preparación',
+                    'descripcion' => 'Estamos preparando tu pedido',
+                    'completado' => in_array($estado, ['en_preparacion', 'pendiente_recogida', 'completado']),
+                    'fecha' => null
+                ],
+                'pendiente_recogida' => [
+                    'nombre' => 'Listo para Recogida',
+                    'descripcion' => 'Tu pedido está listo para ser recogido',
+                    'completado' => in_array($estado, ['pendiente_recogida', 'completado']),
+                    'fecha' => null
+                ],
+                'completado' => [
+                    'nombre' => 'Completado',
+                    'descripcion' => 'Tu pedido ha sido completado exitosamente',
+                    'completado' => $estado === 'completado',
+                    'fecha' => null
+                ]
+            ];
+        }
+    }
+
     private function getEstadoSeguimiento($estado)
     {
         return match ($estado) {
@@ -300,71 +550,5 @@ class SeguimientoController extends Controller
             'rechazado' => 'Rechazado',
             default => ucfirst($estado)
         };
-    }
-
-    private function calcularProgreso($estado)
-    {
-        return match ($estado) {
-            'pendiente' => 10,
-            'pagado' => 25,
-            'en_proceso' => 50,
-            'enviado' => 75,
-            'entregado' => 100,
-            'cancelado' => 0,
-            'rechazado' => 0,
-            default => 0
-        };
-    }
-
-    private function getProximoPaso($estado)
-    {
-        return match ($estado) {
-            'pendiente' => 'Esperando confirmación de pago',
-            'pagado' => 'Preparando tu pedido',
-            'en_proceso' => 'Empacando productos',
-            'enviado' => 'En camino a tu dirección',
-            'entregado' => 'Pedido completado',
-            'cancelado' => 'Pedido cancelado',
-            'rechazado' => 'Pago rechazado',
-            default => 'Estado desconocido'
-        };
-    }
-
-    private function getTimelineDetallado($estadoActual)
-    {
-        $timeline = [
-            'pedido_creado' => [
-                'nombre' => 'Pedido Creado',
-                'descripcion' => 'Tu pedido ha sido registrado',
-                'completado' => true,
-                'fecha' => null
-            ],
-            'pago_confirmado' => [
-                'nombre' => 'Pago Confirmado',
-                'descripcion' => 'El pago ha sido procesado exitosamente',
-                'completado' => in_array($estadoActual, ['pagado', 'en_proceso', 'enviado', 'entregado']),
-                'fecha' => null
-            ],
-            'en_preparacion' => [
-                'nombre' => 'En Preparación',
-                'descripcion' => 'Estamos preparando tu pedido',
-                'completado' => in_array($estadoActual, ['en_proceso', 'enviado', 'entregado']),
-                'fecha' => null
-            ],
-            'enviado' => [
-                'nombre' => 'Enviado',
-                'descripcion' => 'Tu pedido está en camino',
-                'completado' => in_array($estadoActual, ['enviado', 'entregado']),
-                'fecha' => null
-            ],
-            'entregado' => [
-                'nombre' => 'Entregado',
-                'descripcion' => 'Tu pedido ha sido entregado exitosamente',
-                'completado' => $estadoActual === 'entregado',
-                'fecha' => null
-            ]
-        ];
-
-        return $timeline;
     }
 }

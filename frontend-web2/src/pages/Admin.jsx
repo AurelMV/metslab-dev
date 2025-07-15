@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import { data, Navigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import ModelForm from "./ModelosAdmin";
 import CategoryForm from "./CategoriasAdmin";
 import {
@@ -19,41 +19,22 @@ import {
   Search,
   ChartBar,
 } from "lucide-react";
-import { models3D, categories, colors, mockOrders } from "../data/mockData"; // Asegúrate de que mockData exista y tenga los datos
+import { models3D, categories } from "../data/mockData"; // Asegúrate de que mockData exista y tenga los datos
 import "../stayle/Admin.css"; // Importa tu archivo CSS puro
 import ModelosAdmin from "./ModelosAdmin";
 import { getPedidosPorMes, getIngresosPorMes } from "../services/metrick-service";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import UsuariosAdmin from "../components/UsuariosAdmin";
+import PedidosAdmin from "../components/PedidosAdmin";
 export default function Admin() {
   const { user, isAdmin } = useAuth();
   const [activeSection, setActiveSection] = useState("models");
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
 
   // Mock data states (in real app, these would come from API/database)
-  const [modelsData, setModelsData] = useState(models3D);
+  const [_modelsData, _setModelsData] = useState(models3D);
   const [categoriesData, setCategoriesData] = useState(categories);
-  const [ordersData, setOrdersData] = useState(mockOrders);
-  const [usersData, setUsersData] = useState([
-    {
-      id: "1",
-      name: "Admin MetsLab",
-      email: "admin@metslab.com",
-      role: "admin",
-      phone: "+51 984 123 456",
-      address: "Av. El Sol 123, Cusco",
-    },
-    {
-      id: "2",
-      name: "Cliente Ejemplo",
-      email: "cliente@example.com",
-      role: "customer",
-      phone: "+51 987 654 321",
-      address: "Jr. Comercio 456, Cusco",
-    },
-  ]);
   const [pedidosPorMes, setPedidosPorMes] = useState([]);
   const [ingresosPorMes, setIngresosPorMes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -132,7 +113,7 @@ export default function Admin() {
     switch (activeSection) {
       case "models":
         if (editingItem) {
-          setModelsData((prev) =>
+          _setModelsData((prev) =>
             prev.map((item) =>
               item.id === editingItem.id
                 ? { ...data, id: editingItem.id }
@@ -140,7 +121,7 @@ export default function Admin() {
             )
           );
         } else {
-          setModelsData((prev) => [
+          _setModelsData((prev) => [
             ...prev,
             { ...data, id: Date.now().toString() },
           ]);
@@ -161,26 +142,12 @@ export default function Admin() {
             { ...data, id: Date.now().toString() },
           ]);
         }
-        break;
-      case "colors":
-        if (editingItem) {
-          setColorsData((prev) =>
-            prev.map((item) =>
-              item.id === editingItem.id
-                ? { ...data, id: editingItem.id }
-                : item
-            )
-          );
-        } else {
-          setColorsData((prev) => [
-            ...prev,
-            { ...data, id: Date.now().toString() },
-          ]);
-        }
-        break;
-      default:
-        // Manejar otros casos o un error si es necesario
-        break;
+        break;        case "colors":
+          // Función deshabilitada temporalmente
+          break;
+        default:
+          // Manejar otros casos o un error si es necesario
+          break;
     }
     setShowModal(false);
     setEditingItem(null);
@@ -190,13 +157,13 @@ export default function Admin() {
     if (confirm("¿Estás seguro de que quieres eliminar este elemento?")) {
       switch (activeSection) {
         case "models":
-          setModelsData((prev) => prev.filter((item) => item.id !== id));
+          // Función deshabilitada temporalmente
           break;
         case "categories":
           setCategoriesData((prev) => prev.filter((item) => item.id !== id));
           break;
         case "colors":
-          setColorsData((prev) => prev.filter((item) => item.id !== id));
+          // Función deshabilitada temporalmente
           break;
         default:
           // Manejar otros casos o un error si es necesario
@@ -206,12 +173,6 @@ export default function Admin() {
   };
 
   const renderModelsSection = () => {
-    const filteredModels = modelsData.filter(
-      (model) =>
-        model.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        model.description.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
     return <ModelosAdmin />;
   };
 
@@ -219,104 +180,7 @@ export default function Admin() {
 
   const renderColorsSection = () => <ColoresAdmin />;
 
-  const renderOrdersSection = () => (
-    <div className="section-content">
-      <h2 className="text-2xl font-bold text-secondary-900">
-        Gestión de Pedidos
-      </h2>
-
-      <div className="table-container">
-        <div className="table-responsive">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Pedido</th>
-                <th>Cliente</th>
-                <th>Productos</th>
-                <th>Total</th>
-                <th>Estado</th>
-                <th>Entrega</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ordersData.map((order) => (
-                <tr key={order.id}>
-                  <td>
-                    <div className="font-medium text-secondary-900">
-                      #{order.id}
-                    </div>
-                    <div className="text-sm text-secondary-500">
-                      {new Date(order.createdAt).toLocaleDateString()}
-                    </div>
-                  </td>
-                  <td>
-                    <div className="font-medium text-secondary-900">
-                      Cliente #{order.userId}
-                    </div>
-                    <div className="text-sm text-secondary-500">
-                      {order.address}
-                    </div>
-                  </td>
-                  <td>
-                    <div className="text-sm text-secondary-900">
-                      {order.items.map((item, index) => (
-                        <div key={index} className="mb-1">
-                          {item.model.name} x{item.quantity}
-                        </div>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="font-medium text-secondary-900">
-                    S/ {order.totalAmount.toFixed(2)}
-                  </td>
-                  <td>
-                    <select
-                      value={order.status}
-                      onChange={(e) => {
-                        setOrdersData((prev) =>
-                          prev.map((o) =>
-                            o.id === order.id
-                              ? { ...o, status: e.target.value }
-                              : o
-                          )
-                        );
-                      }}
-                      className="text-sm form-select"
-                    >
-                      <option value="pending">Pendiente</option>
-                      <option value="processing">Procesando</option>
-                      <option value="shipped">Enviado</option>
-                      <option value="delivered">Entregado</option>
-                      <option value="cancelled">Cancelado</option>
-                    </select>
-                  </td>
-                  <td>
-                    <span
-                      className={`badge ${
-                        order.deliveryType === "delivery"
-                          ? "badge-blue"
-                          : "badge-green"
-                      }`}
-                    >
-                      {order.deliveryType === "delivery"
-                        ? "Delivery"
-                        : "Recojo"}
-                    </span>
-                  </td>
-                  <td>
-                    <button className="action-btn">
-                      <Eye className="icon" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
+  const renderOrdersSection = () => <PedidosAdmin />;
 const renderMetricSection = () => {
     const nombresMeses = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
