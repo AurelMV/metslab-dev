@@ -105,3 +105,35 @@
     margin: 0 auto 0.5rem auto;
   }
 }
+.footer-container {
+  background: #23201f;
+  color: #fff;
+  padding: 2.5rem 0 0.5rem 0;
+  font-size: 1rem;
+  width: 100%;
+  margin-top: auto; /* Esto es clave para que el footer se quede abajo */
+}
+
+/* Selector de año */
+#anio-select {
+    padding: 0.5rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.375rem;
+    background-color: white;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+
+#anio-select:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Tarjetas de total */
+.total-card {
+    transition: all 0.3s ease;
+}
+
+.total-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
