@@ -1,8 +1,9 @@
+
 import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-
+import { session } from 'electron'
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -51,7 +52,16 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
-
+session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+  callback({
+    responseHeaders: {
+      ...details.responseHeaders,
+      "Content-Security-Policy": [
+        "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://api.metslab3d.com http://localhost:8000 http://127.0.0.1:8000; connect-src 'self' https://api.metslab3d.com http://localhost:8000 http://127.0.0.1:8000"
+      ]
+    }
+  })
+})
   createWindow()
 
   app.on('activate', function () {

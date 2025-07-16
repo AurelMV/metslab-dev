@@ -6,6 +6,8 @@ import CategoriesManager from './CategoriesManager'
 import OrdersManager from './OrdersManager.jsx'
 import UsersManager from './UsersManager'
 import ModelDetail from './ModelDetail'
+import UsuariosAdmin from './UsuariosAdmin.jsx'
+import Estadistica from './TablasEstadistica.jsx'
 //import ColorManager from './ColorManager.jsx'
 
 const Dashboard = ({ onLogout, isOnline }) => {
@@ -32,8 +34,13 @@ const Dashboard = ({ onLogout, isOnline }) => {
         return <CategoriesManager />
       case 'orders':
         return <OrdersManager />
+
+      case 'userpedidogeneral':
+        return <UsuariosAdmin />
       case 'users':
         return <UsersManager />
+      case 'Estadistica':
+        return <Estadistica />
       default:
         return <UserProfile />
     }

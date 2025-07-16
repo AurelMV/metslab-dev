@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { Plus, Edit, Trash2, Save, X } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
+import { Plus, Edit, Trash2 } from 'lucide-react'
 import {
   getCategorias,
   createCategoria,
@@ -7,191 +7,219 @@ import {
   deleteCategoria
 } from '../services/category-service'
 
-const CategoriesManager = () => {
-  const [categories, setCategories] = useState([])
-  const [newCategoryName, setNewCategoryName] = useState('')
-  const [editingId, setEditingId] = useState(null)
-  const [editingName, setEditingName] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+function initialForm() {
+  return {
+    nombre: ''
+  }
+}
 
-  // Cargar categorías al montar
+const PAGE_SIZE = 5
+
+export default function CategoriesManager() {
+  const [categorias, setCategorias] = useState([])
+  const [showModal, setShowModal] = useState(false)
+  const [editing, setEditing] = useState(null)
+  const [form, setForm] = useState(initialForm())
+  const [loading, setLoading] = useState(false)
+  const [page, setPage] = useState(1)
+  const [filterNombre, setFilterNombre] = useState('')
+
   useEffect(() => {
-    setLoading(true)
-    getCategorias()
-      .then((data) => {
-        // Si la respuesta es un array de objetos con 'nombre', mapea a {id, name}
-        setCategories(
-          Array.isArray(data)
-            ? data.map((cat) => ({ id: cat.idCategoria, name: cat.nombre || cat.name }))
-            : []
-        )
-      })
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false))
+    fetchCategorias()
   }, [])
 
-  const getToken = () => localStorage.getItem('token')
+  async function fetchCategorias() {
+    setLoading(true)
+    try {
+      const data = await getCategorias()
+      setCategorias(Array.isArray(data) ? data : [])
+      setPage(1)
+    } catch (err) {
+      setCategorias([])
+    }
+    setLoading(false)
+  }
 
-  const handleAddCategory = async (e) => {
+  function handleOpenCreate() {
+    setEditing(null)
+    setForm(initialForm())
+    setShowModal(true)
+  }
+
+  function handleOpenEdit(categoria) {
+    setEditing(categoria.idCategoria)
+    setForm({
+      nombre: categoria.nombre
+    })
+    setShowModal(true)
+  }
+
+  function handleChange(e) {
+    const { name, value } = e.target
+    setForm((f) => ({ ...f, [name]: value }))
+  }
+
+  async function handleSubmit(e) {
     e.preventDefault()
-    if (!newCategoryName.trim()) return
     setLoading(true)
-    setError(null)
+    const token = localStorage.getItem('token')
     try {
-      const token = getToken()
-      const res = await createCategoria(newCategoryName.trim(), token)
-      // res.categoria contiene la nueva categoría
-      setCategories([...categories, { id: res.categoria.idCategoria, name: res.categoria.nombre }])
-      setNewCategoryName('')
+      if (editing) {
+        await updateCategoria(editing, form.nombre, token)
+      } else {
+        await createCategoria(form.nombre, token)
+      }
+      setShowModal(false)
+      fetchCategorias()
     } catch (err) {
-      setError(err.message)
-    }
-    setLoading(false)
-  }
-
-  const handleEditCategory = (category) => {
-    setEditingId(category.id)
-    setEditingName(category.name)
-  }
-
-  const handleSaveEdit = async () => {
-    if (!editingName.trim() || !editingId) return
-    setLoading(true)
-    setError(null)
-    try {
-      const token = getToken()
-      const res = await updateCategoria(editingId, editingName.trim(), token)
-      setCategories(
-        categories.map((cat) =>
-          cat.id === editingId ? { ...cat, name: res.categoria.nombre } : cat
-        )
+      alert(
+        err.message ||
+          (err.errors && Object.values(err.errors).join('\n')) ||
+          'Error al guardar la categoría'
       )
-      console.log(res)
-      setEditingId(null)
-      setEditingName('')
-    } catch (err) {
-      setError(err.message)
     }
     setLoading(false)
   }
 
-  const handleCancelEdit = () => {
-    setEditingId(null)
-    setEditingName('')
-  }
-
-  const handleDeleteCategory = async (id) => {
-    if (!window.confirm('¿Estás seguro de que quieres eliminar esta categoría?')) return
-    setLoading(true)
-    setError(null)
+  async function handleDelete(idCategoria) {
+    if (!window.confirm('¿Seguro que deseas eliminar esta categoría?')) return
+    const token = localStorage.getItem('token')
     try {
-      const token = getToken()
-      await deleteCategoria(id, token)
-      setCategories(categories.filter((cat) => cat.id !== id))
-    } catch (err) {
-      setError(err.message)
+      await deleteCategoria(idCategoria, token)
+      fetchCategorias()
+    } catch {
+      alert('No se pudo eliminar la categoría')
     }
-    setLoading(false)
   }
+
+  // Filtrado por nombre
+  const categoriasFiltradas = categorias.filter((cat) =>
+    cat.nombre.toLowerCase().includes(filterNombre.toLowerCase())
+  )
+
+  // Paginación
+  const totalPages = Math.ceil(categoriasFiltradas.length / PAGE_SIZE)
+  const categoriasPagina = categoriasFiltradas.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   return (
-    <div className="categories-manager-container">
-      <div className="categories-manager-card">
-        <h2 className="categories-manager-title">Gestión de Categorías</h2>
-
-        {/* Formulario para crear nueva categoría */}
-        <div className="new-category-section">
-          <h3 className="new-category-title">Crear Nueva Categoría</h3>
-          <form onSubmit={handleAddCategory} className="new-category-form">
-            <input
-              type="text"
-              value={newCategoryName}
-              onChange={(e) => setNewCategoryName(e.target.value)}
-              placeholder="Nombre de la categoría"
-              className="new-category-input"
-              required
-              disabled={loading}
-            />
-            <button type="submit" className="add-category-button" disabled={loading}>
-              <Plus className="add-category-icon" />
-              <span>Agregar</span>
-            </button>
-          </form>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="max-w-3xl w-full mx-auto p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-800">Gestión de Categorías</h2>
+          <button
+            onClick={handleOpenCreate}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 transition"
+          >
+            <Plus size={20} />
+            <span>Nueva Categoría</span>
+          </button>
         </div>
 
-        {/* Mensaje de error */}
-        {error && <div className="category-error">{error}</div>}
+        {/* Filtro por nombre */}
+        <div className="mb-4 flex justify-end">
+          <input
+            type="text"
+            placeholder="Filtrar por nombre..."
+            value={filterNombre}
+            onChange={(e) => {
+              setFilterNombre(e.target.value)
+              setPage(1)
+            }}
+            className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full max-w-xs"
+          />
+        </div>
 
-        {/* Lista de categorías */}
-        <div>
-          <h3 className="existing-categories-section-title">Categorías Existentes</h3>
-          {loading ? (
-            <div>Cargando...</div>
-          ) : (
-            <div className="categories-grid">
-              {categories.map((category) => (
-                <div key={category.id} className="category-item">
-                  {editingId === category.id ? (
-                    <div className="category-item-edit-mode">
-                      <input
-                        type="text"
-                        value={editingName}
-                        onChange={(e) => setEditingName(e.target.value)}
-                        className="edit-category-input"
-                        autoFocus
-                        disabled={loading}
-                      />
-                      <div className="edit-actions">
-                        <button
-                          onClick={handleSaveEdit}
-                          className="save-edit-button"
-                          disabled={loading}
-                        >
-                          <Save className="edit-action-icon" />
-                          <span>Guardar</span>
-                        </button>
-                        <button
-                          onClick={handleCancelEdit}
-                          className="cancel-edit-button"
-                          disabled={loading}
-                        >
-                          <X className="edit-action-icon" />
-                          <span>Cancelar</span>
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="category-item-display-mode">
-                      <span className="category-name">{category.name}</span>
-                      <div className="category-actions">
-                        <button
-                          onClick={() => handleEditCategory(category)}
-                          className="action-button edit-button"
-                          title="Editar"
-                          disabled={loading}
-                        >
-                          <Edit className="action-icon" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteCategory(category.id)}
-                          className="action-button delete-button"
-                          title="Eliminar"
-                          disabled={loading}
-                        >
-                          <Trash2 className="action-icon" />
-                        </button>
-                      </div>
-                    </div>
-                  )}
+        {loading && <div className="text-gray-500 mb-4">Cargando...</div>}
+
+        <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {categoriasPagina.map((categoria) => (
+              <div
+                key={categoria.idCategoria}
+                className="bg-gray-50 rounded-lg shadow p-4 flex flex-col justify-between"
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="text-lg font-semibold text-gray-900">{categoria.nombre}</h3>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleOpenEdit(categoria)}
+                      className="p-2 rounded-full bg-yellow-100 text-yellow-700 hover:bg-yellow-200 transition"
+                      title="Editar"
+                    >
+                      <Edit size={18} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(categoria.idCategoria)}
+                      className="p-2 rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition"
+                      title="Eliminar"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
                 </div>
-              ))}
-            </div>
-          )}
+              </div>
+            ))}
+          </div>
+          {/* Paginación */}
+          <div className="flex justify-center items-center gap-2 mt-6">
+            <button
+              className="px-3 py-1 rounded bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition disabled:opacity-50"
+              disabled={page === 1}
+              onClick={() => setPage(page - 1)}
+            >
+              Anterior
+            </button>
+            <span className="text-sm text-gray-700">
+              Página {page} de {totalPages}
+            </span>
+            <button
+              className="px-3 py-1 rounded bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition disabled:opacity-50"
+              disabled={page === totalPages || totalPages === 0}
+              onClick={() => setPage(page + 1)}
+            >
+              Siguiente
+            </button>
+          </div>
         </div>
+
+        {showModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+            <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+              <h3 className="text-xl font-bold text-gray-800 mb-4">
+                {editing ? 'Editar Categoría' : 'Nueva Categoría'}
+              </h3>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                  <input
+                    name="nombre"
+                    value={form.nombre}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div className="flex justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    className="px-4 py-2 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition"
+                    onClick={() => setShowModal(false)}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 transition disabled:bg-blue-300 disabled:cursor-not-allowed"
+                    disabled={loading}
+                  >
+                    {loading ? 'Guardando...' : 'Guardar'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
 }
-
-export default CategoriesManager
