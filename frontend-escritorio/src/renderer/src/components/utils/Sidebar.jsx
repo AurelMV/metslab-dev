@@ -15,6 +15,8 @@ const Sidebar = ({ activeSection, onSectionChange, onLogout, isOnline }) => {
     { id: 'models', label: 'Modelos', icon: Box },
     { id: 'categories', label: 'Categorías', icon: Layers },
     { id: 'orders', label: 'Pedidos', icon: ShoppingBag },
+    { id: 'userpedidogeneral', label: 'Usuarios con pedidos realizados', icon: Box },
+    { id: 'Estadistica', label: 'Estadística', icon: Box },
     { id: 'users', label: 'Usuarios', icon: Users }
   ]
 
