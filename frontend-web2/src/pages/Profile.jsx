@@ -18,11 +18,15 @@ import {
   CheckCircle,
   AlertCircle,
   TrendingUp,
-  Calendar
+  Calendar,
 } from "lucide-react";
-import { getSeguimientoPedidos, getHistorialPedidos, getDetallesPedido } from "../services/tracking-service";
+import {
+  getSeguimientoPedidos,
+  getHistorialPedidos,
+  getDetallesPedido,
+} from "../services/tracking-service";
 import OrderDetailsModal from "../components/OrderDetailsModal";
-import ModalReclamaciones from "../components/Modalreclamaciones";
+import ModalReclamaciones from "../components/ModalReclamaciones";
 import ModalListadoReclamaciones from "../components/ModalListadoReclamaciones";
 
 // Import the pure CSS file
@@ -43,7 +47,7 @@ export default function Profile() {
   const [historialPedidos, setHistorialPedidos] = useState([]);
   const [estadisticas, setEstadisticas] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('seguimiento'); // 'seguimiento' o 'historial'
+  const [activeTab, setActiveTab] = useState("seguimiento"); // 'seguimiento' o 'historial'
   const [orderDetails, setOrderDetails] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showReclamacionModal, setShowReclamacionModal] = useState(false);
@@ -55,26 +59,26 @@ export default function Profile() {
     const loadOrdersData = async () => {
       setLoading(true);
       try {
-        console.log('Cargando datos de pedidos...');
-        
+        console.log("Cargando datos de pedidos...");
+
         // Cargar seguimiento de pedidos activos
         const seguimientoData = await getSeguimientoPedidos();
-        console.log('Datos de seguimiento:', seguimientoData);
+        console.log("Datos de seguimiento:", seguimientoData);
         if (seguimientoData?.success) {
           setSeguimientoPedidos(seguimientoData.data);
-          console.log('Pedidos de seguimiento cargados:', seguimientoData.data);
+          console.log("Pedidos de seguimiento cargados:", seguimientoData.data);
         }
 
         // Cargar historial de pedidos
         const historialData = await getHistorialPedidos(1, 10);
-        console.log('Datos de historial:', historialData);
+        console.log("Datos de historial:", historialData);
         if (historialData?.success) {
           setHistorialPedidos(historialData.data);
           setEstadisticas(historialData.estadisticas);
-          console.log('Pedidos de historial cargados:', historialData.data);
+          console.log("Pedidos de historial cargados:", historialData.data);
         }
       } catch (error) {
-        console.error('Error cargando datos de pedidos:', error);
+        console.error("Error cargando datos de pedidos:", error);
       } finally {
         setLoading(false);
       }
@@ -94,7 +98,7 @@ export default function Profile() {
         setShowDetailsModal(true);
       }
     } catch (error) {
-      console.error('Error cargando detalles del pedido:', error);
+      console.error("Error cargando detalles del pedido:", error);
     }
   };
 
@@ -204,16 +208,20 @@ export default function Profile() {
             <div className="profile-card">
               {/* Tabs para Seguimiento e Historial */}
               <div className="order-tabs">
-                <button 
-                  className={`tab-button ${activeTab === 'seguimiento' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('seguimiento')}
+                <button
+                  className={`tab-button ${
+                    activeTab === "seguimiento" ? "active" : ""
+                  }`}
+                  onClick={() => setActiveTab("seguimiento")}
                 >
                   <Truck className="tab-icon" />
                   Seguimiento
                 </button>
-                <button 
-                  className={`tab-button ${activeTab === 'historial' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('historial')}
+                <button
+                  className={`tab-button ${
+                    activeTab === "historial" ? "active" : ""
+                  }`}
+                  onClick={() => setActiveTab("historial")}
                 >
                   <Package className="tab-icon" />
                   Historial
@@ -228,25 +236,31 @@ export default function Profile() {
                 </div>
               ) : (
                 <>
-                  {activeTab === 'seguimiento' && (
+                  {activeTab === "seguimiento" && (
                     <div className="tracking-section">
                       <div className="section-header">
                         <h3>Pedidos en Seguimiento</h3>
                         <p>Revisa el estado actual de tus pedidos activos</p>
                       </div>
-                      
+
                       {seguimientoPedidos.length === 0 ? (
                         <div className="no-orders-message">
                           <Truck className="no-orders-icon" />
-                          <p className="no-orders-text">No tienes pedidos en seguimiento</p>
+                          <p className="no-orders-text">
+                            No tienes pedidos en seguimiento
+                          </p>
                           <p className="no-orders-cta">
-                            Todos tus pedidos han sido entregados o no tienes pedidos activos
+                            Todos tus pedidos han sido entregados o no tienes
+                            pedidos activos
                           </p>
                         </div>
                       ) : (
                         <div className="tracking-orders-list">
                           {seguimientoPedidos.map((pedido) => (
-                            <div key={pedido.id} className="tracking-order-card">
+                            <div
+                              key={pedido.id}
+                              className="tracking-order-card"
+                            >
                               <div className="tracking-order-header">
                                 <div className="order-info">
                                   <h4>Pedido #{pedido.numero_pedido}</h4>
@@ -255,59 +269,108 @@ export default function Profile() {
                                     <span>{pedido.fecha_pedido}</span>
                                   </div>
                                 </div>
-                                <div className={`tracking-status status-${pedido.estado}`}>
-                                  {pedido.estado === 'entregado' && <CheckCircle className="status-icon" />}
-                                  {pedido.estado === 'completado' && <CheckCircle className="status-icon" />}
-                                  {pedido.estado === 'en_camino' && <Truck className="status-icon" />}
-                                  {pedido.estado === 'en_transito' && <Truck className="status-icon" />}
-                                  {pedido.estado === 'en_reparto' && <Truck className="status-icon" />}
-                                  {pedido.estado === 'en_preparacion' && <Package className="status-icon" />}
-                                  {pedido.estado === 'pago_confirmado' && <CheckCircle className="status-icon" />}
-                                  {pedido.estado === 'pedido_realizado' && <Clock className="status-icon" />}
-                                  {pedido.estado === 'capturado' && <CheckCircle className="status-icon" />}
-                                  {pedido.estado === 'en_espera' && <Clock className="status-icon" />}
-                                  {pedido.estado === 'pendiente_envio' && <Clock className="status-icon" />}
-                                  {pedido.estado === 'intento_entrega' && <AlertCircle className="status-icon" />}
-                                  {pedido.estado === 'pendiente_recogida' && <Package className="status-icon" />}
-                                  {pedido.estado === 'retrasado' && <AlertCircle className="status-icon" />}
-                                  {pedido.estado === 'perdido' && <AlertCircle className="status-icon" />}
+                                <div
+                                  className={`tracking-status status-${pedido.estado}`}
+                                >
+                                  {pedido.estado === "entregado" && (
+                                    <CheckCircle className="status-icon" />
+                                  )}
+                                  {pedido.estado === "completado" && (
+                                    <CheckCircle className="status-icon" />
+                                  )}
+                                  {pedido.estado === "en_camino" && (
+                                    <Truck className="status-icon" />
+                                  )}
+                                  {pedido.estado === "en_transito" && (
+                                    <Truck className="status-icon" />
+                                  )}
+                                  {pedido.estado === "en_reparto" && (
+                                    <Truck className="status-icon" />
+                                  )}
+                                  {pedido.estado === "en_preparacion" && (
+                                    <Package className="status-icon" />
+                                  )}
+                                  {pedido.estado === "pago_confirmado" && (
+                                    <CheckCircle className="status-icon" />
+                                  )}
+                                  {pedido.estado === "pedido_realizado" && (
+                                    <Clock className="status-icon" />
+                                  )}
+                                  {pedido.estado === "capturado" && (
+                                    <CheckCircle className="status-icon" />
+                                  )}
+                                  {pedido.estado === "en_espera" && (
+                                    <Clock className="status-icon" />
+                                  )}
+                                  {pedido.estado === "pendiente_envio" && (
+                                    <Clock className="status-icon" />
+                                  )}
+                                  {pedido.estado === "intento_entrega" && (
+                                    <AlertCircle className="status-icon" />
+                                  )}
+                                  {pedido.estado === "pendiente_recogida" && (
+                                    <Package className="status-icon" />
+                                  )}
+                                  {pedido.estado === "retrasado" && (
+                                    <AlertCircle className="status-icon" />
+                                  )}
+                                  {pedido.estado === "perdido" && (
+                                    <AlertCircle className="status-icon" />
+                                  )}
                                   {/* Estados antiguos por compatibilidad */}
-                                  {pedido.estado === 'enviado' && <Truck className="status-icon" />}
-                                  {pedido.estado === 'en_proceso' && <Package className="status-icon" />}
-                                  {pedido.estado === 'pagado' && <CheckCircle className="status-icon" />}
-                                  {pedido.estado === 'pendiente' && <Clock className="status-icon" />}
+                                  {pedido.estado === "enviado" && (
+                                    <Truck className="status-icon" />
+                                  )}
+                                  {pedido.estado === "en_proceso" && (
+                                    <Package className="status-icon" />
+                                  )}
+                                  {pedido.estado === "pagado" && (
+                                    <CheckCircle className="status-icon" />
+                                  )}
+                                  {pedido.estado === "pendiente" && (
+                                    <Clock className="status-icon" />
+                                  )}
                                   <span>{pedido.estado_formateado}</span>
                                 </div>
                               </div>
 
                               <div className="tracking-progress">
                                 <div className="progress-bar">
-                                  <div 
-                                    className="progress-fill" 
+                                  <div
+                                    className="progress-fill"
                                     style={{ width: `${pedido.progreso}%` }}
                                   ></div>
                                 </div>
                                 <div className="progress-info">
-                                  <span className="progress-text">{pedido.progreso}% completado</span>
-                                  <span className="next-step">{pedido.proximo_paso}</span>
+                                  <span className="progress-text">
+                                    {pedido.progreso}% completado
+                                  </span>
+                                  <span className="next-step">
+                                    {pedido.proximo_paso}
+                                  </span>
                                 </div>
                               </div>
 
                               {pedido.producto_principal && (
                                 <div className="main-product">
-                                  <span className="product-name">{pedido.producto_principal.nombre}</span>
+                                  <span className="product-name">
+                                    {pedido.producto_principal.nombre}
+                                  </span>
                                   <span className="product-quantity">
-                                    {pedido.total_productos > 1 
-                                      ? `y ${pedido.total_productos - 1} producto(s) más` 
-                                      : `Cantidad: ${pedido.producto_principal.cantidad}`
-                                    }
+                                    {pedido.total_productos > 1
+                                      ? `y ${
+                                          pedido.total_productos - 1
+                                        } producto(s) más`
+                                      : `Cantidad: ${pedido.producto_principal.cantidad}`}
                                   </span>
                                 </div>
                               )}
 
                               <div className="tracking-order-footer">
-                                <div className="order-total">S/ {pedido.total_pago}</div>
-                                <button 
+                                <div className="order-total">
+                                  S/ {pedido.total_pago}
+                                </div>
+                                <button
                                   className="view-details-btn"
                                   onClick={() => handleViewDetails(pedido.id)}
                                 >
@@ -322,17 +385,19 @@ export default function Profile() {
                     </div>
                   )}
 
-                  {activeTab === 'historial' && (
+                  {activeTab === "historial" && (
                     <div className="history-section">
                       <div className="section-header">
                         <h3>Historial de Pedidos</h3>
                         <p>Todos tus pedidos realizados</p>
                       </div>
-                      
+
                       {historialPedidos.length === 0 ? (
                         <div className="no-orders-message">
                           <Package className="no-orders-icon" />
-                          <p className="no-orders-text">No tienes pedidos en tu historial</p>
+                          <p className="no-orders-text">
+                            No tienes pedidos en tu historial
+                          </p>
                           <p className="no-orders-cta">
                             Explora nuestro catálogo y realiza tu primera compra
                           </p>
@@ -345,13 +410,17 @@ export default function Profile() {
                                 <div className="order-basic-info">
                                   <h4>Pedido #{pedido.numero_pedido}</h4>
                                   <div className="order-meta">
-                                    <span className="order-date">{pedido.fecha_pedido}</span>
+                                    <span className="order-date">
+                                      {pedido.fecha_pedido}
+                                    </span>
                                     <span className="order-days">
                                       Hace {pedido.dias_desde_pedido} día(s)
                                     </span>
                                   </div>
                                 </div>
-                                <div className={`order-status-badge status-${pedido.estado}`}>
+                                <div
+                                  className={`order-status-badge status-${pedido.estado}`}
+                                >
                                   {pedido.estado_formateado}
                                 </div>
                               </div>
@@ -359,9 +428,12 @@ export default function Profile() {
                               {pedido.producto_preview && (
                                 <div className="product-preview">
                                   <div className="product-preview-info">
-                                    <span className="product-name">{pedido.producto_preview.nombre}</span>
+                                    <span className="product-name">
+                                      {pedido.producto_preview.nombre}
+                                    </span>
                                     <span className="product-summary">
-                                      {pedido.resumen.total_productos} producto(s) • {pedido.resumen.metodo_pago}
+                                      {pedido.resumen.total_productos}{" "}
+                                      producto(s) • {pedido.resumen.metodo_pago}
                                     </span>
                                   </div>
                                   {pedido.se_puede_seguir && (
@@ -376,19 +448,23 @@ export default function Profile() {
                               <div className="history-order-footer">
                                 <div className="order-total-section">
                                   <span className="total-label">Total:</span>
-                                  <span className="total-amount">S/ {pedido.total_pago}</span>
+                                  <span className="total-amount">
+                                    S/ {pedido.total_pago}
+                                  </span>
                                 </div>
                                 <div className="order-actions">
                                   {pedido.se_puede_seguir && (
-                                    <button 
+                                    <button
                                       className="track-btn"
-                                      onClick={() => setActiveTab('seguimiento')}
+                                      onClick={() =>
+                                        setActiveTab("seguimiento")
+                                      }
                                     >
                                       <Truck className="btn-icon" />
                                       Seguir
                                     </button>
                                   )}
-                                  <button 
+                                  <button
                                     className="view-details-btn"
                                     onClick={() => handleViewDetails(pedido.id)}
                                   >
@@ -483,15 +559,19 @@ export default function Profile() {
                   </p>
                 </div>
               </div>
-              
+
               <Link to="/direcciones" className="manage-addresses-button">
                 <div className="button-content">
                   <div className="button-icon-wrapper">
                     <Settings className="button-icon" />
                   </div>
                   <div className="button-text-content">
-                    <span className="button-main-text">Gestionar Direcciones</span>
-                    <span className="button-sub-text">Agregar, editar o eliminar</span>
+                    <span className="button-main-text">
+                      Gestionar Direcciones
+                    </span>
+                    <span className="button-sub-text">
+                      Agregar, editar o eliminar
+                    </span>
                   </div>
                   <ArrowRight className="button-arrow" />
                 </div>
@@ -516,7 +596,7 @@ export default function Profile() {
         </div>
 
         {/* Modal para detalles del pedido */}
-        <OrderDetailsModal 
+        <OrderDetailsModal
           isOpen={showDetailsModal}
           onClose={() => setShowDetailsModal(false)}
           orderDetails={orderDetails}
@@ -529,8 +609,6 @@ export default function Profile() {
           user={user}
           token={token}
         />
-
-
 
         <ModalListadoReclamaciones
           open={showListadoModal}

@@ -228,8 +228,8 @@ export default function Admin() {
 
   // const renderColorsSection = () => <ColoresAdmin />; // Commented out as ColoresAdmin is not provided
 
-
-  const renderOrdersSection = () => <PedidosAdmin />;
+ const renderOrdersSection = () => <PedidosAdmin />;
+ 
   const renderMetricSection = () => {
 
     const nombresMeses = [
