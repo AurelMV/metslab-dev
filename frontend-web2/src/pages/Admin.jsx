@@ -20,7 +20,10 @@ import {
   ChartBar,
   AlertCircle,
 } from "lucide-react";
-import { models3D, categories, mockOrders } from "../data/mockData"; // Assuming mockData exists and has the data
+
+import { models3D, categories,mockOrders} from "../data/mockData"; // Asegúrate de que mockData exista y tenga los datos
+import "../stayle/Admin.css"; // Importa tu archivo CSS puro
+
 import ModelosAdmin from "./ModelosAdmin";
 import {
   getPedidosPorMes,
@@ -37,6 +40,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import UsuariosAdmin from "../components/UsuariosAdmin";
+import PedidosAdmin from "../components/PedidosAdmin";
 import ModalListadoReclamacionesAdmin from "../components/ModalListadoReclamacionesAdmin";
 import ListadoReclamacionesAdmin from "../components/ListadoReclamacionesAdmin";
 
@@ -45,37 +49,15 @@ export default function Admin() {
   const [activeSection, setActiveSection] = useState("models");
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
 
   // Mock data states (in real app, these would come from API/database)
-  const [modelsData, setModelsData] = useState(models3D);
+  const [_modelsData, _setModelsData] = useState(models3D);
   const [categoriesData, setCategoriesData] = useState(categories);
-  const [ordersData, setOrdersData] = useState(mockOrders);
-  const [usersData, setUsersData] = useState([
-    {
-      id: "1",
-      name: "Admin MetsLab",
-      email: "admin@metslab.com",
-      role: "admin",
-      phone: "+51 984 123 456",
-      address: "Av. El Sol 123, Cusco",
-    },
-    {
-      id: "2",
-      name: "Cliente Ejemplo",
-      email: "cliente@example.com",
-      role: "customer",
-      phone: "+51 987 654 321",
-      address: "Jr. Comercio 456, Cusco",
-    },
-  ]);
   const [pedidosPorMes, setPedidosPorMes] = useState([]);
   const [ingresosPorMes, setIngresosPorMes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [anioSeleccionado, setAnioSeleccionado] = useState(
-    new Date().getFullYear()
-  );
+  const [Error, setError] = useState(null);
+  const [anioSeleccionado, setAnioSeleccionado] = useState(new Date().getFullYear());
   const [aniosDisponibles, setAniosDisponibles] = useState([]);
   const [showAdminListadoModal, setShowAdminListadoModal] = useState(false);
   const token = localStorage.getItem("token");
@@ -157,7 +139,7 @@ export default function Admin() {
     switch (activeSection) {
       case "models":
         if (editingItem) {
-          setModelsData((prev) =>
+          _setModelsData((prev) =>
             prev.map((item) =>
               item.id === editingItem.id
                 ? { ...data, id: editingItem.id }
@@ -165,7 +147,7 @@ export default function Admin() {
             )
           );
         } else {
-          setModelsData((prev) => [
+          _setModelsData((prev) => [
             ...prev,
             { ...data, id: Date.now().toString() },
           ]);
@@ -185,8 +167,7 @@ export default function Admin() {
             ...prev,
             { ...data, id: Date.now().toString() },
           ]);
-        }
-        break;
+        }break;
       // case "colors": // Commented out as ColoresAdmin and ColorForm are not provided
       //   if (editingItem) {
       //     setColorsData((prev) =>
@@ -233,6 +214,7 @@ export default function Admin() {
     // }
   };
 
+
   const renderModelsSection = () => {
     // const filteredModels = modelsData.filter( // This filtering logic is not used as ModelosAdmin is imported
     //   (model) =>
@@ -245,6 +227,7 @@ export default function Admin() {
   const renderCategoriesSection = () => <CategoryForm />;
 
   // const renderColorsSection = () => <ColoresAdmin />; // Commented out as ColoresAdmin is not provided
+
 
   const renderOrdersSection = () => (
     <div className="section-content flex flex-col space-y-6">
@@ -357,6 +340,7 @@ export default function Admin() {
   );
 
   const renderMetricSection = () => {
+
     const nombresMeses = [
       "Enero",
       "Febrero",
