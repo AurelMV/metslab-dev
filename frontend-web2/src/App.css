@@ -1,11 +1,1 @@
-/* src/App.css */
-
-.app-container {
-  min-height: 100vh; /* min-h-screen */
-  display: flex; /* flex */
-  flex-direction: column; /* flex-col */
-}
-
-.app-main-content {
-  flex: 1; /* flex-1 */
-}
+@import "tailwindcss";

@@ -1,21 +1,9 @@
-// ProductDetail.jsx
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import {
-  ArrowLeft,
-  ShoppingCart,
-  Ruler,
-  Package,
-  Tag,
-  Loader,
-} from "lucide-react";
+import { ArrowLeft, ShoppingCart, Ruler, Package, Loader } from "lucide-react";
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
-//import env from "../config/env";
-// *** ASEGÚRATE DE QUE ESTE ES TU ARCHIVO ModelViewer AJUSTADO CON LUCES, CÁMARA Y POST-PROCESADO ***
 import ModelViewer from "./ModelViewer";
-// Import the pure CSS file
-import "../stayle/ProductDetail.css"; // Adjust the path as per your file structure
 import { getColoresDisponibles } from "../services/colores-service";
 import { getModelo3D, getModeloById } from "../services/modelo-service";
 
@@ -25,22 +13,16 @@ export default function ProductDetail() {
   const { addToCart } = useCart();
   const { user } = useAuth();
   const [model3DUrl, setModel3DUrl] = useState(null);
-  // Estados para el producto
   const [model, setModel] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // Estados para colores
   const [colors, setColors] = useState([]);
   const [colorsLoading, setColorsLoading] = useState(true);
   const [selectedColor, setSelectedColor] = useState(null);
-  // Estados originales
   const [quantity, setQuantity] = useState(1);
   const [showAuthModal, setShowAuthModal] = useState(false);
-
   const [addedToCart, setAddedToCart] = useState(false);
 
-  // Nueva función para obtener la URL del modelo 3D con CORS
   const fetchModel3DUrl = async (idModelo) => {
     try {
       const modeloUrl = await getModelo3D(idModelo);
@@ -49,64 +31,48 @@ export default function ProductDetail() {
       setModel3DUrl(null);
     }
   };
-  // Función para obtener colores desde la API
+
   const fetchColors = async () => {
     try {
       setColorsLoading(true);
       const result = await getColoresDisponibles();
-
       if (Array.isArray(result)) {
-        // Mapear la estructura de tu API a la estructura esperada
         const mappedColors = result.map((color) => ({
           id: color.id,
           name: color.nombre,
-          hex: `${color.codigo_hex}`, // Agregar # si no lo tiene
+          hex: `${color.codigo_hex}`,
         }));
         setColors(mappedColors);
-
-        // Seleccionar el primer color por defecto
-        if (mappedColors.length > 0) {
-          setSelectedColor(mappedColors[0]);
-        }
+        if (mappedColors.length > 0) setSelectedColor(mappedColors[0]);
       } else {
-        console.error("Error: Expected array of colors");
-        // Fallback a colores por defecto
-        const defaultColors = [
+        setColors([
           { id: 1, name: "Blanco", hex: "#ffffff" },
           { id: 2, name: "Negro", hex: "#000000" },
-        ];
-        setColors(defaultColors);
-        setSelectedColor(defaultColors[0]);
+        ]);
+        setSelectedColor({ id: 1, name: "Blanco", hex: "#ffffff" });
       }
     } catch (err) {
-      console.error("Error fetching colors:", err);
-      // Fallback a colores por defecto en caso de error
-      const defaultColors = [
+      setColors([
         { id: 1, name: "Blanco", hex: "#ffffff" },
         { id: 2, name: "Negro", hex: "#000000" },
-      ];
-      setColors(defaultColors);
-      setSelectedColor(defaultColors[0]);
+      ]);
+      setSelectedColor({ id: 1, name: "Blanco", hex: "#ffffff" });
     } finally {
       setColorsLoading(false);
     }
   };
 
-  // Función para obtener el modelo desde la API
   const fetchModel = async () => {
     try {
       if (!id) {
         setError("ID del modelo no especificado");
         return;
       }
-
       setLoading(true);
       const data = await getModeloById(id);
-
       const [width = "0", height = "0", depth = "0"] = (
         data.dimensiones || ""
       ).split("*");
-
       const processedModel = {
         ...data,
         id: data.idModelo,
@@ -118,14 +84,9 @@ export default function ProductDetail() {
           id: data.idCategoria,
           name: data.nombreCategoria,
         },
-        dimensions: {
-          width,
-          height,
-          depth,
-        },
+        dimensions: { width, height, depth },
         modelo_url: data.modelo_url,
       };
-
       setModel(processedModel);
     } catch (err) {
       setError(err.message || "Error al obtener el modelo");
@@ -138,7 +99,7 @@ export default function ProductDetail() {
     fetchColors();
     if (id) {
       fetchModel();
-      fetchModel3DUrl(id); // Llama a esta función para obtener la URL del modelo 3D
+      fetchModel3DUrl(id);
     }
   }, [id]);
 
@@ -147,68 +108,47 @@ export default function ProductDetail() {
       setShowAuthModal(true);
       return;
     }
-
     try {
       await addToCart(model, selectedColor, quantity);
-
       setAddedToCart(true);
-      setTimeout(() => {
-        setAddedToCart(false);
-      }, 2000);
+      setTimeout(() => setAddedToCart(false), 2000);
     } catch (error) {
-      console.error("Error al agregar al carrito:", error);
       alert(
         "Ocurrió un error al agregar al carrito. Por favor, inténtalo de nuevo."
       );
     }
   };
 
-  // Loading state
   if (loading || colorsLoading) {
     return (
-      <div className="product-detail-container">
-        <div className="content-wrapper">
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "2rem",
-              minHeight: "50vh",
-            }}
-          >
-            <Loader className="animate-spin" size={32} />
-            <span style={{ marginLeft: "1rem" }}>
-              {loading ? "Cargando modelo..." : "Cargando colores..."}
-            </span>
-          </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex items-center gap-4">
+          <Loader className="animate-spin text-orange-500" size={32} />
+          <span className="text-lg text-gray-700">
+            {loading ? "Cargando modelo..." : "Cargando colores..."}
+          </span>
         </div>
       </div>
     );
   }
 
-  // Error state
   if (error || !model) {
     return (
-      <div className="product-not-found">
-        <div className="product-not-found-content">
-          <h2 className="product-not-found-title">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
             {error || "Modelo no encontrado"}
           </h2>
-          <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
-            <Link to="/catalog" className="product-not-found-button">
+          <div className="flex gap-4 justify-center">
+            <Link
+              to="/catalog"
+              className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold transition"
+            >
               Volver al Catálogo
             </Link>
             <button
               onClick={fetchModel}
-              style={{
-                padding: "0.5rem 1rem",
-                backgroundColor: "#3b82f6",
-                color: "white",
-                border: "none",
-                borderRadius: "0.5rem",
-                cursor: "pointer",
-              }}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition"
             >
               Reintentar
             </button>
@@ -219,124 +159,96 @@ export default function ProductDetail() {
   }
 
   return (
-    <div className="product-detail-container">
-      <div className="content-wrapper">
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
-        <div className="breadcrumb">
-          <Link to="/catalog" className="breadcrumb-link">
+        <div className="flex items-center gap-2 text-sm text-gray-500 mb-8">
+          <Link to="/catalog" className="hover:text-orange-600 transition">
             Catálogo
           </Link>
           <span>/</span>
-          <span className="breadcrumb-current-item">{model.name}</span>
+          <span className="text-gray-900 font-semibold">{model.name}</span>
         </div>
 
         {/* Back Button */}
-        <button onClick={() => navigate(-1)} className="back-button">
-          <ArrowLeft className="back-button-icon" />
+        <button
+          onClick={() => navigate(-1)}
+          className="mb-6 flex items-center gap-2 text-gray-500 hover:text-orange-600 transition"
+        >
+          <ArrowLeft className="w-5 h-5" />
           <span>Volver</span>
         </button>
 
         {/* Product Details */}
-        <div className="product-details-grid">
-          {/* Image */}
-          <div className="image-viewer-section">
-            <div className="main-product-image-wrapper">
-              <img
-                src={model.image}
-                alt={model.name}
-                className="main-product-image"
-                onError={(e) => {
-                  e.target.src = "/placeholder-image.jpg";
-                }}
-              />
-            </div>
-
-            {/* 3D Model Viewer Placeholder - Ahora con enlace real */}
-            <div className="viewer-placeholder-card">
-              <Package className="viewer-icon" />
-
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          {/* Image & 3D Viewer */}
+          <div className="flex flex-col gap-4 order-1 md:order-1">
+            <div className="bg-white rounded-lg shadow-md p-6 text-center">
               {model3DUrl ? (
-                // *** AQUÍ ESTÁS USANDO EL MODELVIEWER CON LA URL DEL GLB ***
                 <ModelViewer
                   url={model3DUrl}
-                  color={selectedColor?.hex || "#ffffff"} // Este prop 'color' ahora cambiará el color del material principal
+                  color={selectedColor?.hex || "#ffffff"}
                 />
               ) : (
-                <div style={{ color: "#888", fontStyle: "italic" }}>
+                <div className="text-gray-400 italic">
                   No hay modelo 3D disponible
                 </div>
-              )}
-              {model3DUrl && (
-                <a
-                  href={model3DUrl}
-                  download
-                  style={{
-                    display: "inline-block",
-                    marginTop: "0.5rem",
-                    padding: "0.5rem 1rem",
-                    backgroundColor: "#10b981",
-                    color: "white",
-                    textDecoration: "none",
-                    borderRadius: "0.5rem",
-                    fontSize: "0.875rem",
-                  }}
-                >
-                  Descargar Modelo 3D
-                </a>
               )}
             </div>
           </div>
 
           {/* Product Info */}
-          <div className="product-info-section">
+          <div className="flex flex-col gap-6">
             <div>
-              <div className="product-category-wrapper">
-                <span className="product-category-tag">
-                  {model.category?.name || "Modelo 3D"}
-                </span>
-              </div>
-              <h1 className="product-name">{model.name}</h1>
-              <p className="product-description-full">
+              <span className="inline-block text-sm font-medium text-orange-600 bg-orange-50 px-3 py-1 rounded-full mb-2">
+                {model.category?.name || "Modelo 3D"}
+              </span>
+              <h1 className="text-3xl font-bold text-gray-900 mb-4">
+                {model.name}
+              </h1>
+              <p className="text-lg text-gray-600 leading-relaxed">
                 {model.description ||
                   "Modelo 3D de alta calidad para impresión"}
               </p>
             </div>
 
             {/* Price */}
-            <div className="product-price-display">
-              <span className="product-price-value">
+            <div className="bg-orange-50 rounded-lg p-4">
+              <span className="text-3xl font-bold text-orange-600">
                 S/ {model.price.toFixed(2)}
               </span>
             </div>
 
             {/* Specifications */}
-            <div className="specifications-card">
-              <h3 className="specifications-title">
-                <Ruler className="specifications-icon" />
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <Ruler className="w-5 h-5 text-orange-600 mr-2" />
                 Especificaciones
               </h3>
-              <div className="specifications-grid">
+              <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="spec-label">Ancho:</span>
-                  <span className="spec-value">
+                  <span className="font-medium text-gray-700">Ancho:</span>
+                  <span className="ml-2 text-gray-600">
                     {model.dimensions.width} cm
                   </span>
                 </div>
                 <div>
-                  <span className="spec-label">Alto:</span>
-                  <span className="spec-value">
+                  <span className="font-medium text-gray-700">Alto:</span>
+                  <span className="ml-2 text-gray-600">
                     {model.dimensions.height} cm
                   </span>
                 </div>
                 <div>
-                  <span className="spec-label">Profundidad:</span>
-                  <span className="spec-value">
+                  <span className="font-medium text-gray-700">
+                    Profundidad:
+                  </span>
+                  <span className="ml-2 text-gray-600">
                     {model.dimensions.depth} cm
                   </span>
                 </div>
                 <div>
-                  <span className="spec-label">Formato:</span>
-                  <span className="spec-value">
+                  <span className="font-medium text-gray-700">Formato:</span>
+                  <span className="ml-2 text-gray-600">
                     {model.modelo_url?.toLowerCase().endsWith(".glb")
                       ? ".GLB"
                       : ".OBJ"}
@@ -347,18 +259,22 @@ export default function ProductDetail() {
 
             {/* Quantity */}
             <div>
-              <label className="quantity-label">Cantidad</label>
-              <div className="quantity-control">
+              <label className="block text-lg font-semibold text-gray-900 mb-2">
+                Cantidad
+              </label>
+              <div className="flex items-center gap-3">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="quantity-button"
+                  className="w-10 h-10 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-xl flex items-center justify-center"
                 >
                   -
                 </button>
-                <span className="quantity-display">{quantity}</span>
+                <span className="text-xl font-semibold text-gray-900 w-12 text-center">
+                  {quantity}
+                </span>
                 <button
                   onClick={() => setQuantity(quantity + 1)}
-                  className="quantity-button"
+                  className="w-10 h-10 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-xl flex items-center justify-center"
                 >
                   +
                 </button>
@@ -366,22 +282,23 @@ export default function ProductDetail() {
             </div>
 
             {/* Add to Cart */}
-            <div className="add-to-cart-section">
-              {" "}
+            <div className="flex flex-col gap-3">
               <button
                 onClick={handleAddToCart}
-                className={`add-to-cart-button ${addedToCart ? "added" : ""}`}
+                className={`w-full bg-orange-500 hover:bg-orange-600 text-white py-4 rounded-lg font-semibold flex items-center justify-center gap-2 transition ${
+                  addedToCart ? "bg-green-500 cursor-default" : ""
+                }`}
                 disabled={addedToCart}
               >
-                <ShoppingCart className="add-to-cart-icon" />
+                <ShoppingCart className="w-5 h-5" />
                 <span>{addedToCart ? "Agregado" : "Agregar al Carrito"}</span>
               </button>
               {addedToCart && (
-                <div className="added-to-cart-message">
+                <div className="text-green-600 text-sm text-center font-medium">
                   Producto agregado al carrito correctamente
                 </div>
               )}
-              <div className="shipping-info-list">
+              <div className="text-sm text-gray-600 flex flex-col gap-1">
                 <p>• Entrega gratuita con recojo en tienda</p>
                 <p>• Delivery disponible en Cusco (+S/ 10.00)</p>
                 <p>• Garantía de calidad en todos nuestros productos</p>
@@ -393,20 +310,25 @@ export default function ProductDetail() {
 
         {/* Auth Modal */}
         {showAuthModal && (
-          <div className="auth-modal-overlay">
-            <div className="auth-modal-content">
-              <h3 className="auth-modal-title">Inicia Sesión para Continuar</h3>
-              <p className="auth-modal-description">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Inicia Sesión para Continuar
+              </h3>
+              <p className="text-gray-600 mb-6">
                 Para agregar productos al carrito necesitas iniciar sesión o
                 crear una cuenta.
               </p>
-              <div className="auth-modal-actions">
-                <Link to="/auth/login" className="auth-modal-button-login">
+              <div className="flex gap-3">
+                <Link
+                  to="/auth/login"
+                  className="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-lg text-center font-semibold transition"
+                >
                   Iniciar Sesión
                 </Link>
                 <button
                   onClick={() => setShowAuthModal(false)}
-                  className="auth-modal-button-cancel"
+                  className="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition"
                 >
                   Cancelar
                 </button>
