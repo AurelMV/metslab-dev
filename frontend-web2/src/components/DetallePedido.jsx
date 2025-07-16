@@ -78,7 +78,14 @@ const DetallePedido = ({ isOpen, onClose, pedidoId }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div 
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            onClick={(e) => {
+                if (e.target === e.currentTarget) {
+                    onClose();
+                }
+            }}
+        >
             <div className="bg-white rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
                 {/* Header */}
                 <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-xl">
@@ -88,10 +95,10 @@ const DetallePedido = ({ isOpen, onClose, pedidoId }) => {
                                 <FileText className="w-6 h-6" />
                             </div>
                             <div>
-                                <h2 className="text-2xl font-bold">
+                                <h2 className="text-2xl font-bold text-black">
                                     Detalles del Pedido
                                 </h2>
-                                <p className="text-blue-100">
+                                <p className="text-black text-lg font-semibold">
                                     {detalles ? `#${detalles.pedido?.numero_pedido || pedidoId}` : `#${pedidoId}`}
                                 </p>
                             </div>
@@ -131,130 +138,183 @@ const DetallePedido = ({ isOpen, onClose, pedidoId }) => {
 
                     {detalles && (
                         <div className="space-y-6">
-                            {/* Información principal */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                {/* Estado y Progreso */}
-                                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-                                    <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-4">
-                                        <div className="p-2 bg-blue-100 rounded-lg">
-                                            <Star className="w-5 h-5 text-blue-600" />
+                            {/* Información principal - estilo similar a estadísticas expandidas */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Estado Actual - Tarjeta expandida */}
+                                <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div>
+                                            <h3 className="text-sm font-medium text-gray-500">Estado Actual</h3>
+                                            <p className="text-xl font-bold text-blue-600">{detalles.pedido?.estado_formateado || 'Sin estado'}</p>
                                         </div>
-                                        Estado Actual
-                                    </h3>
-                                    <div className="space-y-4">
-                                        <div className="flex items-center gap-3">
-                                            <span className={`px-3 py-2 rounded-full text-sm font-medium ${getEstadoClass(detalles.pedido?.estado)}`}>
-                                                {detalles.pedido?.estado_formateado || 'Sin estado'}
-                                            </span>
+                                        <div className="p-3 bg-blue-100 rounded-lg">
+                                            <Star className="w-6 h-6 text-blue-600" />
                                         </div>
-                                        {detalles.seguimiento && (
-                                            <>
-                                                <div>
-                                                    <p className="text-sm text-gray-600 mb-2">Progreso del pedido</p>
-                                                    <div className="w-full bg-gray-200 rounded-full h-2">
-                                                        <div 
-                                                            className={`h-2 rounded-full ${getProgressColor(detalles.seguimiento.progreso)}`}
-                                                            style={{ width: `${detalles.seguimiento.progreso}%` }}
-                                                        ></div>
-                                                    </div>
-                                                    <p className="text-xs text-gray-500 mt-1">{detalles.seguimiento.progreso}% completado</p>
-                                                </div>
-                                                <div className="bg-blue-50 p-3 rounded-lg">
-                                                    <p className="text-sm font-medium text-blue-800">Próximo paso:</p>
-                                                    <p className="text-sm text-blue-600">{detalles.seguimiento.proximo_paso}</p>
-                                                </div>
-                                            </>
-                                        )}
                                     </div>
-                                </div>
-
-                                {/* Información del Cliente */}
-                                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-                                    <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-4">
-                                        <div className="p-2 bg-green-100 rounded-lg">
-                                            <User className="w-5 h-5 text-green-600" />
-                                        </div>
-                                        Cliente
-                                    </h3>
-                                    {detalles.cliente && (
+                                    {detalles.seguimiento && (
                                         <div className="space-y-3">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                                                    <User className="w-5 h-5 text-green-600" />
+                                            <div>
+                                                <div className="w-full bg-gray-200 rounded-full h-3">
+                                                    <div 
+                                                        className={`h-3 rounded-full ${getProgressColor(detalles.seguimiento.progreso)}`}
+                                                        style={{ width: `${detalles.seguimiento.progreso}%` }}
+                                                    ></div>
                                                 </div>
-                                                <div>
-                                                    <p className="font-medium text-gray-800">{detalles.cliente.nombre}</p>
-                                                    <p className="text-sm text-gray-600">{detalles.cliente.email}</p>
-                                                </div>
+                                                <p className="text-sm text-gray-600 mt-2">{detalles.seguimiento.progreso}% completado</p>
                                             </div>
-                                            <div className="text-sm text-gray-600">
-                                                <p>Cliente desde: {detalles.cliente.fecha_registro}</p>
-                                                <p>{detalles.cliente.tiempo_como_cliente}</p>
+                                            <div className="bg-blue-50 p-3 rounded-lg">
+                                                <p className="text-sm font-medium text-blue-800">Próximo paso:</p>
+                                                <p className="text-sm text-blue-600">{detalles.seguimiento.proximo_paso}</p>
                                             </div>
                                         </div>
                                     )}
                                 </div>
 
-                                {/* Información de Pago */}
-                                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-                                    <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-4">
-                                        <div className="p-2 bg-yellow-100 rounded-lg">
-                                            <CreditCard className="w-5 h-5 text-yellow-600" />
+                                {/* Cliente - Tarjeta expandida */}
+                                <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div>
+                                            <h3 className="text-sm font-medium text-gray-500">Cliente</h3>
+                                            <p className="text-xl font-bold text-green-600">{detalles.cliente?.nombre || 'Sin nombre'}</p>
                                         </div>
-                                        Pago
-                                    </h3>
+                                        <div className="p-3 bg-green-100 rounded-lg">
+                                            <User className="w-6 h-6 text-green-600" />
+                                        </div>
+                                    </div>
+                                    {detalles.cliente && (
+                                        <div className="space-y-3">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                                    <User className="w-4 h-4 text-green-600" />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <p className="text-sm font-medium text-gray-800">{detalles.cliente.email}</p>
+                                                    <p className="text-xs text-gray-500">{detalles.cliente.tiempo_como_cliente}</p>
+                                                </div>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <div className="bg-green-50 p-2 rounded-lg">
+                                                    <p className="text-xs text-green-800">
+                                                        <span className="font-medium">Desde:</span> {detalles.cliente.fecha_registro}
+                                                    </p>
+                                                </div>
+                                                <div className="bg-gray-50 p-2 rounded-lg">
+                                                    <p className="text-xs text-gray-600">
+                                                        <span className="font-medium">ID:</span> #{detalles.cliente.id || 'N/A'}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            {detalles.cliente.telefono && (
+                                                <div className="flex items-center gap-2">
+                                                    <Phone className="w-3 h-3 text-gray-400" />
+                                                    <span className="text-xs text-gray-600">{detalles.cliente.telefono}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Pago - Tarjeta expandida */}
+                                <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div>
+                                            <h3 className="text-sm font-medium text-gray-500">Pago</h3>
+                                            <p className="text-xl font-bold text-yellow-600">S/ {detalles.pago?.monto || '0.00'}</p>
+                                        </div>
+                                        <div className="p-3 bg-yellow-100 rounded-lg">
+                                            <CreditCard className="w-6 h-6 text-yellow-600" />
+                                        </div>
+                                    </div>
                                     <div className="space-y-3">
                                         <div className="flex justify-between items-center">
                                             <span className="text-sm text-gray-600">Estado:</span>
-                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${detalles.pago?.estado === 'approved' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${detalles.pago?.estado === 'approved' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
                                                 {detalles.pago?.estado_formateado || 'Pendiente'}
                                             </span>
                                         </div>
                                         <div className="flex justify-between items-center">
-                                            <span className="text-sm text-gray-600">Monto:</span>
-                                            <span className="text-lg font-bold text-green-600">S/ {detalles.pago?.monto || '0.00'}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center">
                                             <span className="text-sm text-gray-600">Método:</span>
-                                            <span className="font-medium">{detalles.pago?.metodo_pago || 'N/A'}</span>
+                                            <span className="text-sm font-medium">{detalles.pago?.metodo_pago || 'N/A'}</span>
                                         </div>
-                                        {detalles.pago?.fecha_pago && (
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {detalles.pago?.fecha_pago && (
+                                                <div className="bg-yellow-50 p-2 rounded-lg">
+                                                    <p className="text-xs text-yellow-800">
+                                                        <span className="font-medium">Fecha:</span> {detalles.pago.fecha_pago}
+                                                    </p>
+                                                </div>
+                                            )}
+                                            {detalles.pago?.transaction_id && (
+                                                <div className="bg-gray-50 p-2 rounded-lg">
+                                                    <p className="text-xs text-gray-600">
+                                                        <span className="font-medium">ID:</span> {detalles.pago.transaction_id.substring(0, 8)}...
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </div>
+                                        {detalles.pago?.comision && (
+                                            <div className="flex justify-between items-center border-t pt-2">
+                                                <span className="text-xs text-gray-500">Comisión:</span>
+                                                <span className="text-xs font-medium text-gray-600">S/ {detalles.pago.comision}</span>
+                                            </div>
+                                        )}
+                                        {detalles.pago?.moneda && detalles.pago?.moneda !== 'PEN' && (
                                             <div className="flex justify-between items-center">
-                                                <span className="text-sm text-gray-600">Fecha:</span>
-                                                <span className="text-sm">{detalles.pago.fecha_pago}</span>
+                                                <span className="text-xs text-gray-500">Moneda:</span>
+                                                <span className="text-xs font-medium text-gray-600">{detalles.pago.moneda}</span>
                                             </div>
                                         )}
                                     </div>
                                 </div>
-                            </div>
 
-                            {/* Dirección de Entrega */}
-                            <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-                                <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-4">
-                                    <div className="p-2 bg-purple-100 rounded-lg">
-                                        <MapPin className="w-5 h-5 text-purple-600" />
+                                {/* Dirección - Tarjeta expandida */}
+                                <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div>
+                                            <h3 className="text-sm font-medium text-gray-500">Dirección</h3>
+                                            <p className="text-xl font-bold text-purple-600">{detalles.direccion_entrega?.distrito || 'Sin distrito'}</p>
+                                        </div>
+                                        <div className="p-3 bg-purple-100 rounded-lg">
+                                            <MapPin className="w-6 h-6 text-purple-600" />
+                                        </div>
                                     </div>
-                                    Dirección de Entrega
-                                </h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-3">
                                         <div className="flex items-center gap-3">
-                                            <Home className="w-5 h-5 text-gray-400" />
-                                            <div>
-                                                <p className="font-medium">{detalles.direccion_entrega?.destinatario || 'Sin destinatario'}</p>
-                                                <p className="text-sm text-gray-600">{detalles.direccion_entrega?.direccion_completa || 'Sin dirección'}</p>
+                                            <Home className="w-4 h-4 text-gray-400" />
+                                            <div className="flex-1">
+                                                <p className="text-sm font-medium text-gray-800">{detalles.direccion_entrega?.destinatario || 'Sin destinatario'}</p>
+                                                <p className="text-xs text-gray-600 line-clamp-2">{detalles.direccion_entrega?.direccion_completa || 'Sin dirección'}</p>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-3">
-                                            <Phone className="w-5 h-5 text-gray-400" />
-                                            <span className="text-sm">{detalles.direccion_entrega?.telefono || 'Sin teléfono'}</span>
+                                            <Phone className="w-4 h-4 text-gray-400" />
+                                            <span className="text-sm font-medium">{detalles.direccion_entrega?.telefono || 'Sin teléfono'}</span>
                                         </div>
-                                    </div>
-                                    <div className="space-y-2 text-sm">
-                                        <div><strong>Departamento:</strong> {detalles.direccion_entrega?.departamento || 'N/A'}</div>
-                                        <div><strong>Provincia:</strong> {detalles.direccion_entrega?.provincia || 'N/A'}</div>
-                                        <div><strong>Distrito:</strong> {detalles.direccion_entrega?.distrito || 'N/A'}</div>
-                                        <div><strong>Código Postal:</strong> {detalles.direccion_entrega?.codigo_postal || 'N/A'}</div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div className="bg-purple-50 p-2 rounded-lg">
+                                                <p className="text-xs text-purple-800">
+                                                    <span className="font-medium">Depto:</span> {detalles.direccion_entrega?.departamento || 'N/A'}
+                                                </p>
+                                            </div>
+                                            <div className="bg-purple-50 p-2 rounded-lg">
+                                                <p className="text-xs text-purple-800">
+                                                    <span className="font-medium">Prov:</span> {detalles.direccion_entrega?.provincia || 'N/A'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        {detalles.direccion_entrega?.referencia && (
+                                            <div className="bg-gray-50 p-2 rounded-lg">
+                                                <p className="text-xs text-gray-600">
+                                                    <span className="font-medium">Ref:</span> {detalles.direccion_entrega.referencia}
+                                                </p>
+                                            </div>
+                                        )}
+                                        {detalles.direccion_entrega?.codigo_postal && (
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-xs text-gray-500">CP:</span>
+                                                <span className="text-xs font-medium text-gray-600">{detalles.direccion_entrega.codigo_postal}</span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
