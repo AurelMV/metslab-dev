@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
 import '../stayle/PedidosAdmin.css';
+import DetallePedido from './DetallePedido';
+import {
+    obtenerPedidos,
+    obtenerDetallePedido,
+    actualizarEstadoPedido,
+    actualizarEstadosLote as actualizarEstadosLoteService,
+    obtenerEstadosDisponibles,
+    handleAuthError
+} from '../services/pedidos-admin-service';
 import {
     Package,
     User,
@@ -35,11 +43,12 @@ import {
 } from 'lucide-react';
 
 const PedidosAdmin = () => {
-    const { user } = useAuth();
     const [pedidos, setPedidos] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [_error, setError] = useState(null);
+    const [error, setError] = useState(null);
     const [selectedPedidos, setSelectedPedidos] = useState([]);
+    const [showDetallePedido, setShowDetallePedido] = useState(false);
+    const [selectedPedidoId, setSelectedPedidoId] = useState(null);
     const [filtros, setFiltros] = useState({
         estado: '',
         tipo_entrega: '',
@@ -57,102 +66,38 @@ const PedidosAdmin = () => {
     const [showBatchModal, setShowBatchModal] = useState(false);
     const [batchNewState, setBatchNewState] = useState('');
     const [batchNotes, setBatchNotes] = useState('');
-    const [_showDetailsModal, _setShowDetailsModal] = useState(false);
-    const [_selectedPedidoDetails, _setSelectedPedidoDetails] = useState(null);
-    const [showAdminDetailsModal, setShowAdminDetailsModal] = useState(false);
-    const [selectedAdminPedidoDetails, setSelectedAdminPedidoDetails] = useState(null);
+    const [showDetailsModal, setShowDetailsModal] = useState(false);
+    const [selectedPedidoDetails, setSelectedPedidoDetails] = useState(null);
 
     // Función para mostrar detalles del pedido
     const mostrarDetalles = async (pedidoId) => {
         try {
-            const token = localStorage.getItem('token');
-            console.log('Mostrando detalles del pedido:', pedidoId);
-            
-            const response = await fetch(`http://localhost:8000/api/admin/pedidos/${pedidoId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                console.error('Error al cargar detalles:', response.status);
-                throw new Error('Error al cargar detalles');
-            }
-
-            const data = await response.json();
-            console.log('Detalles del pedido:', data);
-            _setSelectedPedidoDetails(data.data);
-            _setShowDetailsModal(true);
+            const data = await obtenerDetallePedido(pedidoId);
+            setSelectedPedidoDetails(data.data);
+            setShowDetailsModal(true);
         } catch (err) {
             console.error('Error:', err);
+            handleAuthError(err);
             alert(`Error: ${err.message}`);
         }
     };
 
-    // Función para mostrar detalles del pedido para el administrador
-    const mostrarDetallesAdmin = async (pedidoId) => {
-        try {
-            const token = localStorage.getItem('token');
-            console.log('Cargando detalles administrativos del pedido:', pedidoId);
-            
-            const response = await fetch(`http://localhost:8000/api/admin/pedidos/${pedidoId}/detalles-admin`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                console.error('Error al cargar detalles administrativos:', response.status);
-                throw new Error('Error al cargar detalles administrativos');
-            }
-
-            const data = await response.json();
-            console.log('Detalles administrativos del pedido:', data);
-            setSelectedAdminPedidoDetails(data.data);
-            setShowAdminDetailsModal(true);
-        } catch (err) {
-            console.error('Error:', err);
-            alert(`Error: ${err.message}`);
-        }
+    // Función para mostrar detalles del pedido con el componente DetallePedido
+    const mostrarDetallesPedido = (pedidoId) => {
+        setSelectedPedidoId(pedidoId);
+        setShowDetallePedido(true);
     };
 
     // Cargar pedidos
     const cargarPedidos = async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem('token');
-            console.log('Token encontrado:', token ? 'Sí' : 'No');
-            
-            const params = new URLSearchParams({
-                page: paginacion.page,
-                limit: paginacion.limit,
-                ...filtros
-            });
+            const data = await obtenerPedidos(
+                filtros,
+                paginacion.page,
+                paginacion.limit
+            );
 
-            const url = `http://localhost:8000/api/admin/pedidos?${params}`;
-            console.log('URL de la API:', url);
-
-            const response = await fetch(url, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            console.log('Response status:', response.status);
-            console.log('Response ok:', response.ok);
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('Error response:', errorText);
-                throw new Error(`Error al cargar pedidos: ${response.status}`);
-            }
-
-            const data = await response.json();
-            console.log('Datos recibidos:', data);
-            
             setPedidos(data.data || []);
             setPaginacion(prev => ({
                 ...prev,
@@ -162,6 +107,7 @@ const PedidosAdmin = () => {
 
         } catch (err) {
             console.error('Error al cargar pedidos:', err);
+            handleAuthError(err);
             setError(err.message);
             setPedidos([]);
         } finally {
@@ -172,35 +118,16 @@ const PedidosAdmin = () => {
     // Cargar estados disponibles
     const cargarEstados = async () => {
         try {
-            const token = localStorage.getItem('token');
-            console.log('Cargando estados disponibles...');
-            
-            const response = await fetch('http://localhost:8000/api/admin/estados-disponibles', {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                console.error('Error al cargar estados:', response.status);
-                throw new Error('Error al cargar estados');
-            }
-
-            const data = await response.json();
-            console.log('Estados disponibles:', data);
+            const data = await obtenerEstadosDisponibles();
             setEstadosDisponibles(data.data || []);
         } catch (err) {
             console.error('Error cargando estados:', err);
+            handleAuthError(err);
             setEstadosDisponibles([]);
         }
     };
 
     useEffect(() => {
-        console.log('=== PedidosAdmin montado ===');
-        console.log('Usuario autenticado:', user);
-        console.log('Token en localStorage:', localStorage.getItem('token'));
-        
         // Cargar datos iniciales
         cargarPedidos();
         cargarEstados();
@@ -226,60 +153,92 @@ const PedidosAdmin = () => {
     // Actualizar estado individual
     const actualizarEstado = async (pedidoId, nuevoEstado) => {
         try {
-            const response = await fetch(`http://localhost:8000/api/admin/pedidos/${pedidoId}/estado`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    nuevo_estado: nuevoEstado
-                })
-            });
-
-            if (!response.ok) throw new Error('Error al actualizar estado');
+            const data = await actualizarEstadoPedido(pedidoId, nuevoEstado);
 
             // Recargar pedidos
             cargarPedidos();
+
+            // Mostrar mensaje de éxito
+            if (data.success) {
+                // Silencioso para mejor UX, solo recargar datos
+            }
+
         } catch (err) {
-            alert(`Error: ${err.message}`);
+            console.error('Error:', err);
+            handleAuthError(err);
+            alert(`Error al actualizar estado: ${err.message}`);
         }
     };
 
     // Actualizar estados por lotes
     const actualizarEstadosLote = async () => {
+        const validacion = validarSeleccionLote();
+        if (!validacion.valid) {
+            alert(validacion.message);
+            return;
+        }
+        
         if (selectedPedidos.length === 0 || !batchNewState) return;
 
         try {
-            const response = await fetch('http://localhost:8000/api/admin/pedidos/estados/lote', {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    pedidos: selectedPedidos,
-                    nuevo_estado: batchNewState,
-                    notas: batchNotes
-                })
-            });
+            const data = await actualizarEstadosLoteService(selectedPedidos, batchNewState, batchNotes);
 
-            if (!response.ok) throw new Error('Error al actualizar estados');
-
-            const data = await response.json();
-            alert(`Estados actualizados: ${data.data.actualizados} exitosos, ${data.data.errores} errores`);
-
-            // Limpiar selección y cerrar modal
-            setSelectedPedidos([]);
-            setShowBatchModal(false);
-            setBatchNewState('');
-            setBatchNotes('');
-
-            // Recargar pedidos
-            cargarPedidos();
+            if (data.success) {
+                alert(`Estados actualizados exitosamente. ${data.data.actualizados} pedidos actualizados, ${data.data.errores} errores.`);
+                
+                // Limpiar selección y cerrar modal
+                setSelectedPedidos([]);
+                setShowBatchModal(false);
+                setBatchNewState('');
+                setBatchNotes('');
+                
+                // Recargar pedidos
+                cargarPedidos();
+            } else {
+                alert('Error al actualizar estados: ' + data.message);
+            }
         } catch (err) {
-            alert(`Error: ${err.message}`);
+            console.error('Error:', err);
+            handleAuthError(err);
+            alert(`Error al actualizar estados: ${err.message}`);
         }
+    };
+
+    // Validar que los pedidos seleccionados compartan estados compatibles
+    const validarSeleccionLote = () => {
+        if (selectedPedidos.length === 0) return { valid: false, message: 'No hay pedidos seleccionados' };
+        
+        const pedidosSeleccionados = pedidos.filter(p => selectedPedidos.includes(p.id));
+        const estadosUnicos = [...new Set(pedidosSeleccionados.map(p => p.estado))];
+        
+        if (estadosUnicos.length > 1) {
+            return {
+                valid: false,
+                message: `Los pedidos seleccionados tienen estados diferentes (${estadosUnicos.join(', ')}). Para actualizar por lotes, selecciona pedidos que compartan el mismo estado.`
+            };
+        }
+        
+        return { valid: true, estadoActual: estadosUnicos[0] };
+    };
+
+    // Obtener estados disponibles para actualización por lotes
+    const getEstadosDisponiblesParaLote = () => {
+        const validacion = validarSeleccionLote();
+        if (!validacion.valid) return [];
+        
+        const pedidoEjemplo = pedidos.find(p => p.estado === validacion.estadoActual);
+        if (!pedidoEjemplo || !pedidoEjemplo.siguientes_estados) return [];
+        
+        return pedidoEjemplo.siguientes_estados
+            .filter(estado => estado !== 'pedido_realizado') // Excluir pedido_realizado
+            .map(estado => {
+                const estadoInfo = estadosDisponibles.find(e => e.valor === estado);
+                return {
+                    valor: estado,
+                    nombre: estadoInfo?.nombre || estado,
+                    fase: estadoInfo?.fase || 'N/A'
+                };
+            });
     };
 
     // Obtener icono para el estado
@@ -304,6 +263,17 @@ const PedidosAdmin = () => {
             case 'retrasado':
             case 'intento_entrega':
                 return <AlertCircle className="w-4 h-4" />;
+            case 'perdido':
+                return <X className="w-4 h-4" />;
+            case 'pendiente_recogida':
+                return <Package className="w-4 h-4" />;
+            case 'devuelto':
+                return <RefreshCw className="w-4 h-4" />;
+            case 'cancelado':
+            case 'rechazado':
+                return <X className="w-4 h-4" />;
+            case 'archivado':
+                return <FileText className="w-4 h-4" />;
             default:
                 return <Package className="w-4 h-4" />;
         }
@@ -330,9 +300,17 @@ const PedidosAdmin = () => {
             case 'retrasado':
             case 'intento_entrega':
                 return 'badge-orange';
+            case 'perdido':
+                return 'badge-red';
+            case 'pendiente_recogida':
+                return 'badge-blue';
+            case 'devuelto':
+                return 'badge-orange';
             case 'cancelado':
             case 'rechazado':
                 return 'badge-red';
+            case 'archivado':
+                return 'badge-gray';
             default:
                 return 'badge-gray';
         }
@@ -344,6 +322,26 @@ const PedidosAdmin = () => {
                 <div className="loading-state">
                     <RefreshCw className="w-8 h-8 animate-spin text-primary-500" />
                     <p>Cargando pedidos de todos los usuarios...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="section-content">
+                <div className="error-state">
+                    <AlertCircle className="w-8 h-8 text-red-500" />
+                    <p className="text-red-600">Error: {error}</p>
+                    <button
+                        onClick={() => {
+                            setError(null);
+                            cargarPedidos();
+                        }}
+                        className="btn-primary mt-4"
+                    >
+                        Reintentar
+                    </button>
                 </div>
             </div>
         );
@@ -418,7 +416,12 @@ const PedidosAdmin = () => {
                         <div>
                             <h3 className="text-sm font-medium text-gray-500">Ingresos</h3>
                             <p className="text-xl font-bold text-purple-600">
-                                S/ {pedidos.reduce((sum, p) => sum + parseFloat(p.total_pago.replace(',', '')), 0).toFixed(0)}
+                                S/ {pedidos.reduce((sum, p) => {
+                                    const total = typeof p.total_pago === 'string'
+                                        ? parseFloat(p.total_pago.replace(/[^0-9.-]+/g, ''))
+                                        : parseFloat(p.total_pago) || 0;
+                                    return sum + total;
+                                }, 0).toFixed(0)}
                             </p>
                         </div>
                         <div className="p-2 bg-purple-100 rounded-lg">
@@ -480,7 +483,7 @@ const PedidosAdmin = () => {
                             >
                                 <option value="">Todos los tipos</option>
                                 <option value="delivery">Delivery</option>
-                                <option value="recojo_tienda">Recojo en tienda</option>
+                                <option value="pickup">Recojo en tienda</option>
                             </select>
                         </div>
                     </div>
@@ -612,7 +615,7 @@ const PedidosAdmin = () => {
                                         <div className="text-sm">
                                             <div className="font-medium flex items-center gap-1">
                                                 <ShoppingCart className="w-4 h-4 text-gray-400" />
-                                                {pedido.total_productos} producto(s)
+                                                {pedido.total_productos || 0} producto(s)
                                             </div>
                                             <div className="text-secondary-500 mt-1">
                                                 {pedido.estado_pago ? `Pago: ${pedido.estado_pago}` : 'N/A'}
@@ -620,7 +623,7 @@ const PedidosAdmin = () => {
                                         </div>
                                     </td>
                                     <td className="font-medium text-secondary-900">
-                                        <div className="text-lg font-bold">S/ {pedido.total_pago}</div>
+                                        <div className="text-lg font-bold">S/ {pedido.total_pago || '0.00'}</div>
                                     </td>
                                     <td>
                                         <div className="flex items-center space-x-2">
@@ -647,16 +650,16 @@ const PedidosAdmin = () => {
                                     </td>
                                     <td>
                                         <span className="text-sm text-secondary-600 font-medium">
-                                            {pedido.fase_actual}
+                                            {pedido.fase_actual || 'N/A'}
                                         </span>
                                     </td>
                                     <td>
                                         <div className="text-sm">
                                             <div className="text-secondary-600">
-                                                {pedido.tiempo_transcurrido}
+                                                {pedido.tiempo_transcurrido || 'N/A'}
                                             </div>
                                             <div className="text-xs text-secondary-500">
-                                                {pedido.dias_desde_pedido} días
+                                                {pedido.dias_desde_pedido || 0} días
                                             </div>
                                         </div>
                                     </td>
@@ -664,8 +667,8 @@ const PedidosAdmin = () => {
                                         <div className="flex space-x-2">
                                             <button
                                                 className="action-btn hover:bg-blue-50 hover:text-blue-600"
-                                                title="Ver detalles administrativos"
-                                                onClick={() => mostrarDetallesAdmin(pedido.id)}
+                                                title="Ver detalles completos del pedido"
+                                                onClick={() => mostrarDetallesPedido(pedido.id)}
                                             >
                                                 <Eye className="w-4 h-4" />
                                             </button>
@@ -684,11 +687,13 @@ const PedidosAdmin = () => {
                                                         className="text-xs form-select bg-white border-gray-300 hover:border-primary-400 focus:border-primary-500"
                                                     >
                                                         <option value={pedido.estado}>{pedido.estado_formateado}</option>
-                                                        {pedido.siguientes_estados.map(estado => (
-                                                            <option key={estado} value={estado}>
-                                                                {estadosDisponibles.find(e => e.valor === estado)?.nombre || estado}
-                                                            </option>
-                                                        ))}
+                                                        {pedido.siguientes_estados && pedido.siguientes_estados
+                                                            .filter(estado => estado !== 'pedido_realizado') // Excluir pedido_realizado
+                                                            .map(estado => (
+                                                                <option key={estado} value={estado}>
+                                                                    {estadosDisponibles.find(e => e.valor === estado)?.nombre || estado}
+                                                                </option>
+                                                            ))}
                                                     </select>
                                                 </div>
                                             )}
@@ -744,47 +749,72 @@ const PedidosAdmin = () => {
                             </button>
                         </div>
                         <div className="modal-body">
-                            <div className="mb-4 p-4 bg-blue-50 rounded-lg">
-                                <p className="text-blue-800 text-sm font-medium flex items-center gap-2">
-                                    <CheckSquare className="w-4 h-4" />
-                                    Se actualizarán {selectedPedidos.length} pedidos seleccionados
-                                </p>
-                            </div>
+                            {(() => {
+                                const validacion = validarSeleccionLote();
+                                const estadosDisponiblesLote = getEstadosDisponiblesParaLote();
+                                
+                                if (!validacion.valid) {
+                                    return (
+                                        <div className="mb-4 p-4 bg-red-50 rounded-lg">
+                                            <p className="text-red-800 text-sm font-medium flex items-center gap-2">
+                                                <AlertCircle className="w-4 h-4" />
+                                                {validacion.message}
+                                            </p>
+                                        </div>
+                                    );
+                                }
+                                
+                                return (
+                                    <>
+                                        <div className="mb-4 p-4 bg-blue-50 rounded-lg">
+                                            <p className="text-blue-800 text-sm font-medium flex items-center gap-2">
+                                                <CheckSquare className="w-4 h-4" />
+                                                Se actualizarán {selectedPedidos.length} pedido(s) con estado actual: <strong>{validacion.estadoActual}</strong>
+                                            </p>
+                                        </div>
 
-                            <div className="form-group">
-                                <label className="form-label font-semibold">Nuevo estado *</label>
-                                <select
-                                    value={batchNewState}
-                                    onChange={(e) => setBatchNewState(e.target.value)}
-                                    className="form-select w-full"
-                                >
-                                    <option value="">Seleccionar estado</option>
-                                    {estadosDisponibles.map(estado => (
-                                        <option key={estado.valor} value={estado.valor}>
-                                            {estado.nombre} - {estado.fase}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
+                                        <div className="form-group">
+                                            <label className="form-label font-semibold">Nuevo estado *</label>
+                                            <select
+                                                value={batchNewState}
+                                                onChange={(e) => setBatchNewState(e.target.value)}
+                                                className="form-select w-full"
+                                            >
+                                                <option value="">Seleccionar estado</option>
+                                                {estadosDisponiblesLote.map(estado => (
+                                                    <option key={estado.valor} value={estado.valor}>
+                                                        {estado.nombre} - {estado.fase}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {estadosDisponiblesLote.length === 0 && (
+                                                <p className="text-sm text-gray-500 mt-2">
+                                                    No hay estados disponibles para la transición desde el estado actual.
+                                                </p>
+                                            )}
+                                        </div>
 
-                            <div className="form-group">
-                                <label className="form-label font-semibold">Notas administrativas (opcional)</label>
-                                <textarea
-                                    value={batchNotes}
-                                    onChange={(e) => setBatchNotes(e.target.value)}
-                                    className="form-input w-full"
-                                    rows={4}
-                                    placeholder="Agregar notas sobre el cambio de estado (se añadirán al historial del pedido)..."
-                                />
-                            </div>
+                                        <div className="form-group">
+                                            <label className="form-label font-semibold">Notas administrativas (opcional)</label>
+                                            <textarea
+                                                value={batchNotes}
+                                                onChange={(e) => setBatchNotes(e.target.value)}
+                                                className="form-input w-full"
+                                                rows={4}
+                                                placeholder="Agregar notas sobre el cambio de estado (se añadirán al historial del pedido)..."
+                                            />
+                                        </div>
 
-                            <div className="bg-yellow-50 p-4 rounded-lg">
-                                <p className="text-yellow-800 text-sm flex items-center gap-2">
-                                    <AlertCircle className="w-4 h-4" />
-                                    <strong>Atención:</strong> Esta acción actualizará el estado de todos los pedidos seleccionados.
-                                    Solo se aplicará a pedidos que permitan la transición al nuevo estado.
-                                </p>
-                            </div>
+                                        <div className="bg-yellow-50 p-4 rounded-lg">
+                                            <p className="text-yellow-800 text-sm flex items-center gap-2">
+                                                <AlertCircle className="w-4 h-4" />
+                                                <strong>Atención:</strong> Esta acción actualizará el estado de todos los pedidos seleccionados.
+                                                Solo se aplicará a pedidos que permitan la transición al nuevo estado.
+                                            </p>
+                                        </div>
+                                    </>
+                                );
+                            })()}
                         </div>
                         <div className="modal-footer">
                             <button
@@ -793,21 +823,29 @@ const PedidosAdmin = () => {
                             >
                                 Cancelar
                             </button>
-                            <button
-                                onClick={actualizarEstadosLote}
-                                disabled={!batchNewState}
-                                className={`btn-primary ${!batchNewState ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            >
-                                <Check className="w-4 h-4 mr-2" />
-                                Actualizar Estados
-                            </button>
+                            {(() => {
+                                const validacion = validarSeleccionLote();
+                                const estadosDisponiblesLote = getEstadosDisponiblesParaLote();
+                                const isDisabled = !validacion.valid || !batchNewState || estadosDisponiblesLote.length === 0;
+                                
+                                return (
+                                    <button
+                                        onClick={actualizarEstadosLote}
+                                        disabled={isDisabled}
+                                        className={`btn-primary ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    >
+                                        <Check className="w-4 h-4 mr-2" />
+                                        Actualizar Estados
+                                    </button>
+                                );
+                            })()}
                         </div>
                     </div>
                 </div>
             )}
 
             {/* Modal de detalles del pedido - Diseño mejorado */}
-            {_showDetailsModal && _selectedPedidoDetails && (
+            {showDetailsModal && selectedPedidoDetails && (
                 <div className="modal-overlay">
                     <div className="modal-content max-w-6xl">
                         <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-lg">
@@ -815,10 +853,10 @@ const PedidosAdmin = () => {
                                 <div className="p-2 bg-white/20 rounded-lg">
                                     <FileText className="w-6 h-6" />
                                 </div>
-                                Detalles del Pedido #{_selectedPedidoDetails.numero_pedido}
+                                Detalles del Pedido #{selectedPedidoDetails.numero_pedido}
                             </h3>
                             <button
-                                onClick={() => _setShowDetailsModal(false)}
+                                onClick={() => setShowDetailsModal(false)}
                                 className="absolute top-4 right-4 p-2 hover:bg-white/20 rounded-lg transition-colors"
                             >
                                 <X className="w-6 h-6" />
@@ -837,19 +875,19 @@ const PedidosAdmin = () => {
                                     <div className="space-y-3">
                                         <div className="flex items-center gap-3">
                                             <span className="text-sm text-gray-500 w-20">Nombre:</span>
-                                            <span className="font-medium">{_selectedPedidoDetails.cliente?.nombre || 'Sin nombre'}</span>
+                                            <span className="font-medium">{selectedPedidoDetails.cliente?.nombre || 'Sin nombre'}</span>
                                         </div>
                                         <div className="flex items-center gap-3">
                                             <span className="text-sm text-gray-500 w-20">Email:</span>
-                                            <span className="font-medium">{_selectedPedidoDetails.cliente?.email || 'Sin email'}</span>
+                                            <span className="font-medium">{selectedPedidoDetails.cliente?.email || 'Sin email'}</span>
                                         </div>
                                         <div className="flex items-center gap-3">
                                             <span className="text-sm text-gray-500 w-20">Teléfono:</span>
-                                            <span className="font-medium">{_selectedPedidoDetails.telefono_contacto || 'Sin teléfono'}</span>
+                                            <span className="font-medium">{selectedPedidoDetails.telefono_contacto || 'Sin teléfono'}</span>
                                         </div>
                                         <div className="flex items-start gap-3">
                                             <span className="text-sm text-gray-500 w-20">Dirección:</span>
-                                            <span className="font-medium">{_selectedPedidoDetails.direccion_entrega || 'Sin dirección'}</span>
+                                            <span className="font-medium">{selectedPedidoDetails.direccion_entrega || 'Sin dirección'}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -865,25 +903,25 @@ const PedidosAdmin = () => {
                                     <div className="space-y-3">
                                         <div className="flex items-center gap-3">
                                             <span className="text-sm text-gray-500 w-20">Fecha:</span>
-                                            <span className="font-medium">{_selectedPedidoDetails.fecha_pedido}</span>
+                                            <span className="font-medium">{selectedPedidoDetails.fecha_pedido}</span>
                                         </div>
                                         <div className="flex items-center gap-3">
                                             <span className="text-sm text-gray-500 w-20">Estado:</span>
                                             <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                                                {_selectedPedidoDetails.estado_formateado}
+                                                {selectedPedidoDetails.estado_formateado}
                                             </span>
                                         </div>
                                         <div className="flex items-center gap-3">
                                             <span className="text-sm text-gray-500 w-20">Fase:</span>
-                                            <span className="font-medium">{_selectedPedidoDetails.fase_actual}</span>
+                                            <span className="font-medium">{selectedPedidoDetails.fase_actual}</span>
                                         </div>
                                         <div className="flex items-center gap-3">
                                             <span className="text-sm text-gray-500 w-20">Tipo:</span>
-                                            <span className="font-medium">{_selectedPedidoDetails.tipo_entrega === 'delivery' ? 'Delivery' : 'Recojo en tienda'}</span>
+                                            <span className="font-medium">{selectedPedidoDetails.tipo_entrega === 'delivery' ? 'Delivery' : 'Recojo en tienda'}</span>
                                         </div>
                                         <div className="flex items-center gap-3">
                                             <span className="text-sm text-gray-500 w-20">Total:</span>
-                                            <span className="text-xl font-bold text-green-600">S/ {_selectedPedidoDetails.total_pago}</span>
+                                            <span className="text-xl font-bold text-green-600">S/ {selectedPedidoDetails.total_pago}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -908,16 +946,16 @@ const PedidosAdmin = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {_selectedPedidoDetails.items.map((item, index) => (
+                                            {selectedPedidoDetails.items && selectedPedidoDetails.items.map((item, index) => (
                                                 <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
-                                                    <td className="py-3 px-4 font-medium">{item.modelo}</td>
+                                                    <td className="py-3 px-4 font-medium">{item.modelo || 'Sin modelo'}</td>
                                                     <td className="py-3 px-4 text-center">
                                                         <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
-                                                            {item.cantidad}
+                                                            {item.cantidad || 0}
                                                         </span>
                                                     </td>
-                                                    <td className="py-3 px-4 text-right font-medium">S/ {item.precio_unitario}</td>
-                                                    <td className="py-3 px-4 text-right font-bold text-green-600">S/ {item.subtotal}</td>
+                                                    <td className="py-3 px-4 text-right font-medium">S/ {item.precio_unitario || '0.00'}</td>
+                                                    <td className="py-3 px-4 text-right font-bold text-green-600">S/ {item.subtotal || '0.00'}</td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -926,7 +964,7 @@ const PedidosAdmin = () => {
                             </div>
 
                             {/* Notas */}
-                            {_selectedPedidoDetails.notas && (
+                            {selectedPedidoDetails.notas && (
                                 <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm mt-6">
                                     <h4 className="text-xl font-semibold text-gray-800 flex items-center gap-3 mb-4">
                                         <div className="p-2 bg-yellow-100 rounded-lg">
@@ -935,7 +973,7 @@ const PedidosAdmin = () => {
                                         Notas del Pedido
                                     </h4>
                                     <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
-                                        <p className="whitespace-pre-wrap text-gray-700">{_selectedPedidoDetails.notas}</p>
+                                        <p className="whitespace-pre-wrap text-gray-700">{selectedPedidoDetails.notas}</p>
                                     </div>
                                 </div>
                             )}
@@ -944,255 +982,12 @@ const PedidosAdmin = () => {
                 </div>
             )}
 
-            {/* Modal de detalles administrativos del pedido */}
-            {showAdminDetailsModal && selectedAdminPedidoDetails && (
-                <div className="modal-overlay">
-                    <div className="modal-content max-w-7xl">
-                        <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-6 rounded-t-lg">
-                            <h3 className="text-2xl font-bold flex items-center gap-3">
-                                <div className="p-2 bg-white/20 rounded-lg">
-                                    <FileText className="w-6 h-6" />
-                                </div>
-                                Detalles Administrativos - Pedido #{selectedAdminPedidoDetails.numero_pedido}
-                            </h3>
-                            <button
-                                onClick={() => setShowAdminDetailsModal(false)}
-                                className="absolute top-4 right-4 p-2 hover:bg-white/20 rounded-lg transition-colores"
-                            >
-                                <X className="w-6 h-6" />
-                            </button>
-                        </div>
-                        <div className="p-6">
-                            {/* Información general del pedido */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                                {/* Estado y control */}
-                                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-                                    <h4 className="text-xl font-semibold text-gray-800 flex items-center gap-3 mb-4">
-                                        <div className="p-2 bg-purple-100 rounded-lg">
-                                            <Star className="w-5 h-5 text-purple-600" />
-                                        </div>
-                                        Estado del Pedido
-                                    </h4>
-                                    <div className="space-y-4">
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-sm text-gray-500 w-20">Estado:</span>
-                                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${getEstadoClass(selectedAdminPedidoDetails.estado)}`}>
-                                                {getEstadoIcon(selectedAdminPedidoDetails.estado)}
-                                                {selectedAdminPedidoDetails.estado_formateado}
-                                            </span>
-                                        </div>
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-sm text-gray-500 w-20">Fase:</span>
-                                            <span className="font-medium">{selectedAdminPedidoDetails.fase_actual}</span>
-                                        </div>
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-sm text-gray-500 w-20">Tiempo:</span>
-                                            <span className="font-medium">{selectedAdminPedidoDetails.tiempo_transcurrido}</span>
-                                        </div>
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-sm text-gray-500 w-20">Días:</span>
-                                            <span className="font-medium">{selectedAdminPedidoDetails.dias_desde_pedido} días</span>
-                                        </div>
-                                        {selectedAdminPedidoDetails.puede_cambiar_estado && (
-                                            <div className="pt-4 border-t">
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Cambiar Estado:</label>
-                                                <select
-                                                    value={selectedAdminPedidoDetails.estado}
-                                                    onChange={(e) => actualizarEstado(selectedAdminPedidoDetails.id, e.target.value)}
-                                                    className="w-full form-select"
-                                                >
-                                                    <option value={selectedAdminPedidoDetails.estado}>{selectedAdminPedidoDetails.estado_formateado}</option>
-                                                    {selectedAdminPedidoDetails.siguientes_estados.map(estado => (
-                                                        <option key={estado} value={estado}>
-                                                            {estadosDisponibles.find(e => e.valor === estado)?.nombre || estado}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* Información del cliente */}
-                                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-                                    <h4 className="text-xl font-semibold text-gray-800 flex items-center gap-3 mb-4">
-                                        <div className="p-2 bg-blue-100 rounded-lg">
-                                            <User className="w-5 h-5 text-blue-600" />
-                                        </div>
-                                        Cliente
-                                    </h4>
-                                    <div className="space-y-3">
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-sm text-gray-500 w-20">ID:</span>
-                                            <span className="font-medium">#{selectedAdminPedidoDetails.user_id}</span>
-                                        </div>
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-sm text-gray-500 w-20">Nombre:</span>
-                                            <span className="font-medium">{selectedAdminPedidoDetails.cliente?.nombre || 'Sin nombre'}</span>
-                                        </div>
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-sm text-gray-500 w-20">Email:</span>
-                                            <span className="font-medium">{selectedAdminPedidoDetails.cliente?.email || 'Sin email'}</span>
-                                        </div>
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-sm text-gray-500 w-20">Teléfono:</span>
-                                            <span className="font-medium">{selectedAdminPedidoDetails.telefono_contacto || 'Sin teléfono'}</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Información de entrega */}
-                                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-                                    <h4 className="text-xl font-semibold text-gray-800 flex items-center gap-3 mb-4">
-                                        <div className="p-2 bg-green-100 rounded-lg">
-                                            <Truck className="w-5 h-5 text-green-600" />
-                                        </div>
-                                        Entrega
-                                    </h4>
-                                    <div className="space-y-3">
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-sm text-gray-500 w-20">Tipo:</span>
-                                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${selectedAdminPedidoDetails.tipo_entrega === 'delivery' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}`}>
-                                                {selectedAdminPedidoDetails.tipo_entrega === 'delivery' ? 'Delivery' : 'Recojo en tienda'}
-                                            </span>
-                                        </div>
-                                        <div className="flex items-start gap-3">
-                                            <span className="text-sm text-gray-500 w-20">Dirección:</span>
-                                            <span className="font-medium">{selectedAdminPedidoDetails.direccion_entrega || 'Sin dirección'}</span>
-                                        </div>
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-sm text-gray-500 w-20">Fecha:</span>
-                                            <span className="font-medium">{selectedAdminPedidoDetails.fecha_entrega || 'Sin fecha'}</span>
-                                        </div>
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-sm text-gray-500 w-20">Hora:</span>
-                                            <span className="font-medium">{selectedAdminPedidoDetails.hora_entrega || 'Sin hora'}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Información de pago */}
-                            <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm mb-6">
-                                <h4 className="text-xl font-semibold text-gray-800 flex items-center gap-3 mb-4">
-                                    <div className="p-2 bg-yellow-100 rounded-lg">
-                                        <CreditCard className="w-5 h-5 text-yellow-600" />
-                                    </div>
-                                    Información de Pago
-                                </h4>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <div>
-                                        <span className="text-sm text-gray-500">Total del Pedido:</span>
-                                        <p className="text-2xl font-bold text-green-600">S/ {selectedAdminPedidoDetails.total_pago}</p>
-                                    </div>
-                                    <div>
-                                        <span className="text-sm text-gray-500">Estado del Pago:</span>
-                                        <p className="font-medium">{selectedAdminPedidoDetails.estado_pago || 'Sin información'}</p>
-                                    </div>
-                                    <div>
-                                        <span className="text-sm text-gray-500">Método de Pago:</span>
-                                        <p className="font-medium">{selectedAdminPedidoDetails.metodo_pago || 'Sin información'}</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Productos del pedido */}
-                            <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm mb-6">
-                                <h4 className="text-xl font-semibold text-gray-800 flex items-center gap-3 mb-4">
-                                    <div className="p-2 bg-indigo-100 rounded-lg">
-                                        <ShoppingCart className="w-5 h-5 text-indigo-600" />
-                                    </div>
-                                    Productos del Pedido ({selectedAdminPedidoDetails.total_productos} items)
-                                </h4>
-                                <div className="overflow-x-auto">
-                                    <table className="w-full">
-                                        <thead>
-                                            <tr className="border-b border-gray-200">
-                                                <th className="text-left py-3 px-4 font-semibold text-gray-700">Producto</th>
-                                                <th className="text-center py-3 px-4 font-semibold text-gray-700">Cantidad</th>
-                                                <th className="text-right py-3 px-4 font-semibold text-gray-700">Precio Unit.</th>
-                                                <th className="text-right py-3 px-4 font-semibold text-gray-700">Subtotal</th>
-                                                <th className="text-center py-3 px-4 font-semibold text-gray-700">Estado</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {selectedAdminPedidoDetails.items && selectedAdminPedidoDetails.items.map((item, index) => (
-                                                <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
-                                                    <td className="py-3 px-4">
-                                                        <div>
-                                                            <div className="font-medium">{item.modelo}</div>
-                                                            <div className="text-sm text-gray-500">SKU: {item.sku || 'N/A'}</div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="py-3 px-4 text-center">
-                                                        <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
-                                                            {item.cantidad}
-                                                        </span>
-                                                    </td>
-                                                    <td className="py-3 px-4 text-right font-medium">S/ {item.precio_unitario}</td>
-                                                    <td className="py-3 px-4 text-right font-bold text-green-600">S/ {item.subtotal}</td>
-                                                    <td className="py-3 px-4 text-center">
-                                                        <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
-                                                            {item.estado || 'Disponible'}
-                                                        </span>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-
-                            {/* Historial de cambios */}
-                            {selectedAdminPedidoDetails.historial && selectedAdminPedidoDetails.historial.length > 0 && (
-                                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm mb-6">
-                                    <h4 className="text-xl font-semibold text-gray-800 flex items-center gap-3 mb-4">
-                                        <div className="p-2 bg-red-100 rounded-lg">
-                                            <Calendar className="w-5 h-5 text-red-600" />
-                                        </div>
-                                        Historial de Cambios
-                                    </h4>
-                                    <div className="space-y-3">
-                                        {selectedAdminPedidoDetails.historial.map((cambio, index) => (
-                                            <div key={index} className="border-l-4 border-blue-400 pl-4 py-2">
-                                                <div className="flex justify-between items-start">
-                                                    <div>
-                                                        <p className="font-medium text-gray-800">{cambio.descripcion}</p>
-                                                        <p className="text-sm text-gray-500">
-                                                            {cambio.usuario} • {cambio.fecha}
-                                                        </p>
-                                                    </div>
-                                                    <span className={`px-2 py-1 rounded-full text-xs ${getEstadoClass(cambio.estado_nuevo)}`}>
-                                                        {cambio.estado_nuevo}
-                                                    </span>
-                                                </div>
-                                                {cambio.notas && (
-                                                    <p className="text-sm text-gray-600 mt-1 italic">"{cambio.notas}"</p>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Notas administrativas */}
-                            {selectedAdminPedidoDetails.notas && (
-                                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-                                    <h4 className="text-xl font-semibold text-gray-800 flex items-center gap-3 mb-4">
-                                        <div className="p-2 bg-yellow-100 rounded-lg">
-                                            <FileText className="w-5 h-5 text-yellow-600" />
-                                        </div>
-                                        Notas Administrativas
-                                    </h4>
-                                    <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
-                                        <p className="whitespace-pre-wrap text-gray-700">{selectedAdminPedidoDetails.notas}</p>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
+            {/* Componente DetallePedido para mostrar detalles específicos */}
+            <DetallePedido
+                isOpen={showDetallePedido}
+                pedidoId={selectedPedidoId}
+                onClose={() => setShowDetallePedido(false)}
+            />
         </div>
     );
 };

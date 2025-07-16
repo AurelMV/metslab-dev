@@ -38,7 +38,7 @@ export default function Admin() {
   const [pedidosPorMes, setPedidosPorMes] = useState([]);
   const [ingresosPorMes, setIngresosPorMes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [Error, setError] = useState(null);
   const [anioSeleccionado, setAnioSeleccionado] = useState(new Date().getFullYear());
   const [aniosDisponibles, setAniosDisponibles] = useState([]);
 
@@ -151,25 +151,6 @@ export default function Admin() {
     }
     setShowModal(false);
     setEditingItem(null);
-  };
-
-  const handleDelete = (id) => {
-    if (confirm("¿Estás seguro de que quieres eliminar este elemento?")) {
-      switch (activeSection) {
-        case "models":
-          // Función deshabilitada temporalmente
-          break;
-        case "categories":
-          setCategoriesData((prev) => prev.filter((item) => item.id !== id));
-          break;
-        case "colors":
-          // Función deshabilitada temporalmente
-          break;
-        default:
-          // Manejar otros casos o un error si es necesario
-          break;
-      }
-    }
   };
 
   const renderModelsSection = () => {
