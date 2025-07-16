@@ -17,6 +17,7 @@ use App\Http\Controllers\Auth\ProfileController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\MetricsController;
 use App\Http\Controllers\SeguimientoController;
+use App\Http\Controllers\ReclamacionController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -64,7 +65,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Cambiar contraseña y actualizar perfil
     Route::post('/user/change-password', [ProfileController::class, 'changePassword']);
     Route::put('/user/profile', [ProfileController::class, 'updateProfile']);
-
+    Route::post('/reclamaciones', [ReclamacionController::class, 'store']);
     // Rutas protegidas
     Route::post('/create-preference', [App\Http\Controllers\PaymentController::class, 'createPreferenceFromCart']);
     Route::post('/create-custom-preference', [App\Http\Controllers\PaymentController::class, 'createPreferenceWithPaymentMethods']);
@@ -88,7 +89,8 @@ Route::middleware(['auth:sanctum', 'role:cliente'])->group(function () {
     Route::get('/seguimiento', [SeguimientoController::class, 'seguimiento']); // Pedidos activos que se pueden seguir
     Route::get('/historial', [SeguimientoController::class, 'historial']); // Historial completo de pedidos
     Route::get('/pedido/{id}/detalles', [SeguimientoController::class, 'detalles']); // Detalles completos de un pedido
-    
+    //Reclamaciones
+    Route::get('/mis-reclamaciones', [ReclamacionController::class, 'misReclamaciones']);
     // Puedes agregar aquí otras rutas exclusivas para clientes
     // Rutas para gestionar pedidos
     Route::post('/pedidos', [PedidoController::class, 'crearPedido']);
@@ -115,6 +117,10 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('/metricas/pedidos-por-mes', [MetricsController::class, 'pedidosPorMes']);
     Route::get('/metricas/ingresos-por-mes', [MetricsController::class, 'ingresosPorMes']);
     // Puedes agregar aquí otras rutas exclusivas para admin
+    // Rutas de reclamaciones
+    Route::get('/reclamaciones', [ReclamacionController::class, 'index']);
+    Route::get('/reclamaciones/{id}', [ReclamacionController::class, 'show']);
+    Route::get('/admin/reclamaciones', [ReclamacionController::class, 'index']);
 });
 Route::post('/categorias', [CategoriaController::class, 'store']);
     Route::put('/categorias/{id}', [CategoriaController::class, 'update']);

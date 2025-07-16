@@ -18,6 +18,7 @@ import {
   X,
   Search,
   ChartBar,
+  AlertCircle,
 } from "lucide-react";
 import { models3D, categories, mockOrders } from "../data/mockData"; // Assuming mockData exists and has the data
 import ModelosAdmin from "./ModelosAdmin";
@@ -36,6 +37,8 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import UsuariosAdmin from "../components/UsuariosAdmin";
+import ModalListadoReclamacionesAdmin from "../components/ModalListadoReclamacionesAdmin";
+import ListadoReclamacionesAdmin from "../components/ListadoReclamacionesAdmin";
 
 export default function Admin() {
   const { user, isAdmin } = useAuth();
@@ -74,6 +77,8 @@ export default function Admin() {
     new Date().getFullYear()
   );
   const [aniosDisponibles, setAniosDisponibles] = useState([]);
+  const [showAdminListadoModal, setShowAdminListadoModal] = useState(false);
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     let isMounted = true;
@@ -137,13 +142,14 @@ export default function Admin() {
     return <Navigate to="/" replace />;
   }
 
+  // Agrega el nuevo ítem al menú
   const menuItems = [
     { id: "models", label: "Gestión de Modelos", icon: Package },
     { id: "categories", label: "Categorías", icon: Tag },
-    // { id: "colors", label: "Colores", icon: Palette }, // Commented out as ColoresAdmin and ColorForm are not provided
     { id: "orders", label: "Pedidos", icon: ShoppingBag },
     { id: "metric", label: "Métricas", icon: ChartBar },
     { id: "users", label: "Usuarios", icon: Users },
+    { id: "reclamaciones", label: "Reclamaciones", icon: AlertCircle }, // Nuevo apartado
     { id: "profile", label: "Mi Perfil", icon: User },
   ];
 
@@ -630,20 +636,30 @@ export default function Admin() {
     );
   };
 
+  // Renderiza el contenido del apartado de reclamaciones SIN modal
+  const renderReclamacionesSection = () => (
+    <div className="section-content flex flex-col space-y-6">
+      <h2 className="text-2xl font-bold text-gray-900 mb-6">
+        Listado de Reclamaciones
+      </h2>
+      <ListadoReclamacionesAdmin token={token} />
+    </div>
+  );
+
   const renderContent = () => {
     switch (activeSection) {
       case "models":
         return renderModelsSection();
       case "categories":
         return renderCategoriesSection();
-      // case "colors": // Commented out as ColoresAdmin is not provided
-      //   return renderColorsSection();
       case "orders":
         return renderOrdersSection();
       case "metric":
         return renderMetricSection();
       case "users":
         return renderUsersSection();
+      case "reclamaciones":
+        return renderReclamacionesSection(); // Nuevo apartado
       case "profile":
         return renderProfileSection();
       default:
