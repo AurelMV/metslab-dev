@@ -22,6 +22,8 @@ import {
 } from "lucide-react";
 import { getSeguimientoPedidos, getHistorialPedidos, getDetallesPedido } from "../services/tracking-service";
 import OrderDetailsModal from "../components/OrderDetailsModal";
+import ModalReclamaciones from "../components/Modalreclamaciones";
+import ModalListadoReclamaciones from "../components/ModalListadoReclamaciones";
 
 // Import the pure CSS file
 import "../stayle/Profile.css"; // Adjust the path as per your file structure
@@ -44,6 +46,9 @@ export default function Profile() {
   const [activeTab, setActiveTab] = useState('seguimiento'); // 'seguimiento' o 'historial'
   const [orderDetails, setOrderDetails] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showReclamacionModal, setShowReclamacionModal] = useState(false);
+  const [showListadoModal, setShowListadoModal] = useState(false);
+  const token = localStorage.getItem("token");
 
   // Cargar datos de pedidos
   useEffect(() => {
@@ -491,6 +496,21 @@ export default function Profile() {
                   <ArrowRight className="button-arrow" />
                 </div>
               </Link>
+
+              <button
+                className="manage-addresses-button"
+                style={{ marginTop: 16 }}
+                onClick={() => setShowReclamacionModal(true)}
+              >
+                Registrar Reclamación
+              </button>
+              <button
+                className="manage-addresses-button secondary"
+                style={{ marginTop: 8 }}
+                onClick={() => setShowListadoModal(true)}
+              >
+                Ver mis reclamaciones
+              </button>
             </div>
           </div>
         </div>
@@ -500,6 +520,22 @@ export default function Profile() {
           isOpen={showDetailsModal}
           onClose={() => setShowDetailsModal(false)}
           orderDetails={orderDetails}
+        />
+
+        <ModalReclamaciones
+          open={showReclamacionModal}
+          onClose={() => setShowReclamacionModal(false)}
+          pedidos={historialPedidos}
+          user={user}
+          token={token}
+        />
+
+
+
+        <ModalListadoReclamaciones
+          open={showListadoModal}
+          onClose={() => setShowListadoModal(false)}
+          token={token}
         />
       </div>
     </div>
