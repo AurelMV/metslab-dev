@@ -31,10 +31,10 @@ class PedidoController extends Controller
         try {
             DB::beginTransaction();
 
-            // Crear pedido pendiente
+            // Crear pedido con estado inicial correcto
             $pedido = Pedido::create([
                 'iduser' => $user->id,
-                'estado' => 'pendiente',
+                'estado' => 'pedido_realizado',
                 'totalPago' => $data['total'],
                 'TipoPedido' => $data['delivery_type'],
                 'fentrega' => now()->addDays(7),

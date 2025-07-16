@@ -689,6 +689,98 @@
     text-transform: uppercase;
 }
 
+/* Estados de seguimiento - Nuevos estados */
+.tracking-status.status-pedido_realizado {
+    background: var(--status-yellow-100);
+    color: var(--status-yellow-800);
+}
+
+.tracking-status.status-capturado {
+    background: var(--status-blue-100);
+    color: var(--status-blue-800);
+}
+
+.tracking-status.status-pago_confirmado {
+    background: var(--status-green-100);
+    color: var(--status-green-800);
+}
+
+.tracking-status.status-en_espera {
+    background: var(--status-yellow-100);
+    color: var(--status-yellow-800);
+}
+
+.tracking-status.status-pendiente_envio {
+    background: var(--status-yellow-100);
+    color: var(--status-yellow-800);
+}
+
+.tracking-status.status-en_preparacion {
+    background: var(--status-blue-100);
+    color: var(--status-blue-800);
+}
+
+.tracking-status.status-en_camino {
+    background: var(--status-purple-100);
+    color: var(--status-purple-800);
+}
+
+.tracking-status.status-en_transito {
+    background: var(--status-purple-100);
+    color: var(--status-purple-800);
+}
+
+.tracking-status.status-en_reparto {
+    background: var(--status-purple-100);
+    color: var(--status-purple-800);
+}
+
+.tracking-status.status-intento_entrega {
+    background: #fed7aa;
+    color: #ea580c;
+}
+
+.tracking-status.status-pendiente_recogida {
+    background: var(--status-yellow-100);
+    color: var(--status-yellow-800);
+}
+
+.tracking-status.status-completado {
+    background: var(--status-green-100);
+    color: var(--status-green-800);
+}
+
+.tracking-status.status-retrasado {
+    background: #fed7aa;
+    color: #ea580c;
+}
+
+.tracking-status.status-perdido {
+    background: var(--status-red-100);
+    color: var(--status-red-800);
+}
+
+.tracking-status.status-devuelto {
+    background: var(--status-yellow-100);
+    color: var(--status-yellow-800);
+}
+
+.tracking-status.status-cancelado {
+    background: var(--status-red-100);
+    color: var(--status-red-800);
+}
+
+.tracking-status.status-rechazado {
+    background: var(--status-red-100);
+    color: var(--status-red-800);
+}
+
+.tracking-status.status-archivado {
+    background: var(--status-gray-100);
+    color: var(--status-gray-800);
+}
+
+/* Estados antiguos por compatibilidad */
 .tracking-status.status-entregado {
     background: var(--status-green-100);
     color: var(--status-green-800);
@@ -869,6 +961,88 @@
     text-transform: uppercase;
 }
 
+/* Estados del historial - Nuevos estados */
+.order-status-badge.status-pedido_realizado {
+    background: var(--status-yellow-100);
+    color: var(--status-yellow-800);
+}
+
+.order-status-badge.status-capturado {
+    background: var(--status-blue-100);
+    color: var(--status-blue-800);
+}
+
+.order-status-badge.status-pago_confirmado {
+    background: var(--status-green-100);
+    color: var(--status-green-800);
+}
+
+.order-status-badge.status-en_espera {
+    background: var(--status-yellow-100);
+    color: var(--status-yellow-800);
+}
+
+.order-status-badge.status-pendiente_envio {
+    background: var(--status-yellow-100);
+    color: var(--status-yellow-800);
+}
+
+.order-status-badge.status-en_preparacion {
+    background: var(--status-blue-100);
+    color: var(--status-blue-800);
+}
+
+.order-status-badge.status-en_camino {
+    background: var(--status-purple-100);
+    color: var(--status-purple-800);
+}
+
+.order-status-badge.status-en_transito {
+    background: var(--status-purple-100);
+    color: var(--status-purple-800);
+}
+
+.order-status-badge.status-en_reparto {
+    background: var(--status-purple-100);
+    color: var(--status-purple-800);
+}
+
+.order-status-badge.status-intento_entrega {
+    background: #fed7aa;
+    color: #ea580c;
+}
+
+.order-status-badge.status-pendiente_recogida {
+    background: var(--status-yellow-100);
+    color: var(--status-yellow-800);
+}
+
+.order-status-badge.status-completado {
+    background: var(--status-green-100);
+    color: var(--status-green-800);
+}
+
+.order-status-badge.status-retrasado {
+    background: #fed7aa;
+    color: #ea580c;
+}
+
+.order-status-badge.status-perdido {
+    background: var(--status-red-100);
+    color: var(--status-red-800);
+}
+
+.order-status-badge.status-devuelto {
+    background: var(--status-yellow-100);
+    color: var(--status-yellow-800);
+}
+
+.order-status-badge.status-archivado {
+    background: var(--status-gray-100);
+    color: var(--status-gray-800);
+}
+
+/* Estados antiguos por compatibilidad */
 .order-status-badge.status-entregado {
     background: var(--status-green-100);
     color: var(--status-green-800);

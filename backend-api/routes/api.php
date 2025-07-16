@@ -13,10 +13,12 @@ use App\Http\Controllers\ColorController;
 use App\Http\Controllers\SocialController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Auth\UserController;
+use App\Http\Controllers\PedidosAdminController;
 use App\Http\Controllers\Auth\ProfileController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\MetricsController;
 use App\Http\Controllers\SeguimientoController;
+use App\Http\Controllers\ReclamacionController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -64,7 +66,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Cambiar contraseña y actualizar perfil
     Route::post('/user/change-password', [ProfileController::class, 'changePassword']);
     Route::put('/user/profile', [ProfileController::class, 'updateProfile']);
-
+    Route::post('/reclamaciones', [ReclamacionController::class, 'store']);
     // Rutas protegidas
     Route::post('/create-preference', [App\Http\Controllers\PaymentController::class, 'createPreferenceFromCart']);
     Route::post('/create-custom-preference', [App\Http\Controllers\PaymentController::class, 'createPreferenceWithPaymentMethods']);
@@ -83,12 +85,13 @@ Route::middleware(['auth:sanctum', 'role:cliente'])->group(function () {
     Route::put('/carrito/{id}', [CarritoController::class, 'update']);
     Route::delete('/carrito/{id}', [CarritoController::class, 'destroy']);
     Route::delete('/carrito/vaciar/todo', [CarritoController::class, 'vaciarCarrito']);
-    
+
     // Seguimiento de pedidos solo para clientes autenticados
     Route::get('/seguimiento', [SeguimientoController::class, 'seguimiento']); // Pedidos activos que se pueden seguir
     Route::get('/historial', [SeguimientoController::class, 'historial']); // Historial completo de pedidos
     Route::get('/pedido/{id}/detalles', [SeguimientoController::class, 'detalles']); // Detalles completos de un pedido
-    
+    //Reclamaciones
+    Route::get('/mis-reclamaciones', [ReclamacionController::class, 'misReclamaciones']);
     // Puedes agregar aquí otras rutas exclusivas para clientes
     // Rutas para gestionar pedidos
     Route::post('/pedidos', [PedidoController::class, 'crearPedido']);
@@ -114,30 +117,26 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     // Rutas de métricas
     Route::get('/metricas/pedidos-por-mes', [MetricsController::class, 'pedidosPorMes']);
     Route::get('/metricas/ingresos-por-mes', [MetricsController::class, 'ingresosPorMes']);
-    // Puedes agregar aquí otras rutas exclusivas para admin
-});
-Route::post('/categorias', [CategoriaController::class, 'store']);
-    Route::put('/categorias/{id}', [CategoriaController::class, 'update']);
-    Route::delete('/categorias/{id}', [CategoriaController::class, 'destroy']);
-    // Rutas de modelos (crear, editar, eliminar)
-    Route::post('/modelos', [ModeloController::class, 'store']);
-    Route::put('/modelos/{id}', [ModeloController::class, 'update']);
-    Route::delete('/modelos/{id}', [ModeloController::class, 'destroy']);
-    // Rutas de usuarios
-    Route::get('/users', [UserController::class, 'getUsers']);
-    Route::put('/users/{id}/role', [UserController::class, 'changeUserRole']);
-Route::post('/categorias', [CategoriaController::class, 'store']);
-Route::put('/categorias/{id}', [CategoriaController::class, 'update']);
-Route::delete('/categorias/{id}', [CategoriaController::class, 'destroy']);
-// Rutas de modelos (crear, editar, eliminar)
-Route::post('/modelos', [ModeloController::class, 'store']);
 
-Route::put('/modelos/{id}', [ModeloController::class, 'update']);
-//Route::delete('/modelos/{id}', [ModeloController::class, 'destroy']);
+    // Rutas de administración de pedidos
+    Route::prefix('admin/pedidos')->group(function () {
+        Route::get('/', [PedidosAdminController::class, 'index']);
+        Route::get('/{id}', [PedidosAdminController::class, 'show']);
+        Route::get('/{id}/detalles', [PedidosAdminController::class, 'detallesCompletos']);
+        Route::put('/{id}/estado', [PedidosAdminController::class, 'actualizarEstado']);      
+        Route::put('/estados/lote', [PedidosAdminController::class, 'actualizarEstadosLote']);
+        Route::get('/estados/disponibles', [PedidosAdminController::class, 'estadosDisponibles']);
+    });
+
+    // Puedes agregar aquí otras rutas exclusivas para admin
+    // Rutas de reclamaciones
+    Route::get('/reclamaciones', [ReclamacionController::class, 'index']);
+    Route::get('/reclamaciones/{id}', [ReclamacionController::class, 'show']);
+    Route::get('/admin/reclamaciones', [ReclamacionController::class, 'index']);
+});
+
 // Rutas públicas y de solo lectura
 Route::get('/categorias', [CategoriaController::class, 'index']);
-
-
 Route::get('/categorias/{id}', [CategoriaController::class, 'show']);
 Route::get('/modelos', [ModeloController::class, 'index']);
 Route::get('/modelos/categoria/{idCategoria}', [ModeloController::class, 'modelosPorCategoria']);
