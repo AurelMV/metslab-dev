@@ -146,6 +146,8 @@ export default function ModelosAdmin() {
       estado: modelo.estado ?? true,
       modelo_3d: null,
       imagen: null,
+      modelo_url: modelo.modelo_url,
+      imagen_url: modelo.imagen_url,
     });
     setFormErrors({});
     setShowModal(true);
@@ -419,11 +421,11 @@ export default function ModelosAdmin() {
       {/* === Modal del Visor 3D === */}
       {viewerOpen && viewerUrl && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50 p-4"
+          className="fixed inset-0 bg-white/70 backdrop-blur-sm flex justify-center items-center z-50 p-4"
           onClick={() => setViewerOpen(false)}
         >
           <div
-            className="bg-white rounded-lg shadow-2xl p-4 w-full max-w-3xl flex flex-col"
+            className="bg-white rounded-lg shadow-xl p-4 w-full max-w-3xl flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-4">
@@ -452,8 +454,8 @@ export default function ModelosAdmin() {
 
       {/* === Modal de Formulario (Crear/Editar) === */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-white/70 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto ring-1 ring-gray-200">
             <h3 className="text-xl font-bold text-gray-800 mb-4">
               {editing ? "Editar Modelo" : "Nuevo Modelo"}
             </h3>
@@ -560,44 +562,107 @@ export default function ModelosAdmin() {
                     <option value="0">Inactivo</option>
                   </select>
                 </div>
-                {/* Archivos (solo para creación) */}
-                {!editing && (
-                  <>
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Archivo Modelo 3D (.glb) *
-                      </label>
-                      <input
-                        name="modelo_3d"
-                        type="file"
-                        accept=".glb"
-                        onChange={handleChange}
-                        className={`block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 ${
-                          formErrors.modelo_3d
-                            ? "ring-2 ring-red-500 rounded-lg"
-                            : ""
-                        }`}
-                      />
-                      {formErrors.modelo_3d && (
-                        <span className="text-red-600 text-xs mt-1">
-                          {formErrors.modelo_3d}
-                        </span>
+                {/* Archivos (para creación y edición) */}
+                {editing && (
+                  <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg mb-4">
+                    <div>
+                      <h4 className="font-medium text-gray-700 mb-2">
+                        Modelo 3D actual
+                      </h4>
+                      <div className="flex items-center">
+                        <div className="bg-gray-200 rounded-lg p-2 mr-2">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="text-gray-600"
+                          >
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                            <polyline points="3.29 7 12 12 20.71 7"></polyline>
+                            <line x1="12" y1="22" x2="12" y2="12"></line>
+                          </svg>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            form.modelo_url && handleView3D(editing)
+                          }
+                          className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                        >
+                          Ver modelo actual
+                        </button>
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-gray-700 mb-2">
+                        Imagen actual
+                      </h4>
+                      {form.imagen_url ? (
+                        <img
+                          src={form.imagen_url}
+                          alt="Imagen actual"
+                          className="h-20 w-auto object-contain bg-gray-200 rounded-lg"
+                        />
+                      ) : (
+                        <div className="bg-gray-200 h-20 w-full rounded-lg flex items-center justify-center">
+                          <span className="text-gray-500 text-sm">
+                            Sin imagen
+                          </span>
+                        </div>
                       )}
                     </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Imagen de previsualización
-                      </label>
-                      <input
-                        name="imagen"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleChange}
-                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                      />
-                    </div>
-                  </>
+                  </div>
                 )}
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Archivo Modelo 3D (.glb) {!editing && "*"}
+                  </label>
+                  <input
+                    name="modelo_3d"
+                    type="file"
+                    accept=".glb"
+                    onChange={handleChange}
+                    className={`block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 ${
+                      formErrors.modelo_3d
+                        ? "ring-2 ring-red-500 rounded-lg"
+                        : ""
+                    }`}
+                  />
+                  {editing && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Dejar en blanco para mantener el modelo actual
+                    </p>
+                  )}
+                  {formErrors.modelo_3d && (
+                    <span className="text-red-600 text-xs mt-1">
+                      {formErrors.modelo_3d}
+                    </span>
+                  )}
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Imagen de previsualización
+                  </label>
+                  <input
+                    name="imagen"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleChange}
+                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  />
+                  {editing && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Dejar en blanco para mantener la imagen actual
+                    </p>
+                  )}
+                </div>
               </div>
               {/* Acciones del formulario */}
               <div className="flex justify-end gap-3 mt-6 pt-4 border-t">

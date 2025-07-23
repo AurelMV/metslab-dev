@@ -5,7 +5,9 @@ import { getUsersWithPedidos } from "../services/usuario-service";
 function isMobile() {
   return window.innerWidth < 700;
 }
+import env from "../config/env";
 
+const API_URL = env.BASE_URL_API;
 const PAGE_SIZE = 10;
 
 export default function UsuariosAdmin() {

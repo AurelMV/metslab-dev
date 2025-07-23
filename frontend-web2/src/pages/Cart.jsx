@@ -306,102 +306,88 @@ export default function Cart() {
 
         <div className="cart-main-grid">
           {/* Cart Items */}
-          <div className="cart-items-section">
-            {items.map((item) => (
-              <div
-                key={`${item.model.id}-${item.selectedColor.id}`}
-                className="cart-item-card"
-              >
-                <div className="cart-item-content">
+          <div className="flex flex-col items-center w-full">
+            <div className="w-full max-w-2xl space-y-4">
+              {items.map((item) => (
+                <div
+                  key={`${item.model.id}-${item.selectedColor.id}`}
+                  className="bg-white rounded-lg shadow p-4 flex flex-row items-center gap-4"
+                >
                   {/* Product Image */}
-                  <div className="cart-item-image-wrapper">
+                  <div className="w-20 h-20 flex-shrink-0 overflow-hidden flex items-center justify-center">
                     <img
                       src={item.model.image}
                       alt={item.model.name}
-                      className="cart-item-image"
+                      className="w-full h-full object-cover rounded-md"
                     />
                   </div>
-
                   {/* Product Info */}
-                  <div className="cart-item-details">
-                    <h3 className="cart-item-name">{item.model.name}</h3>
-                    <p className="cart-item-description">
+                  <div className="flex-1 min-w-0 max-w-xl mx-auto flex flex-col justify-center">
+                    <h3 className="font-semibold text-base text-gray-900 mb-1">
+                      {item.model.name}
+                    </h3>
+                    <p className="text-sm text-gray-500 mb-2">
                       {item.model.description}
                     </p>
-
                     {/* Color */}
-                    <div className="cart-item-color-info">
-                      <span className="cart-item-color-label">Color:</span>
-                      <div className="cart-item-color-display">
-                        <div
-                          className="cart-item-color-swatch"
-                          style={{ backgroundColor: item.selectedColor.hex }}
-                        ></div>
-                        <span className="cart-item-color-name">
-                          {item.selectedColor.name}
+
+                    {/* Quantity Controls & Price */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-gray-700">
+                          Cantidad:
                         </span>
+                        <button
+                          onClick={() =>
+                            handleQuantityChange(
+                              item.model.id,
+                              item.selectedColor.id,
+                              item.quantity - 1
+                            )
+                          }
+                          className="px-2 py-1 rounded-full bg-gray-100 hover:bg-gray-200"
+                        >
+                          <Minus className="w-4 h-4" />
+                        </button>
+                        <span className="px-2 font-semibold text-lg text-gray-900">
+                          {item.quantity}
+                        </span>
+                        <button
+                          onClick={() =>
+                            handleQuantityChange(
+                              item.model.id,
+                              item.selectedColor.id,
+                              item.quantity + 1
+                            )
+                          }
+                          className="px-2 py-1 rounded-full bg-gray-100 hover:bg-gray-200"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
                       </div>
-                    </div>
-
-                    {/* Quantity Controls */}
-                    <div className="cart-item-controls">
-                      <div className="cart-quantity-controls">
-                        <span className="cart-quantity-label">Cantidad:</span>
-                        <div className="cart-quantity-buttons-group">
-                          <button
-                            onClick={() =>
-                              handleQuantityChange(
-                                item.model.id,
-                                item.selectedColor.id,
-                                item.quantity - 1
-                              )
-                            }
-                            className="cart-quantity-button"
-                          >
-                            <Minus className="cart-quantity-icon" />
-                          </button>
-                          <span className="cart-quantity-display">
-                            {item.quantity}
-                          </span>
-                          <button
-                            onClick={() =>
-                              handleQuantityChange(
-                                item.model.id,
-                                item.selectedColor.id,
-                                item.quantity + 1
-                              )
-                            }
-                            className="cart-quantity-button"
-                          >
-                            <Plus className="cart-quantity-icon" />
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Price and Remove */}
-                      <div className="cart-price-remove-group">
-                        <div className="cart-price-info">
-                          <div className="cart-item-total-price">
+                      <div className="flex items-center gap-4">
+                        <div className="text-right">
+                          <span className="text-orange-600 font-bold text-base block">
                             S/ {(item.model.price * item.quantity).toFixed(2)}
-                          </div>
-                          <div className="cart-item-unit-price">
+                          </span>
+                          <span className="text-xs text-gray-400 block">
                             S/ {item.model.price.toFixed(2)} c/u
-                          </div>
+                          </span>
                         </div>
                         <button
                           onClick={() =>
                             removeFromCart(item.model.id, item.selectedColor.id)
                           }
-                          className="cart-remove-button"
+                          className="ml-2 text-red-500 hover:text-red-700"
                         >
-                          <Trash2 className="cart-remove-icon" />
+                          <Trash2 className="w-5 h-5" />
                         </button>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
 
           {/* Order Summary */}
