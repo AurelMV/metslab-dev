@@ -255,6 +255,8 @@ export default function Cart() {
           ) : (
             <YapeForm
               amount={finalTotal}
+              preferenceId={preferenceId}
+              externalReference={externalReference}
               onSuccess={handlePaymentSuccess}
               onError={handlePaymentError}
             />

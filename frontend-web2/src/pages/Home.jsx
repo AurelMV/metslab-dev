@@ -163,16 +163,6 @@ export default function Home() {
                   experiencia de compra para nuestros clientes.
                 </p>
               </div>
-              <div className="about-stats-grid">
-                <div className="about-stat-card">
-                  <div className="about-stat-number">100+</div>
-                  <div className="about-stat-label">Modelos Disponibles</div>
-                </div>
-                <div className="about-stat-card">
-                  <div className="about-stat-number">500+</div>
-                  <div className="about-stat-label">Clientes Satisfechos</div>
-                </div>
-              </div>
             </div>
             <div className="about-image-wrapper">
               <img

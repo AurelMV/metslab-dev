@@ -26,12 +26,13 @@ export default function Footer() {
           </div>
           <div className="footer-map-address">
             San Borja-Alta Lote-C-4, Wanchaq-Cusco
-            <br />Jr. Iquitos
+            <br />
+            Jr. Iquitos
           </div>
         </div>
       </div>
       <div className="footer-bottom">
-        © 2024 MetsLab. Todos los derechos reservados.
+        © 2025 MetsLab. Todos los derechos reservados.
       </div>
     </footer>
   );
