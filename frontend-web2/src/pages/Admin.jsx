@@ -21,7 +21,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 
-import { models3D, categories,mockOrders} from "../data/mockData"; // Asegúrate de que mockData exista y tenga los datos
+import { models3D, categories, mockOrders } from "../data/mockData"; // Asegúrate de que mockData exista y tenga los datos
 import "../stayle/Admin.css"; // Importa tu archivo CSS puro
 
 import ModelosAdmin from "./ModelosAdmin";
@@ -57,7 +57,9 @@ export default function Admin() {
   const [ingresosPorMes, setIngresosPorMes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [Error, setError] = useState(null);
-  const [anioSeleccionado, setAnioSeleccionado] = useState(new Date().getFullYear());
+  const [anioSeleccionado, setAnioSeleccionado] = useState(
+    new Date().getFullYear()
+  );
   const [aniosDisponibles, setAniosDisponibles] = useState([]);
   const [showAdminListadoModal, setShowAdminListadoModal] = useState(false);
   const token = localStorage.getItem("token");
@@ -167,7 +169,8 @@ export default function Admin() {
             ...prev,
             { ...data, id: Date.now().toString() },
           ]);
-        }break;
+        }
+        break;
       // case "colors": // Commented out as ColoresAdmin and ColorForm are not provided
       //   if (editingItem) {
       //     setColorsData((prev) =>
@@ -214,7 +217,6 @@ export default function Admin() {
     // }
   };
 
-
   const renderModelsSection = () => {
     // const filteredModels = modelsData.filter( // This filtering logic is not used as ModelosAdmin is imported
     //   (model) =>
@@ -228,10 +230,9 @@ export default function Admin() {
 
   // const renderColorsSection = () => <ColoresAdmin />; // Commented out as ColoresAdmin is not provided
 
- const renderOrdersSection = () => <PedidosAdmin />;
- 
-  const renderMetricSection = () => {
+  const renderOrdersSection = () => <PedidosAdmin />;
 
+  const renderMetricSection = () => {
     const nombresMeses = [
       "Enero",
       "Febrero",
