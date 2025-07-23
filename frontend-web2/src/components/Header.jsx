@@ -5,8 +5,6 @@ import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
 import MiniCart from "../components/MiniCart";
 // Importa tu archivo CSS. Asegúrate de que la ruta sea correcta.
-import "../stayle/Header.css";
-
 export default function Header() {
   const { user, logout, isAdmin } = useAuth();
   const { itemCount } = useCart();
@@ -31,82 +29,117 @@ export default function Header() {
   };
 
   return (
-    <header className="header-container">
-      <div className="header-wrapper">
-        <div className="header-content">
+    <header className="bg-white shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link to="/" className="header-logo-link">
-            <div className="header-logo-icon-bg">
-              <Cube className="header-logo-icon" />
+          <Link to="/" className="flex items-center space-x-2">
+            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+              <Cube className="w-6 h-6 text-orange-500" />
             </div>
-            <span className="header-logo-text">MetsLab</span>
+            <span className="text-xl font-bold text-gray-900">MetsLab</span>
           </Link>
-
           {/* Desktop Navigation */}
-          <nav className="desktop-nav">
-            <Link to="/" className={getNavLinkClass("/")}>
+          <nav className="hidden md:flex items-center space-x-8">
+            <Link
+              to="/"
+              className={`text-sm font-medium transition-colors ${
+                isActive("/")
+                  ? "text-orange-500"
+                  : "text-gray-700 hover:text-orange-500"
+              }`}
+            >
               Inicio
             </Link>
-            <Link to="/catalog" className={getNavLinkClass("/catalog")}>
+            <Link
+              to="/catalog"
+              className={`text-sm font-medium transition-colors ${
+                isActive("/catalog")
+                  ? "text-orange-500"
+                  : "text-gray-700 hover:text-orange-500"
+              }`}
+            >
               Catálogo
             </Link>
             {isAdmin && (
-              <Link to="/admin" className={getNavLinkClass("/admin")}>
+              <Link
+                to="/admin"
+                className={`text-sm font-medium transition-colors ${
+                  isActive("/admin")
+                    ? "text-orange-500"
+                    : "text-gray-700 hover:text-orange-500"
+                }`}
+              >
                 Admin Panel
               </Link>
             )}
-          </nav>          {/* Desktop User Actions */}
-          <div className="desktop-user-actions">
-            <div className="cart-container">
+          </nav>{" "}
+          {/* Desktop User Actions */}
+          <div className="hidden md:flex items-center space-x-6">
+            <div className="relative">
               <MiniCart />
             </div>
 
             {user ? (
-              <div className="user-profile-actions">
-                <Link to="/profile" className="profile-link">
-                  <User className="profile-icon" />
-                  <span className="profile-name">{user.name}</span>
+              <div className="flex items-center space-x-4">
+                <Link
+                  to="/profile"
+                  className="flex items-center space-x-2 text-gray-700 hover:text-orange-500"
+                >
+                  <User className="w-5 h-5" />
+                  <span className="text-sm font-medium">{user.name}</span>
                 </Link>
-                <button onClick={handleLogout} className="logout-button">
+                <button
+                  onClick={handleLogout}
+                  className="text-sm font-medium text-gray-700 hover:text-orange-500"
+                >
                   Cerrar Sesión
                 </button>
               </div>
             ) : (
-              <Link to="/auth/login" className="login-button">
+              <Link
+                to="/auth/login"
+                className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-orange-500 hover:bg-orange-600 transition-colors"
+              >
                 Iniciar Sesión
               </Link>
             )}
           </div>
-
           {/* Mobile menu button */}
           <button
-            className="mobile-menu-button"
+            className="md:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-orange-500 hover:bg-orange-50"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             {isMenuOpen ? (
-              <X className="menu-icon" />
+              <X className="w-6 h-6" />
             ) : (
-              <Menu className="menu-icon" />
+              <Menu className="w-6 h-6" />
             )}
           </button>
         </div>
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="mobile-nav-panel open">
-            {" "}
-            {/* Añade la clase 'open' para controlar la visibilidad y animación */}
-            <div className="mobile-nav-links">
+          <div className="md:hidden bg-white border-t border-gray-200">
+            <div className="px-2 pt-2 pb-3 space-y-1">
               <Link
                 to="/"
-                className={getMobileNavLinkClass("/")}
+                className={`block px-3 py-2 rounded-md text-base font-medium ${
+                  isActive("/")
+                    ? "text-orange-500 bg-orange-50"
+                    : "text-gray-700 hover:text-orange-500 hover:bg-orange-50"
+                }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Inicio
               </Link>
               <Link
                 to="/catalog"
-                className={getMobileNavLinkClass("/catalog")}
+                className={`block px-3 py-2 rounded-md text-base font-medium ${
+                  isActive("/catalog")
+                    ? "text-orange-500 bg-orange-50"
+                    : "text-gray-700 hover:text-orange-500 hover:bg-orange-50"
+                }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Catálogo
@@ -114,51 +147,53 @@ export default function Header() {
               {isAdmin && (
                 <Link
                   to="/admin"
-                  className={getMobileNavLinkClass("/admin")}
+                  className={`block px-3 py-2 rounded-md text-base font-medium ${
+                    isActive("/admin")
+                      ? "text-orange-500 bg-orange-50"
+                      : "text-gray-700 hover:text-orange-500 hover:bg-orange-50"
+                  }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Admin Panel
                 </Link>
               )}
 
-              <div className="mobile-actions-section">
-                <Link
-                  to="/cart"
-                  className="mobile-cart-link"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <MiniCart className="mobile-cart-icon" />
-                  <span className="mobile-cart-text">
-                    Carrito ({itemCount})
-                  </span>
-                </Link>
-
-                {user ? (
-                  <div className="mobile-user-auth-section">
+              <div className="pt-4 pb-3 border-t border-gray-200">
+                <div className="flex items-center px-3">
+                  <div className="flex-shrink-0">
+                    <MiniCart />
+                  </div>
+                </div>
+                <div className="mt-3 space-y-1">
+                  {user ? (
+                    <>
+                      <Link
+                        to="/profile"
+                        className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-orange-500 hover:bg-orange-50"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <User className="w-5 h-5" />
+                          <span>{user.name}</span>
+                        </div>
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-orange-500 hover:bg-orange-50"
+                      >
+                        Cerrar Sesión
+                      </button>
+                    </>
+                  ) : (
                     <Link
-                      to="/profile"
-                      className="mobile-profile-link"
+                      to="/auth/login"
+                      className="block px-3 py-2 rounded-md text-base font-medium text-white bg-orange-500 hover:bg-orange-600"
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      <User className="mobile-profile-icon" />
-                      <span className="mobile-profile-name">{user.name}</span>
+                      Iniciar Sesión
                     </Link>
-                    <button
-                      onClick={handleLogout}
-                      className="mobile-logout-button"
-                    >
-                      Cerrar Sesión
-                    </button>
-                  </div>
-                ) : (
-                  <Link
-                    to="/auth/login"
-                    className="mobile-login-button"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Iniciar Sesión
-                  </Link>
-                )}
+                  )}
+                </div>
               </div>
             </div>
           </div>
