@@ -36,7 +36,13 @@ const statusDetailMessages = {
     "El pago fue rechazado por seguridad. Prueba con otro medio de pago.",
 };
 
-export default function YapeForm({ amount, onSuccess, onError }) {
+export default function YapeForm({
+  amount,
+  onSuccess,
+  onError,
+  preferenceId,
+  externalReference,
+}) {
   const { clearCart } = useCart();
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
@@ -71,6 +77,8 @@ export default function YapeForm({ amount, onSuccess, onError }) {
         installments: 1,
         payment_method_id: "yape",
         payer: { email },
+        external_reference: externalReference, // ¡CLAVE!
+        preference_id: preferenceId, // Opcional, para debug
       };
       const response = await paymentService.processPayment(payload);
       // Validar el estado del pago
