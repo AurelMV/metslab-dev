@@ -106,7 +106,7 @@ export default function CategoriasAdmin() {
         </h2>
         <button
           onClick={handleOpenCreate}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 transition"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 text-white font-medium rounded-lg shadow-sm hover:bg-orange-600 transition-colors"
         >
           <Plus size={20} />
           <span>Nueva Categoría</span>
@@ -128,17 +128,10 @@ export default function CategoriasAdmin() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleOpenEdit(categoria)}
-                    className="p-2 rounded-full bg-yellow-100 text-yellow-700 hover:bg-yellow-200 transition"
+                    className="p-2 rounded-full text-yellow-700  transition"
                     title="Editar"
                   >
                     <Edit size={18} />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(categoria.idCategoria)}
-                    className="p-2 rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition"
-                    title="Eliminar"
-                  >
-                    <Trash2 size={18} />
                   </button>
                 </div>
               </div>
@@ -168,8 +161,8 @@ export default function CategoriasAdmin() {
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+        <div className="fixed inset-0 bg-white/70 backdrop-blur-sm flex justify-center items-center z-50">
+          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md ring-1 ring-gray-200">
             <h3 className="text-xl font-bold text-gray-800 mb-4">
               {editing ? "Editar Categoría" : "Nueva Categoría"}
             </h3>
@@ -183,20 +176,21 @@ export default function CategoriasAdmin() {
                   value={form.nombre}
                   onChange={handleChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+                  placeholder="Nombre de la categoría"
                 />
               </div>
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-3 pt-4 border-t">
                 <button
                   type="button"
-                  className="px-4 py-2 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition"
+                  className="px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors"
                   onClick={() => setShowModal(false)}
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 transition disabled:bg-blue-300 disabled:cursor-not-allowed"
+                  className="px-4 py-2 bg-orange-500 text-white font-medium rounded-lg shadow-sm hover:bg-orange-600 transition-colors disabled:bg-orange-300 disabled:cursor-not-allowed"
                   disabled={loading}
                 >
                   {loading ? "Guardando..." : "Guardar"}
