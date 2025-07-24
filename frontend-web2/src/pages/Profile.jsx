@@ -122,12 +122,12 @@ export default function Profile() {
   };
 
   return (
-    <div className="profile-container">
-      <div className="profile-content-wrapper">
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="profile-header">
-          <h1 className="profile-title">Mi Perfil</h1>
-          <p className="profile-subtitle">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Mi Perfil</h1>
+          <p className="text-gray-600">
             Gestiona tu información personal y revisa tus pedidos
           </p>
         </div>
@@ -533,60 +533,39 @@ export default function Profile() {
               </div>
             </div>
 
-            {/* Quick Actions */}
-            <div className="profile-card">
-              <h3 className="quick-actions-title">Acciones Rápidas</h3>
-              <div className="quick-actions-list">
-                <a href="/catalog" className="quick-action-button">
-                  Explorar Catálogo
-                </a>
-                <a href="/cart" className="quick-action-button secondary">
-                  Ver Carrito
-                </a>
-              </div>
-            </div>
-
             {/* Address Management Card */}
-            <div className="profile-card address-management-card">
-              <div className="address-card-header">
-                <div className="address-icon-container">
-                  <MapPin className="address-main-icon" />
+            <div className="profile-card">
+              <div className="flex items-center mb-4">
+                <div className="flex items-center justify-center w-10 h-10 bg-[var(--primary-50)] rounded-full mr-3">
+                  <MapPin className="text-[var(--primary-600)] w-6 h-6" />
                 </div>
-                <div className="address-content">
-                  <h3 className="address-card-title">Mis Direcciones</h3>
-                  <p className="address-card-description">
+                <div>
+                  <h3 className="text-lg font-semibold text-[var(--secondary-900)]">
+                    Mis Direcciones
+                  </h3>
+                  <p className="text-[var(--secondary-500)] text-sm">
                     Administra tus direcciones de entrega guardadas
                   </p>
                 </div>
               </div>
 
-              <Link to="/direcciones" className="manage-addresses-button">
-                <div className="button-content">
-                  <div className="button-icon-wrapper">
-                    <Settings className="button-icon" />
-                  </div>
-                  <div className="button-text-content">
-                    <span className="button-main-text">
-                      Gestionar Direcciones
-                    </span>
-                    <span className="button-sub-text">
-                      Agregar, editar o eliminar
-                    </span>
-                  </div>
-                  <ArrowRight className="button-arrow" />
-                </div>
+              <Link
+                to="/direcciones"
+                className="flex items-center gap-3 px-4 py-2 rounded-md bg-[var(--primary-50)] hover:bg-[var(--primary-100)] text-[var(--primary-600)] font-medium transition mb-2"
+              >
+                <Settings className="w-5 h-5" />
+                <span>Gestionar Direcciones</span>
+                <ArrowRight className="w-4 h-4 ml-auto" />
               </Link>
 
               <button
-                className="manage-addresses-button"
-                style={{ marginTop: 16 }}
+                className="w-full mt-3 px-4 py-2 rounded-md bg-[var(--primary-600)] text-white font-medium hover:bg-[var(--primary-700)] transition"
                 onClick={() => setShowReclamacionModal(true)}
               >
                 Registrar Reclamación
               </button>
               <button
-                className="manage-addresses-button secondary"
-                style={{ marginTop: 8 }}
+                className="w-full mt-2 px-4 py-2 rounded-md border border-[var(--primary-600)] text-[var(--primary-600)] font-medium hover:bg-[var(--primary-50)] transition"
                 onClick={() => setShowListadoModal(true)}
               >
                 Ver mis reclamaciones

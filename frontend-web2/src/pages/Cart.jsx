@@ -65,6 +65,8 @@ export default function Cart() {
   const [showYape, setShowYape] = useState(false);
   const [preferenceId, setPreferenceId] = useState(null);
   const [externalReference, setExternalReference] = useState(null);
+  const [paymentMessage, setPaymentMessage] = useState("");
+  const [paymentMessageType, setPaymentMessageType] = useState(""); // success, error, warning
 
   const finalTotal = total + deliveryFee;
 
@@ -87,12 +89,16 @@ export default function Cart() {
 
   const handleCheckout = async () => {
     if (!user) {
-      alert("Debes iniciar sesión para continuar con la compra");
+      setPaymentMessage("Debes iniciar sesión para continuar con la compra");
+      setPaymentMessageType("error");
+      setTimeout(() => setPaymentMessage(""), 5000);
       navigate("/auth/login");
       return;
     }
     if (deliveryType === "delivery" && !selectedAddress) {
-      alert("Debes seleccionar una dirección de entrega");
+      setPaymentMessage("Debes seleccionar una dirección de entrega");
+      setPaymentMessageType("error");
+      setTimeout(() => setPaymentMessage(""), 5000);
       return;
     }
     // Preparar datos del pedido
@@ -120,10 +126,14 @@ export default function Cart() {
         setExternalReference(res.external_reference);
         setShowPayment(true);
       } else {
-        alert("No se pudo crear el pedido: " + res.message);
+        setPaymentMessage("No se pudo crear el pedido: " + res.message);
+        setPaymentMessageType("error");
+        setTimeout(() => setPaymentMessage(""), 5000);
       }
     } catch (err) {
-      alert("Error al crear el pedido: " + err.message);
+      setPaymentMessage("Error al crear el pedido: " + err.message);
+      setPaymentMessageType("error");
+      setTimeout(() => setPaymentMessage(""), 5000);
     }
   };
 
@@ -135,11 +145,15 @@ export default function Cart() {
         statusDetailMessages?.[status_detail] ||
         statusMessages?.[status] ||
         "El pago fue rechazado. Intenta con otra tarjeta.";
-      alert(userMessage);
+      setPaymentMessage(userMessage);
+      setPaymentMessageType("error");
+      setTimeout(() => setPaymentMessage(""), 7000);
       // No navegar
       return;
     } else if (status === "approved") {
-      alert(userMessage);
+      setPaymentMessage(userMessage);
+      setPaymentMessageType("success");
+      setTimeout(() => setPaymentMessage(""), 5000);
       navigate("/payment/success", {
         state: {
           paymentData,
@@ -153,20 +167,22 @@ export default function Cart() {
       });
       return;
     } else {
-      alert(userMessage);
+      setPaymentMessage(userMessage);
+      setPaymentMessageType("warning");
+      setTimeout(() => setPaymentMessage(""), 7000);
       // No navegar
       return;
     }
   };
 
   const handlePaymentError = (error) => {
-    // Si el error es realmente un pago aprobado, no mostrar nada
     if (error && error.status === "approved") {
       return;
     }
-    // Mostrar mensaje personalizado si viene en userMessage
     if (error && error.userMessage) {
-      alert(error.userMessage);
+      setPaymentMessage(error.userMessage);
+      setPaymentMessageType("error");
+      setTimeout(() => setPaymentMessage(""), 7000);
       return;
     }
     console.error("Payment failed:", error);
@@ -176,9 +192,11 @@ export default function Cart() {
     } else if (error.message) {
       errorMessage = error.message;
     }
-    alert(
-      `Error en el pago: ${errorMessage}\n\nPor favor, intenta nuevamente.`
+    setPaymentMessage(
+      `Error en el pago: ${errorMessage}\nPor favor, intenta nuevamente.`
     );
+    setPaymentMessageType("error");
+    setTimeout(() => setPaymentMessage(""), 7000);
     setShowPayment(false);
   };
 
@@ -218,6 +236,21 @@ export default function Cart() {
             </button>
             <h1 className="cart-title">Procesar Pago</h1>
           </div>
+
+          {/* Mensaje de pago */}
+          {paymentMessage && (
+            <div
+              className={`mb-4 text-center px-4 py-2 rounded-lg border text-sm font-medium ${
+                paymentMessageType === "success"
+                  ? "bg-green-50 border-green-200 text-green-700"
+                  : paymentMessageType === "warning"
+                  ? "bg-yellow-50 border-yellow-200 text-yellow-700"
+                  : "bg-red-50 border-red-200 text-red-700"
+              }`}
+            >
+              {paymentMessage}
+            </div>
+          )}
 
           {/* Botones para elegir método de pago */}
           <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
