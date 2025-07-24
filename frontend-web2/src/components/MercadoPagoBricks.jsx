@@ -253,38 +253,52 @@ const MercadoPagoBricks = ({
   // Renderizar estados de carga y error
   if (loading) {
     return (
-      <div className="payment-loading">
-        <Loader2 className="payment-loading-icon animate-spin" />
-        <h3>Preparando el pago...</h3>
-        <p>Estamos configurando tu preferencia de pago</p>
+      <div className="flex flex-col items-center justify-center min-h-[300px] bg-white rounded-xl shadow-lg p-8 border border-gray-100 animate-pulse">
+        <Loader2 className="h-10 w-10 text-violet-600 animate-spin mb-4" />
+        <h3 className="text-lg font-semibold text-gray-700 mb-1">
+          Preparando el pago...
+        </h3>
+        <p className="text-gray-500">
+          Estamos configurando tu preferencia de pago
+        </p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="payment-error">
-        <XCircle className="payment-error-icon" />
-        <h3>Error en el pago</h3>
-        <p>{error}</p>
-        <div className="payment-error-actions">
-          <button onClick={handleRetry} className="payment-retry-button">
-            <RefreshCw className="payment-retry-icon" />
-            Reintentar
-          </button>
-        </div>
+      <div className="flex flex-col items-center justify-center min-h-[300px] bg-white rounded-xl shadow-lg p-8 border border-red-200">
+        <XCircle className="h-10 w-10 text-red-500 mb-2" />
+        <h3 className="text-lg font-semibold text-red-700 mb-1">
+          Error en el pago
+        </h3>
+        <p className="text-gray-600 text-center mb-4">{error}</p>
+        <button
+          onClick={handleRetry}
+          className="flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg shadow transition"
+        >
+          <RefreshCw className="h-5 w-5" />
+          Reintentar
+        </button>
       </div>
     );
   }
 
   if (!preferenceId) {
     return (
-      <div className="payment-error">
-        <AlertCircle className="payment-error-icon" />
-        <h3>No se pudo inicializar el pago</h3>
-        <p>Por favor, verifica tu conexión e intenta nuevamente</p>
-        <button onClick={handleRetry} className="payment-retry-button">
-          <RefreshCw className="payment-retry-icon" />
+      <div className="flex flex-col items-center justify-center min-h-[300px] bg-white rounded-xl shadow-lg p-8 border border-yellow-200">
+        <AlertCircle className="h-10 w-10 text-yellow-500 mb-2" />
+        <h3 className="text-lg font-semibold text-yellow-700 mb-1">
+          No se pudo inicializar el pago
+        </h3>
+        <p className="text-gray-600 text-center mb-4">
+          Por favor, verifica tu conexión e intenta nuevamente
+        </p>
+        <button
+          onClick={handleRetry}
+          className="flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg shadow transition"
+        >
+          <RefreshCw className="h-5 w-5" />
           Reintentar
         </button>
       </div>
@@ -293,34 +307,36 @@ const MercadoPagoBricks = ({
 
   // Renderizar Payment Brick solo una vez
   return (
-    <div className="mercadopago-bricks-container">
-      <div className="payment-header">
-        <h3>Completa tu pago</h3>
-        <p>Selecciona tu método de pago preferido</p>
-
-        {/* Mostrar información del pedido */}
-        {preferenceData && (
-          <div className="payment-summary">
-            <div className="payment-summary-item">
-              <span>Subtotal:</span>
-              <span>S/ {total.toFixed(2)}</span>
-            </div>
-            {deliveryFee > 0 && (
-              <div className="payment-summary-item">
-                <span>Envío:</span>
-                <span>S/ {deliveryFee.toFixed(2)}</span>
-              </div>
-            )}
-            <div className="payment-summary-total">
-              <span>Total:</span>
-              <span>S/ {(total + deliveryFee).toFixed(2)}</span>
-            </div>
-          </div>
-        )}
+    <div className="max-w-lg mx-auto bg-white shadow-2xl rounded-2xl p-8 border border-gray-100">
+      <div className="mb-6 text-center">
+        <h3 className="text-2xl font-bold text-violet-700 flex items-center justify-center gap-2 mb-1">
+          Completa tu pago
+        </h3>
+        <p className="text-gray-500">Selecciona tu método de pago preferido</p>
       </div>
 
+      {/* Mostrar información del pedido */}
+      {preferenceData && (
+        <div className="mb-6 bg-violet-50 border border-violet-100 rounded-lg p-4">
+          <div className="flex justify-between mb-1 text-sm">
+            <span className="text-gray-600">Subtotal:</span>
+            <span className="font-medium">S/ {total.toFixed(2)}</span>
+          </div>
+          {deliveryFee > 0 && (
+            <div className="flex justify-between mb-1 text-sm">
+              <span className="text-gray-600">Envío:</span>
+              <span className="font-medium">S/ {deliveryFee.toFixed(2)}</span>
+            </div>
+          )}
+          <div className="flex justify-between mt-2 text-base font-bold text-violet-700">
+            <span>Total:</span>
+            <span>S/ {(total + deliveryFee).toFixed(2)}</span>
+          </div>
+        </div>
+      )}
+
       {/* Payment Brick según documentación oficial */}
-      <div ref={paymentBrickRef}>
+      <div ref={paymentBrickRef} className="mb-6">
         <Payment
           initialization={initialization}
           customization={customization}
@@ -331,12 +347,12 @@ const MercadoPagoBricks = ({
       </div>
 
       {/* Información adicional */}
-      <div className="payment-info">
-        <p className="payment-security">
-          <CheckCircle className="payment-security-icon" />
+      <div className="flex flex-col items-center gap-2 mt-4">
+        <p className="flex items-center gap-2 text-green-700 text-sm">
+          <CheckCircle className="h-5 w-5 text-green-600" />
           Pago seguro procesado por MercadoPago
         </p>
-        <p className="payment-currency">
+        <p className="text-xs text-gray-400">
           Todos los precios están en Soles (PEN)
         </p>
       </div>
