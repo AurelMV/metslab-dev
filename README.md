@@ -1,6 +1,6 @@
 # 🖨️ Sistema Web de Impresiones 3D
 
-Este proyecto es una plataforma web que permite a los usuarios visualizar, comprar y personalizar modelos 3D. Ofrece múltiples servicios como catálogo de modelos, pagos en línea (con Culqi), seguimiento de pedidos, y opciones de delivery o recojo en tienda. Funciona sobre una arquitectura SOA y es accesible desde web (móvil y escritorio a futuro).
+Este proyecto es una plataforma web que permite a los usuarios visualizar, comprar y personalizar modelos 3D. Ofrece múltiples servicios como catálogo de modelos, pagos en línea (con MercadoPago), seguimiento de pedidos, y opciones de delivery o recojo en tienda. Funciona sobre una arquitectura SOA y es accesible desde web (móvil y escritorio a futuro).
 
 ---
 
@@ -10,7 +10,7 @@ Este proyecto es una plataforma web que permite a los usuarios visualizar, compr
 - Frontend Web: **React + Vite**
 - Base de datos: **MySQL**
 - API: RESTful
-- Pasarela de pago: **Culqi**
+- Pasarela de pago: **MercadoPago**
 - Arquitectura: **SOA (Arquitectura Orientada a Servicios)**
 
 ---
